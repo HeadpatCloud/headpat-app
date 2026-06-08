@@ -3,26 +3,39 @@ import {
 	CalendarDays,
 	House,
 	Images,
+	type LucideIcon,
 	User,
 	UsersRound,
 } from "lucide-react-native";
+import { TabBar } from "@/components/tab-bar";
+import { Icon } from "@/components/ui/icon";
+
+const iconFor =
+	(Glyph: LucideIcon) =>
+	({ focused }: { focused: boolean }) => (
+		<Icon
+			as={Glyph}
+			size={22}
+			className={focused ? "text-primary" : "text-muted-foreground"}
+		/>
+	);
 
 export default function TabsLayout() {
 	return (
-		<Tabs screenOptions={{ headerShown: true }}>
+		<Tabs
+			tabBar={(props) => <TabBar {...props} />}
+			screenOptions={{ headerShown: true }}
+		>
 			<Tabs.Screen
 				name="index"
-				options={{
-					title: "Home",
-					tabBarIcon: ({ color, size }) => <House color={color} size={size} />,
-				}}
+				options={{ title: "Home", tabBarIcon: iconFor(House) }}
 			/>
 			<Tabs.Screen
 				name="gallery"
 				options={{
 					title: "Gallery",
 					headerShown: false,
-					tabBarIcon: ({ color, size }) => <Images color={color} size={size} />,
+					tabBarIcon: iconFor(Images),
 				}}
 			/>
 			<Tabs.Screen
@@ -30,9 +43,7 @@ export default function TabsLayout() {
 				options={{
 					title: "Community",
 					headerShown: false,
-					tabBarIcon: ({ color, size }) => (
-						<UsersRound color={color} size={size} />
-					),
+					tabBarIcon: iconFor(UsersRound),
 				}}
 			/>
 			<Tabs.Screen
@@ -40,17 +51,12 @@ export default function TabsLayout() {
 				options={{
 					title: "Events",
 					headerShown: false,
-					tabBarIcon: ({ color, size }) => (
-						<CalendarDays color={color} size={size} />
-					),
+					tabBarIcon: iconFor(CalendarDays),
 				}}
 			/>
 			<Tabs.Screen
 				name="account"
-				options={{
-					title: "Account",
-					tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
-				}}
+				options={{ title: "Account", tabBarIcon: iconFor(User) }}
 			/>
 		</Tabs>
 	);

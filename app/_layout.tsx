@@ -1,8 +1,10 @@
 import "@/global.css";
 
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSession } from "@/lib/auth-client";
 import { AppProviders } from "@/lib/providers";
@@ -68,13 +70,17 @@ function RootNav() {
 
 export default function RootLayout() {
 	return (
-		<SafeAreaProvider>
-			<AppProviders>
-				<ThemeProvider>
-					<RootNav />
-					<PortalHost />
-				</ThemeProvider>
-			</AppProviders>
-		</SafeAreaProvider>
+		<GestureHandlerRootView style={{ flex: 1 }}>
+			<SafeAreaProvider>
+				<AppProviders>
+					<ThemeProvider>
+						<BottomSheetModalProvider>
+							<RootNav />
+							<PortalHost />
+						</BottomSheetModalProvider>
+					</ThemeProvider>
+				</AppProviders>
+			</SafeAreaProvider>
+		</GestureHandlerRootView>
 	);
 }

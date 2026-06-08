@@ -5,10 +5,21 @@
     "baseUrl": ".",
     "ignoreDeprecations": "6.0",
     "paths": {
-      "@/*": ["*"],
-      "@backend/*": ["../headpat-place-api/src/*"]
+      "@/*": [
+        "*"
+      ],
+      "@backend/*": [
+        "../headpat-place-api/src/*"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts", "nativewind-env.d.ts"],
-  "exclude": ["node_modules", "__tests__"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "__tests__"
+  ]
 }

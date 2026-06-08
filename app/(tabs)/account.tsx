@@ -1,3 +1,4 @@
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { type Href, Link } from "expo-router";
 import {
 	ChevronRight,
@@ -6,9 +7,11 @@ import {
 	Palette,
 	ShieldCheck,
 } from "lucide-react-native";
+import { useRef } from "react";
 import { View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
 import { signOut, useSession } from "@/lib/auth-client";
 
@@ -20,6 +23,7 @@ const ROWS: { href: Href; icon: LucideIcon; label: string }[] = [
 
 export default function Account() {
 	const { data } = useSession();
+	const sheetRef = useRef<BottomSheetModal>(null);
 
 	return (
 		<View className="bg-background flex-1 gap-6 p-6">
@@ -53,13 +57,41 @@ export default function Account() {
 
 			<Button
 				variant="destructive"
-				onPress={() => signOut()}
+				onPress={() => sheetRef.current?.present()}
 				accessibilityRole="button"
 				accessibilityLabel="Sign out"
 				className="mt-auto"
 			>
 				<Text>Sign out</Text>
 			</Button>
+
+			<Sheet ref={sheetRef}>
+				<View className="gap-2">
+					<Text variant="large">Sign out?</Text>
+					<Text variant="muted">You'll need to sign in again next time.</Text>
+					<View className="gap-3 pt-3">
+						<Button
+							variant="destructive"
+							onPress={() => {
+								sheetRef.current?.dismiss();
+								signOut();
+							}}
+							accessibilityRole="button"
+							accessibilityLabel="Confirm sign out"
+						>
+							<Text>Sign out</Text>
+						</Button>
+						<Button
+							variant="outline"
+							onPress={() => sheetRef.current?.dismiss()}
+							accessibilityRole="button"
+							accessibilityLabel="Cancel"
+						>
+							<Text>Cancel</Text>
+						</Button>
+					</View>
+				</View>
+			</Sheet>
 		</View>
 	);
 }
