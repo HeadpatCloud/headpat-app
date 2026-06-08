@@ -57,6 +57,11 @@ function RootNav() {
 				name="changelog"
 				options={{ headerShown: true, title: "What's new" }}
 			/>
+			<Stack.Screen
+				name="users"
+				options={{ headerShown: true, title: "Discover people" }}
+			/>
+			<Stack.Screen name="user" />
 		</Stack>
 	);
 }
