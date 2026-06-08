@@ -52,6 +52,11 @@ function RootNav() {
 				name="connections"
 				options={{ headerShown: true, title: "Connections" }}
 			/>
+			<Stack.Screen name="announcements" />
+			<Stack.Screen
+				name="changelog"
+				options={{ headerShown: true, title: "What's new" }}
+			/>
 		</Stack>
 	);
 }
