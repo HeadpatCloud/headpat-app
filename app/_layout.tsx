@@ -36,6 +36,14 @@ function RootNav() {
 				name="appearance"
 				options={{ headerShown: true, title: "Appearance" }}
 			/>
+			<Stack.Screen
+				name="theme-builder"
+				options={{
+					headerShown: true,
+					title: "Theme builder",
+					presentation: "modal",
+				}}
+			/>
 		</Stack>
 	);
 }
