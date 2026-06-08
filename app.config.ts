@@ -15,6 +15,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		supportsTablet: true,
 		bundleIdentifier: "com.headpat.app",
 		appStoreUrl: "https://apps.apple.com/app/headpat/id6502715063",
+		usesAppleSignIn: true,
 		config: { usesNonExemptEncryption: false },
 		associatedDomains: [
 			"applinks:headpat.app",
@@ -55,5 +56,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		"expo-status-bar",
 		"expo-secure-store",
 		"expo-web-browser",
+		"expo-apple-authentication",
 	],
 });

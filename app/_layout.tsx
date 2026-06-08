@@ -44,6 +44,14 @@ function RootNav() {
 					presentation: "modal",
 				}}
 			/>
+			<Stack.Screen
+				name="security"
+				options={{ headerShown: true, title: "Security" }}
+			/>
+			<Stack.Screen
+				name="connections"
+				options={{ headerShown: true, title: "Connections" }}
+			/>
 		</Stack>
 	);
 }

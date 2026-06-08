@@ -6,22 +6,31 @@ import { SocialButtons } from "@/components/auth/social-buttons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { signIn } from "@/lib/auth-client";
+import { signUp } from "@/lib/auth-client";
 import { humanizeError } from "@/lib/orpc-error";
 
-export default function Login() {
+export default function Register() {
 	const insets = useSafeAreaInsets();
+	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
 
-	const canSubmit = email.trim().length > 0 && password.length > 0 && !busy;
+	const canSubmit =
+		name.trim().length > 0 &&
+		email.trim().length > 0 &&
+		password.length >= 8 &&
+		!busy;
 
 	const submit = async () => {
 		setBusy(true);
 		setError(null);
-		const res = await signIn.email({ email: email.trim(), password });
+		const res = await signUp.email({
+			email: email.trim(),
+			password,
+			name: name.trim(),
+		});
 		if (res.error) setError(humanizeError(res.error));
 		setBusy(false);
 	};
@@ -37,12 +46,19 @@ export default function Login() {
 			>
 				<View className="gap-2">
 					<Text variant="h1" className="text-3xl">
-						Sign in
+						Create account
 					</Text>
-					<Text variant="muted">Welcome back to Headpat.</Text>
+					<Text variant="muted">Join the Headpat community.</Text>
 				</View>
 
 				<View className="gap-3">
+					<Input
+						placeholder="Display name"
+						value={name}
+						onChangeText={setName}
+						editable={!busy}
+						accessibilityLabel="Display name"
+					/>
 					<Input
 						placeholder="Email"
 						value={email}
@@ -55,15 +71,14 @@ export default function Login() {
 						accessibilityLabel="Email address"
 					/>
 					<Input
-						placeholder="Password"
+						placeholder="Password (min 8 characters)"
 						value={password}
 						onChangeText={setPassword}
 						secureTextEntry
-						autoComplete="current-password"
-						textContentType="password"
+						autoComplete="new-password"
+						textContentType="newPassword"
 						editable={!busy}
 						accessibilityLabel="Password"
-						onSubmitEditing={() => canSubmit && submit()}
 					/>
 				</View>
 
@@ -77,26 +92,19 @@ export default function Login() {
 					disabled={!canSubmit}
 					onPress={submit}
 					accessibilityRole="button"
-					accessibilityLabel="Sign in"
+					accessibilityLabel="Create account"
 					accessibilityState={{ disabled: !canSubmit, busy }}
 				>
-					<Text>{busy ? "Signing in…" : "Sign in"}</Text>
+					<Text>{busy ? "Creating…" : "Create account"}</Text>
 				</Button>
 
 				<SocialButtons />
 
-				<View className="items-center gap-3">
-					<Link href="/(auth)/forgot-password">
-						<Text className="text-muted-foreground">Forgot password?</Text>
+				<View className="flex-row justify-center gap-1">
+					<Text variant="muted">Already have an account?</Text>
+					<Link href="/(auth)/login" replace>
+						<Text className="text-primary font-medium">Sign in</Text>
 					</Link>
-					<View className="flex-row gap-1">
-						<Text variant="muted">New here?</Text>
-						<Link href="/(auth)/register">
-							<Text className="text-primary font-medium">
-								Create an account
-							</Text>
-						</Link>
-					</View>
 				</View>
 			</View>
 		</KeyboardAvoidingView>
