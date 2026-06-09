@@ -69,6 +69,17 @@ describe("gradientStops", () => {
 		const stops = gradientStops("nope", "nope", "light");
 		expect(stops[0]).toBe(stops[1]);
 	});
+	it("wraps hue past 360 when synthesizing", () => {
+		// accent == primary -> synthesize; hue (350 + 14) % 360 = 4, L 40+6=46 (dark)
+		const stops = gradientStops("350 80% 40%", "350 80% 40%", "dark");
+		expect(stops[1]).toBe(tripletToHex("4 80% 46%"));
+		expect(stops[1]).not.toBe(stops[0]);
+	});
+	it("clamps synthesized lightness at 100 in dark", () => {
+		// 96 + 6 = 102 -> clamped to 100
+		const stops = gradientStops("160 100% 96%", "160 100% 96%", "dark");
+		expect(stops[1]).toBe(tripletToHex("174 100% 100%"));
+	});
 });
 
 describe("glowColor", () => {
