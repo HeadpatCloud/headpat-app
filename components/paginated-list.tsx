@@ -1,6 +1,7 @@
 import { FlashList } from "@shopify/flash-list";
 import { Inbox } from "lucide-react-native";
-import type { ReactElement } from "react";
+import { useRef, type ReactElement } from "react";
+import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { ActivityIndicator, RefreshControl, View } from "react-native";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -37,6 +38,8 @@ export function PaginatedList<T>({
 	emptySubtitle?: string;
 	contentPadding?: number;
 }) {
+	const animated = useRef(new Set<number>());
+
 	if (query.isLoading) {
 		return (
 			<View className="gap-3 p-4">
@@ -62,7 +65,15 @@ export function PaginatedList<T>({
 	return (
 		<FlashList
 			data={items}
-			renderItem={({ item }) => renderItem(item)}
+			renderItem={({ item, index }) => {
+					const seen = animated.current.has(index);
+					if (!seen) animated.current.add(index);
+					return (
+						<AnimatedEntrance index={index} disabled={seen}>
+							{renderItem(item)}
+						</AnimatedEntrance>
+					);
+				}}
 			keyExtractor={keyExtractor}
 			contentContainerStyle={{ padding: contentPadding }}
 			ItemSeparatorComponent={() => <View className="h-3" />}
