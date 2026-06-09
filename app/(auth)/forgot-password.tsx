@@ -33,7 +33,8 @@ export default function ForgotPassword() {
 		if (res.error) {
 			setError(humanizeError(res.error));
 		} else {
-			Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+			if (Platform.OS !== "web")
+				Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 			setSent(true);
 		}
 		setBusy(false);
