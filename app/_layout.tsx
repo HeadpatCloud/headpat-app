@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSession } from "@/lib/auth-client";
+import { MotionProvider, useReducedMotion } from "@/lib/motion/reduced-motion";
 import { AppProviders } from "@/lib/providers";
 import { ThemeProvider } from "@/lib/theme/provider";
 
@@ -30,8 +31,16 @@ function useProtectedRoute() {
 
 function RootNav() {
 	useProtectedRoute();
+	const reduced = useReducedMotion();
 	return (
-		<Stack screenOptions={{ headerShown: false }}>
+		<Stack
+			screenOptions={{
+				headerShown: false,
+				animation: reduced ? "fade" : "slide_from_right",
+				animationDuration: reduced ? 120 : undefined,
+				gestureEnabled: true,
+			}}
+		>
 			<Stack.Screen name="(auth)" />
 			<Stack.Screen name="(tabs)" />
 			<Stack.Screen
@@ -44,6 +53,7 @@ function RootNav() {
 					headerShown: true,
 					title: "Theme builder",
 					presentation: "modal",
+					animation: "default",
 				}}
 			/>
 			<Stack.Screen
@@ -70,6 +80,7 @@ function RootNav() {
 					headerShown: true,
 					title: "Edit profile",
 					presentation: "modal",
+					animation: "default",
 				}}
 			/>
 			<Stack.Screen name="tickets" />
@@ -87,10 +98,12 @@ export default function RootLayout() {
 			<SafeAreaProvider>
 				<AppProviders>
 					<ThemeProvider>
-						<BottomSheetModalProvider>
-							<RootNav />
-							<PortalHost />
-						</BottomSheetModalProvider>
+						<MotionProvider>
+							<BottomSheetModalProvider>
+								<RootNav />
+								<PortalHost />
+							</BottomSheetModalProvider>
+						</MotionProvider>
 					</ThemeProvider>
 				</AppProviders>
 			</SafeAreaProvider>
