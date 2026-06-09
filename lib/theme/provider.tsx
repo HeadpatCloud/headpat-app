@@ -20,6 +20,7 @@ import { useColorScheme as useDeviceScheme, View } from "react-native";
 import { authClient } from "@/lib/auth-client";
 import { client } from "@/lib/orpc";
 import { hexToTriplet, tokensToVars } from "@/lib/theme/color";
+import { resolveThemeVisuals, type ThemeVisuals } from "@/lib/theme/derive";
 import { PRESETS, type PresetSlug } from "@/lib/theme/presets";
 import { TOKEN_KEYS, type TokenMap } from "@/lib/theme/tokens";
 
@@ -43,6 +44,9 @@ interface ThemeContextValue {
 	setActiveTheme: (value: string) => void;
 	customThemes: CustomTheme[];
 	refreshCustomThemes: () => Promise<void>;
+	colors: ThemeVisuals["colors"];
+	gradient: ThemeVisuals["gradient"];
+	glow: ThemeVisuals["glow"];
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -150,6 +154,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 		[activeTheme, scheme, customThemes],
 	);
 
+	const visuals = useMemo(
+		() => resolveThemeVisuals(triplets, scheme),
+		[triplets, scheme],
+	);
+
 	const setMode = useCallback((next: ThemeMode) => {
 		setModeState(next);
 		AsyncStorage.setItem(MODE_KEY, next).catch(() => {});
@@ -173,6 +182,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 			setActiveTheme,
 			customThemes,
 			refreshCustomThemes,
+			colors: visuals.colors,
+			gradient: visuals.gradient,
+			glow: visuals.glow,
 		}),
 		[
 			mode,
@@ -182,6 +194,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 			setActiveTheme,
 			customThemes,
 			refreshCustomThemes,
+			visuals,
 		],
 	);
 
