@@ -129,6 +129,30 @@ export function readableForeground(bg: string): string {
 	return contrastRatio(bg, WHITE) >= contrastRatio(bg, BLACK) ? WHITE : BLACK;
 }
 
+function hueDistance(a: number, b: number): number {
+	const d = Math.abs(a - b) % 360;
+	return d > 180 ? 360 - d : d;
+}
+
+// [primaryHex, accentHex]. When accent ~= primary, the 2nd stop is synthesized
+// from primary (hue +14, lightness pushed away from the scheme's background).
+export function gradientStops(
+	primary: string,
+	accent: string,
+	scheme: "light" | "dark",
+): [string, string] {
+	const p = parseTriplet(primary);
+	const a = parseTriplet(accent);
+	if (!p) return [tripletToHex(primary), tripletToHex(primary)];
+	const firstHex = tripletToHex(primary);
+	const nearlyEqual =
+		!a || (hueDistance(p[0], a[0]) <= 12 && Math.abs(p[2] - a[2]) <= 8);
+	if (!nearlyEqual) return [firstHex, tripletToHex(accent)];
+	const h2 = (p[0] + 14) % 360;
+	const l2 = scheme === "dark" ? Math.min(100, p[2] + 6) : Math.max(0, p[2] - 6);
+	return [firstHex, tripletToHex(`${h2} ${p[1]}% ${l2}%`)];
+}
+
 // TokenMap (triplets) -> NativeWind vars() input ({ "--background": "0 0% 100%" }).
 export function tokensToVars(tokens: TokenMap): Record<string, string> {
 	const out: Record<string, string> = {};

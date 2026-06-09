@@ -1,4 +1,4 @@
-import { contrastRatio, hexToTriplet, readableForeground, relativeLuminance, tripletToHex } from "@/lib/theme/color";
+import { contrastRatio, gradientStops, hexToTriplet, readableForeground, relativeLuminance, tripletToHex } from "@/lib/theme/color";
 import { PRESETS } from "@/lib/theme/presets";
 import { TOKEN_KEYS } from "@/lib/theme/tokens";
 
@@ -44,6 +44,31 @@ describe("readableForeground", () => {
 		expect(readableForeground("0 0% 0%")).toBe("0 0% 100%"));
 	it("dark brand -> white text", () =>
 		expect(readableForeground("160 100% 25%")).toBe("0 0% 100%"));
+});
+
+describe("gradientStops", () => {
+	it("passes a distinct accent through unchanged", () => {
+		const stops = gradientStops("196 80% 38%", "172 70% 38%", "light");
+		expect(stops).toEqual([
+			tripletToHex("196 80% 38%"),
+			tripletToHex("172 70% 38%"),
+		]);
+	});
+	it("synthesizes a different second stop when accent ~= primary", () => {
+		const stops = gradientStops("160 100% 25%", "160 100% 25%", "light");
+		expect(stops[0]).toBe(tripletToHex("160 100% 25%"));
+		expect(stops[1]).not.toBe(stops[0]);
+	});
+	it("shifts lightness up in dark, down in light", () => {
+		const dark = gradientStops("160 100% 25%", "160 100% 25%", "dark");
+		const light = gradientStops("160 100% 25%", "160 100% 25%", "light");
+		expect(dark[1]).toBe(tripletToHex("174 100% 31%"));
+		expect(light[1]).toBe(tripletToHex("174 100% 19%"));
+	});
+	it("falls back to primary hex twice for garbage input", () => {
+		const stops = gradientStops("nope", "nope", "light");
+		expect(stops[0]).toBe(stops[1]);
+	});
 });
 
 describe("PRESETS", () => {
