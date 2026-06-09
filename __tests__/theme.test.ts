@@ -1,4 +1,5 @@
 import { contrastRatio, glowColor, gradientStops, hexToTriplet, readableForeground, relativeLuminance, tripletToHex } from "@/lib/theme/color";
+import { elevation, RADIUS, TYPE } from "@/lib/theme/foundations";
 import { PRESETS } from "@/lib/theme/presets";
 import { TOKEN_KEYS } from "@/lib/theme/tokens";
 
@@ -96,6 +97,33 @@ describe("glowColor", () => {
 		expect(glowColor("155 100% 19%", "dark")).toBe(
 			glowColor("155 100% 30%", "dark"),
 		);
+	});
+});
+
+describe("foundations", () => {
+	it("radius scale matches the spec", () => {
+		expect(RADIUS).toEqual({
+			xs: 8,
+			sm: 12,
+			md: 16,
+			lg: 22,
+			xl: 28,
+			pill: 999,
+		});
+	});
+	it("display type is 40/800/-0.5", () => {
+		expect(TYPE.display.fontSize).toBe(40);
+		expect(TYPE.display.fontWeight).toBe("800");
+		expect(TYPE.display.letterSpacing).toBe(-0.5);
+	});
+	it("dark elevation uses the passed glow as shadowColor", () => {
+		const e = elevation(2, "dark", "rgba(1, 2, 3, 0.45)");
+		expect(e.shadowColor).toBe("rgba(1, 2, 3, 0.45)");
+		expect(e.elevation).toBeGreaterThan(0);
+	});
+	it("light elevation uses the foreground-derived shadow, not glow", () => {
+		const e = elevation(2, "light", "rgba(1, 2, 3, 0.45)", "hsl(0 0% 0%)");
+		expect(e.shadowColor).toBe("hsl(0 0% 0%)");
 	});
 });
 
