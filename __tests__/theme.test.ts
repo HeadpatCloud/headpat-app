@@ -1,4 +1,4 @@
-import { contrastRatio, gradientStops, hexToTriplet, readableForeground, relativeLuminance, tripletToHex } from "@/lib/theme/color";
+import { contrastRatio, glowColor, gradientStops, hexToTriplet, readableForeground, relativeLuminance, tripletToHex } from "@/lib/theme/color";
 import { PRESETS } from "@/lib/theme/presets";
 import { TOKEN_KEYS } from "@/lib/theme/tokens";
 
@@ -68,6 +68,23 @@ describe("gradientStops", () => {
 	it("falls back to primary hex twice for garbage input", () => {
 		const stops = gradientStops("nope", "nope", "light");
 		expect(stops[0]).toBe(stops[1]);
+	});
+});
+
+describe("glowColor", () => {
+	it("dark uses 0.45 alpha", () =>
+		expect(glowColor("160 100% 25%", "dark")).toMatch(/, 0\.45\)$/));
+	it("light uses 0.28 alpha", () =>
+		expect(glowColor("160 100% 25%", "light")).toMatch(/, 0\.28\)$/));
+	it("returns an rgba string", () =>
+		expect(glowColor("160 100% 25%", "dark")).toMatch(
+			/^rgba\(\d+, \d+, \d+, /,
+		));
+	it("floors very dark primaries to L=30 before alpha", () => {
+		// 155 100% 19% is floored to 155 100% 30% before the alpha is applied
+		expect(glowColor("155 100% 19%", "dark")).toBe(
+			glowColor("155 100% 30%", "dark"),
+		);
 	});
 });
 

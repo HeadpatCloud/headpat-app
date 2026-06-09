@@ -153,6 +153,14 @@ export function gradientStops(
 	return [firstHex, tripletToHex(`${h2} ${p[1]}% ${l2}%`)];
 }
 
+export function glowColor(primary: string, scheme: "light" | "dark"): string {
+	const p = parseTriplet(primary);
+	const alpha = scheme === "dark" ? 0.45 : 0.28;
+	if (!p) return `rgba(0, 0, 0, ${alpha})`;
+	const [r, g, b] = hslToRgb(p[0], p[1], Math.max(p[2], 30));
+	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 // TokenMap (triplets) -> NativeWind vars() input ({ "--background": "0 0% 100%" }).
 export function tokensToVars(tokens: TokenMap): Record<string, string> {
 	const out: Record<string, string> = {};
