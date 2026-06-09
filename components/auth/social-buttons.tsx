@@ -1,9 +1,12 @@
 import * as AppleAuthentication from "expo-apple-authentication";
+import { Globe, MessagesSquare } from "lucide-react-native";
 import { Alert, Platform, View } from "react-native";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
 import { humanizeError } from "@/lib/orpc-error";
+import { RADIUS } from "@/lib/theme/foundations";
 
 async function social(provider: "google" | "discord") {
 	try {
@@ -48,6 +51,7 @@ export function SocialButtons() {
 				onPress={() => social("google")}
 				accessibilityLabel="Continue with Google"
 			>
+				<Icon as={Globe} />
 				<Text>Google</Text>
 			</Button>
 			<Button
@@ -55,13 +59,14 @@ export function SocialButtons() {
 				onPress={() => social("discord")}
 				accessibilityLabel="Continue with Discord"
 			>
+				<Icon as={MessagesSquare} />
 				<Text>Discord</Text>
 			</Button>
 			{Platform.OS === "ios" ? (
 				<AppleAuthentication.AppleAuthenticationButton
 					buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
 					buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-					cornerRadius={8}
+					cornerRadius={RADIUS.sm}
 					style={{ height: 48 }}
 					onPress={appleSignIn}
 				/>
