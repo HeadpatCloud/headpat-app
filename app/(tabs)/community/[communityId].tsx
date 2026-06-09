@@ -23,6 +23,9 @@ export default function Community() {
 	const community = useQuery(
 		orpc.community.byId.queryOptions({ input: { communityId } }),
 	);
+	const myRole = useQuery(
+		orpc.community.myRoleIn.queryOptions({ input: { communityId } }),
+	);
 	const followStatus = useQuery(
 		orpc.community.followStatus.queryOptions({ input: { communityId } }),
 	);
@@ -74,6 +77,9 @@ export default function Community() {
 
 	const c = community.data;
 	const iFollow = followStatus.data?.iFollow ?? false;
+	const role = myRole.data?.role;
+	const canManage =
+		role === "admin" || role === "moderator" || role === "owner";
 
 	return (
 		<ScrollView
@@ -123,6 +129,17 @@ export default function Community() {
 				>
 					<Text>{iFollow ? "Following" : "Follow"}</Text>
 				</Button>
+
+				{canManage ? (
+					<Button
+						variant="outline"
+						onPress={() => router.push(`/community-admin/${communityId}`)}
+						accessibilityRole="button"
+						accessibilityLabel="Manage community"
+					>
+						<Text>Manage</Text>
+					</Button>
+				) : null}
 
 				{c.description ? (
 					<Text className="text-foreground leading-6">{c.description}</Text>

@@ -72,6 +72,11 @@ function RootNav() {
 					presentation: "modal",
 				}}
 			/>
+			<Stack.Screen name="tickets" />
+			<Stack.Screen
+				name="community-admin/[communityId]"
+				options={{ headerShown: true, title: "Manage community" }}
+			/>
 		</Stack>
 	);
 }

@@ -2,6 +2,7 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { type Href, Link } from "expo-router";
 import {
 	ChevronRight,
+	LifeBuoy,
 	Link2,
 	type LucideIcon,
 	Palette,
@@ -21,6 +22,7 @@ const ROWS: { href: Href; icon: LucideIcon; label: string }[] = [
 	{ href: "/appearance", icon: Palette, label: "Appearance" },
 	{ href: "/security", icon: ShieldCheck, label: "Security" },
 	{ href: "/connections", icon: Link2, label: "Connections" },
+	{ href: "/tickets", icon: LifeBuoy, label: "Support" },
 ];
 
 export default function Account() {

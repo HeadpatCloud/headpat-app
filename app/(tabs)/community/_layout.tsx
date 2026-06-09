@@ -5,6 +5,10 @@ export default function CommunityLayout() {
 		<Stack>
 			<Stack.Screen name="index" options={{ title: "Communities" }} />
 			<Stack.Screen name="[communityId]" options={{ title: "" }} />
+			<Stack.Screen
+				name="new"
+				options={{ title: "New community", presentation: "modal" }}
+			/>
 		</Stack>
 	);
 }
