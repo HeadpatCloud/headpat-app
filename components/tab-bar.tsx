@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import type { Tabs } from "expo-router";
-import { type ComponentProps, useEffect } from "react";
-import { Platform, Pressable, View } from "react-native";
+import { type ComponentProps, useEffect, useState } from "react";
+import { type LayoutChangeEvent, Platform, Pressable, View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
@@ -10,9 +10,11 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Gradient, GlowShadow } from "@/components/ui/gradient";
 import { Text } from "@/components/ui/text";
 import { springs } from "@/lib/motion/springs";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
+import { useTheme } from "@/lib/theme/provider";
 
 // Derive the tab-bar props from expo-router itself (SDK 56 decoupled from
 // @react-navigation, so there's no package to import the type from).
@@ -26,49 +28,50 @@ type TabItemProps = {
 	icon: TabBarProps["descriptors"][string]["options"]["tabBarIcon"];
 	onPress: () => void;
 	onLongPress: () => void;
+	onLayout: (e: LayoutChangeEvent) => void;
 };
 
-function TabItem({ focused, label, icon, onPress, onLongPress }: TabItemProps) {
+function TabItem({
+	focused,
+	label,
+	icon,
+	onPress,
+	onLongPress,
+	onLayout,
+}: TabItemProps) {
 	const reduced = useReducedMotion();
-	const pill = useSharedValue(focused ? 1 : 0);
 	const pop = useSharedValue(1);
+	const press = useSharedValue(1);
 
 	useEffect(() => {
-		if (reduced) {
-			pill.value = focused ? 1 : 0;
-			return;
-		}
-		pill.value = withSpring(focused ? 1 : 0, springs.gentle);
-		if (focused) {
-			pop.value = withSequence(
-				withTiming(1.08, { duration: 120 }),
-				withSpring(1, springs.snappy),
-			);
-		}
-	}, [focused, reduced, pill, pop]);
+		if (reduced || !focused) return;
+		pop.value = withSequence(
+			withTiming(1.08, { duration: 120 }),
+			withSpring(1, springs.snappy),
+		);
+	}, [focused, reduced, pop]);
 
-	const pillStyle = useAnimatedStyle(() => ({
-		opacity: pill.value,
-		transform: [{ scale: 0.85 + pill.value * 0.15 }],
-	}));
 	const iconStyle = useAnimatedStyle(() => ({
-		transform: [{ scale: pop.value }],
+		transform: [{ scale: pop.value * press.value }],
 	}));
 
 	return (
 		<Pressable
+			onLayout={onLayout}
 			onPress={onPress}
 			onLongPress={onLongPress}
+			onPressIn={() => {
+				if (!reduced) press.value = withSpring(0.92, springs.snappy);
+			}}
+			onPressOut={() => {
+				if (!reduced) press.value = withSpring(1, springs.snappy);
+			}}
 			accessibilityRole="button"
 			accessibilityState={{ selected: focused }}
 			accessibilityLabel={label}
 			className="flex-1 items-center gap-1 py-1"
 		>
 			<View className="rounded-full px-5 py-1">
-				<Animated.View
-					className="bg-primary/15 absolute inset-0 rounded-full"
-					style={pillStyle}
-				/>
 				<Animated.View style={iconStyle}>
 					{icon?.({ focused, color: "", size: 22 })}
 				</Animated.View>
@@ -84,12 +87,57 @@ function TabItem({ focused, label, icon, onPress, onLongPress }: TabItemProps) {
 
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 	const insets = useSafeAreaInsets();
+	const reduced = useReducedMotion();
+	const { glow } = useTheme();
+	const [slots, setSlots] = useState<{ x: number; width: number }[]>([]);
+
+	const x = useSharedValue(0);
+	const width = useSharedValue(0);
+
+	const active = slots[state.index];
+	useEffect(() => {
+		if (!active) return;
+		if (reduced || width.value === 0) {
+			x.value = active.x;
+			width.value = active.width;
+			return;
+		}
+		x.value = withSpring(active.x, springs.gentle);
+		width.value = withSpring(active.width, springs.gentle);
+	}, [active, reduced, x, width]);
+
+	const pillStyle = useAnimatedStyle(() => ({
+		transform: [{ translateX: x.value }],
+		width: width.value,
+		opacity: width.value === 0 ? 0 : 1,
+	}));
+
+	const onSlotLayout = (index: number) => (e: LayoutChangeEvent) => {
+		const { x: lx, width: lw } = e.nativeEvent.layout;
+		setSlots((prev) => {
+			const next = [...prev];
+			next[index] = { x: lx, width: lw };
+			return next;
+		});
+	};
 
 	return (
 		<View
 			className="bg-card border-border flex-row border-t px-2 pt-2"
 			style={{ paddingBottom: insets.bottom + 6 }}
 		>
+			<Animated.View
+				pointerEvents="none"
+				className="absolute left-0 items-center"
+				style={[{ top: 8 }, pillStyle]}
+			>
+				<Gradient
+					glow
+					borderRadius={999}
+					style={[GlowShadow(glow), { height: 32, paddingHorizontal: 20 }]}
+					className="rounded-full"
+				/>
+			</Animated.View>
 			{state.routes.map((route, index) => {
 				const { options } = descriptors[route.key];
 				const focused = state.index === index;
@@ -118,6 +166,7 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 						onLongPress={() =>
 							navigation.emit({ type: "tabLongPress", target: route.key })
 						}
+						onLayout={onSlotLayout(index)}
 					/>
 				);
 			})}

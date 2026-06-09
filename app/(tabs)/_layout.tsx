@@ -16,7 +16,7 @@ const iconFor =
 		<Icon
 			as={Glyph}
 			size={22}
-			className={focused ? "text-primary" : "text-muted-foreground"}
+			className={focused ? "text-primary-foreground" : "text-muted-foreground"}
 		/>
 	);
 
