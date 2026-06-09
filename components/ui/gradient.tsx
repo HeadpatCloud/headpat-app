@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import type { ReactNode } from "react";
-import { type StyleProp, View, type ViewProps, type ViewStyle } from "react-native";
+import { type StyleProp, StyleSheet, View, type ViewProps, type ViewStyle } from "react-native";
 import { useTheme } from "@/lib/theme/provider";
 
 type GradientProps = ViewProps & {
@@ -40,31 +40,48 @@ export function Gradient({
 	...rest
 }: GradientProps) {
 	const { gradient, glow: glowColor } = useTheme();
-	const fill = (
-		<LinearGradient
-			colors={colors ?? gradient.colors}
-			start={start ?? gradient.start ?? { x: 0, y: 0 }}
-			end={end ?? gradient.end ?? { x: 1, y: 1 }}
-			locations={locations}
-			style={[
-				glow ? { borderRadius } : style,
-				borderRadius != null ? { borderRadius } : null,
-				opacity != null ? { opacity } : null,
-			]}
-			{...(glow ? {} : rest)}
-		>
-			{children}
-		</LinearGradient>
-	);
 	if (!glow) {
-		return fill;
+		return (
+			<LinearGradient
+				colors={colors ?? gradient.colors}
+				start={start ?? gradient.start ?? { x: 0, y: 0 }}
+				end={end ?? gradient.end ?? { x: 1, y: 1 }}
+				locations={locations}
+				style={[
+					style,
+					borderRadius != null ? { borderRadius } : null,
+					opacity != null ? { opacity } : null,
+				]}
+				{...rest}
+			>
+				{children}
+			</LinearGradient>
+		);
 	}
+	// Glow needs a colored shadow on a sized box. expo-linear-gradient won't cast
+	// it cleanly, so the wrapper owns layout (style) + shadow and the gradient
+	// paints behind the children as an absolute fill.
 	return (
 		<View
-			style={[GlowShadow(glowColor), borderRadius != null ? { borderRadius } : null, style]}
+			style={[
+				style,
+				GlowShadow(glowColor),
+				borderRadius != null ? { borderRadius } : null,
+			]}
 			{...rest}
 		>
-			{fill}
+			<LinearGradient
+				colors={colors ?? gradient.colors}
+				start={start ?? gradient.start ?? { x: 0, y: 0 }}
+				end={end ?? gradient.end ?? { x: 1, y: 1 }}
+				locations={locations}
+				style={[
+					StyleSheet.absoluteFill,
+					borderRadius != null ? { borderRadius } : null,
+					opacity != null ? { opacity } : null,
+				]}
+			/>
+			{children}
 		</View>
 	);
 }
