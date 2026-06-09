@@ -138,3 +138,25 @@ describe("PRESETS", () => {
 		}
 	});
 });
+
+describe("preset gradients", () => {
+	it("every preset yields two distinct stops in both schemes", () => {
+		for (const slug of Object.keys(PRESETS) as (keyof typeof PRESETS)[]) {
+			for (const scheme of ["light", "dark"] as const) {
+				const t = PRESETS[slug][scheme];
+				const [a, b] = gradientStops(t.primary, t.accent, scheme);
+				expect(a).not.toBe(b);
+			}
+		}
+	});
+});
+
+describe("preset accents", () => {
+	it("headpat light accent differs from its primary", () => {
+		expect(PRESETS.headpat.light.accent).not.toBe(PRESETS.headpat.light.primary);
+	});
+	it("slate accent differs from its primary in both schemes", () => {
+		expect(PRESETS.slate.light.accent).not.toBe(PRESETS.slate.light.primary);
+		expect(PRESETS.slate.dark.accent).not.toBe(PRESETS.slate.dark.primary);
+	});
+});

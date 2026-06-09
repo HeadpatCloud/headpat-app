@@ -11,6 +11,7 @@ export interface Preset {
 // Ported verbatim from headpat-place-web (globals.css for `headpat`, themes.css
 // for the rest), stripped to bare HSL triplets. A jest test asserts all 22 keys
 // are present so values can't silently drift.
+// headpat + slate accents are tuned away from their primary so the native gradient (primary -> accent) reads; mirror these two into headpat-place-web for identical rendering.
 export const PRESETS: Record<PresetSlug, Preset> = {
 	headpat: {
 		name: "Headpat",
@@ -29,7 +30,7 @@ export const PRESETS: Record<PresetSlug, Preset> = {
 			"primary-foreground": "0 0% 100%",
 			secondary: "0 0% 14%",
 			"secondary-foreground": "0 0% 100%",
-			accent: "160 100% 25%",
+			accent: "172 76% 40%",
 			"accent-foreground": "0 0% 100%",
 			destructive: "0 100% 30%",
 			"destructive-foreground": "0 0% 100%",
@@ -53,7 +54,7 @@ export const PRESETS: Record<PresetSlug, Preset> = {
 			"primary-foreground": "0 0% 100%",
 			secondary: "0 0% 14%",
 			"secondary-foreground": "0 0% 100%",
-			accent: "160 100% 25%",
+			accent: "172 70% 45%",
 			"accent-foreground": "0 0% 100%",
 			destructive: "0 100% 30%",
 			"destructive-foreground": "0 0% 100%",
@@ -80,7 +81,7 @@ export const PRESETS: Record<PresetSlug, Preset> = {
 			"primary-foreground": "0 0% 100%",
 			secondary: "220 15% 90%",
 			"secondary-foreground": "222 20% 18%",
-			accent: "235 57% 55%",
+			accent: "265 60% 62%",
 			"accent-foreground": "0 0% 100%",
 			destructive: "0 62% 45%",
 			"destructive-foreground": "0 0% 98%",
@@ -104,7 +105,7 @@ export const PRESETS: Record<PresetSlug, Preset> = {
 			"primary-foreground": "222 25% 92%",
 			secondary: "224 14% 15%",
 			"secondary-foreground": "222 14% 81%",
-			accent: "235 57% 63%",
+			accent: "265 65% 68%",
 			"accent-foreground": "222 25% 92%",
 			destructive: "0 62% 50%",
 			"destructive-foreground": "0 0% 98%",
