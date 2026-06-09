@@ -1,4 +1,5 @@
 import { contrastRatio, glowColor, gradientStops, hexToTriplet, readableForeground, relativeLuminance, tripletToHex } from "@/lib/theme/color";
+import { resolveThemeVisuals } from "@/lib/theme/derive";
 import { elevation, RADIUS, TYPE } from "@/lib/theme/foundations";
 import { PRESETS } from "@/lib/theme/presets";
 import { TOKEN_KEYS } from "@/lib/theme/tokens";
@@ -159,4 +160,19 @@ describe("preset accents", () => {
 		expect(PRESETS.slate.light.accent).not.toBe(PRESETS.slate.light.primary);
 		expect(PRESETS.slate.dark.accent).not.toBe(PRESETS.slate.dark.primary);
 	});
+});
+
+describe("resolveThemeVisuals", () => {
+	const v = resolveThemeVisuals(PRESETS.ocean.dark, "dark");
+	it("colors are hsl space-syntax strings", () =>
+		expect(v.colors.primary).toBe(`hsl(${PRESETS.ocean.dark.primary})`));
+	it("exposes all 22 color keys", () =>
+		expect(Object.keys(v.colors)).toHaveLength(22));
+	it("gradient has two hex stops + start/end", () => {
+		expect(v.gradient.colors).toHaveLength(2);
+		expect(v.gradient.colors[0]).toMatch(/^#[0-9a-f]{6}$/);
+		expect(v.gradient.start).toEqual({ x: 0, y: 0 });
+		expect(v.gradient.end).toEqual({ x: 1, y: 1 });
+	});
+	it("glow is an rgba string", () => expect(v.glow).toMatch(/^rgba\(/));
 });
