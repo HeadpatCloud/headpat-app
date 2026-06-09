@@ -1,11 +1,15 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { Platform, Pressable } from "react-native";
+import type React from "react";
+import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
+import { Gradient } from "@/components/ui/gradient";
 import { TextClassContext } from "@/components/ui/text";
+import { PressableScale } from "@/lib/motion/pressable-scale";
+import { useTheme } from "@/lib/theme/provider";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
 	cn(
-		"group shrink-0 flex-row items-center justify-center gap-2 rounded-md shadow-none",
+		"group relative shrink-0 flex-row items-center justify-center gap-2 overflow-hidden shadow-none",
 		Platform.select({
 			web: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 		}),
@@ -13,10 +17,7 @@ const buttonVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: cn(
-					"bg-primary active:bg-primary/90 shadow-sm shadow-black/5",
-					Platform.select({ web: "hover:bg-primary/90" }),
-				),
+				default: "active:opacity-95",
 				destructive: cn(
 					"bg-destructive active:bg-destructive/90 dark:bg-destructive/60 shadow-sm shadow-black/5",
 					Platform.select({
@@ -41,18 +42,18 @@ const buttonVariants = cva(
 			},
 			size: {
 				default: cn(
-					"h-10 px-4 py-2 sm:h-9",
+					"h-12 rounded-2xl px-5 py-2",
 					Platform.select({ web: "has-[>svg]:px-3" }),
 				),
 				sm: cn(
-					"h-9 gap-1.5 rounded-md px-3 sm:h-8",
+					"h-11 gap-1.5 rounded-xl px-4",
 					Platform.select({ web: "has-[>svg]:px-2.5" }),
 				),
 				lg: cn(
-					"h-11 rounded-md px-6 sm:h-10",
+					"h-14 rounded-2xl px-7",
 					Platform.select({ web: "has-[>svg]:px-4" }),
 				),
-				icon: "h-10 w-10 sm:h-9 sm:w-9",
+				icon: "h-12 w-12 rounded-full",
 			},
 		},
 		defaultVariants: {
@@ -99,22 +100,98 @@ const buttonTextVariants = cva(
 	},
 );
 
-type ButtonProps = React.ComponentProps<typeof Pressable> &
-	React.RefAttributes<typeof Pressable> &
-	VariantProps<typeof buttonVariants>;
+type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>["variant"]>;
+type ButtonSize = NonNullable<VariantProps<typeof buttonVariants>["size"]>;
 
-function Button({ className, variant, size, ...props }: ButtonProps) {
+const RADIUS_BY_SIZE: Record<ButtonSize, number> = {
+	default: 16,
+	sm: 12,
+	lg: 16,
+	icon: 999,
+};
+
+const SPINNER_TOKEN: Record<
+	ButtonVariant,
+	| "primary-foreground"
+	| "secondary-foreground"
+	| "accent-foreground"
+	| "primary"
+> = {
+	default: "primary-foreground",
+	destructive: "primary-foreground",
+	secondary: "secondary-foreground",
+	outline: "accent-foreground",
+	ghost: "accent-foreground",
+	link: "primary",
+};
+
+type ButtonProps = Omit<React.ComponentProps<typeof PressableScale>, "children"> &
+	VariantProps<typeof buttonVariants> & {
+		loading?: boolean;
+		fullWidth?: boolean;
+		children?: React.ReactNode;
+	};
+
+function Button({
+	className,
+	variant = "default",
+	size = "default",
+	loading = false,
+	fullWidth = false,
+	disabled,
+	children,
+	...props
+}: ButtonProps) {
+	const { colors } = useTheme();
+	const resolvedVariant = variant ?? "default";
+	const resolvedSize = size ?? "default";
+	const isDisabled = disabled || loading;
+	const isGradient = resolvedVariant === "default";
+	const radius = RADIUS_BY_SIZE[resolvedSize];
+
 	return (
 		<TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
-			<Pressable
+			<PressableScale
 				className={cn(
-					props.disabled && "opacity-50",
+					isDisabled && "opacity-50",
+					fullWidth && "self-stretch",
 					buttonVariants({ variant, size }),
 					className,
 				)}
 				role="button"
+				disabled={isDisabled}
+				accessibilityState={{ disabled: !!isDisabled, busy: loading }}
 				{...props}
-			/>
+			>
+				{isGradient ? (
+					<Gradient
+						glow={!isDisabled}
+						borderRadius={radius}
+						style={StyleSheet.absoluteFill}
+						pointerEvents="none"
+						accessibilityElementsHidden
+						importantForAccessibility="no-hide-descendants"
+					/>
+				) : null}
+				{loading ? (
+					<View
+						style={StyleSheet.absoluteFill}
+						className="items-center justify-center"
+					>
+						<ActivityIndicator color={colors[SPINNER_TOKEN[resolvedVariant]]} />
+					</View>
+				) : null}
+				{loading ? (
+					<View
+						style={{ opacity: 0 }}
+						className="flex-row items-center justify-center gap-2"
+					>
+						{children}
+					</View>
+				) : (
+					children
+				)}
+			</PressableScale>
 		</TextClassContext.Provider>
 	);
 }
