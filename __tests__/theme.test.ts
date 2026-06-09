@@ -1,4 +1,4 @@
-import { hexToTriplet, tripletToHex } from "@/lib/theme/color";
+import { contrastRatio, hexToTriplet, relativeLuminance, tripletToHex } from "@/lib/theme/color";
 import { PRESETS } from "@/lib/theme/presets";
 import { TOKEN_KEYS } from "@/lib/theme/tokens";
 
@@ -20,6 +20,21 @@ describe("tripletToHex", () => {
 			expect(tripletToHex(hexToTriplet(hex))).toBe(hex);
 		}
 	});
+});
+
+describe("relativeLuminance", () => {
+	it("white is ~1", () =>
+		expect(relativeLuminance("0 0% 100%")).toBeCloseTo(1, 2));
+	it("black is 0", () => expect(relativeLuminance("0 0% 0%")).toBeCloseTo(0, 2));
+	it("falls back to 0 for garbage", () =>
+		expect(relativeLuminance("nope")).toBe(0));
+});
+
+describe("contrastRatio", () => {
+	it("white vs black is 21", () =>
+		expect(contrastRatio("0 0% 100%", "0 0% 0%")).toBeCloseTo(21, 0));
+	it("is symmetric", () =>
+		expect(contrastRatio("0 0% 0%", "0 0% 100%")).toBeCloseTo(21, 0));
 });
 
 describe("PRESETS", () => {

@@ -63,6 +63,64 @@ export function tripletToHex(triplet: string): string {
 	return `#${to(r)}${to(g)}${to(b)}`;
 }
 
+function parseTriplet(triplet: string): [number, number, number] | null {
+	const m = /^\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*$/.exec(triplet);
+	if (!m) return null;
+	return [
+		Number.parseFloat(m[1]),
+		Number.parseFloat(m[2]),
+		Number.parseFloat(m[3]),
+	];
+}
+
+// h 0-360, s/l 0-100 -> r/g/b 0-255 ints
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+	const sN = s / 100;
+	const lN = l / 100;
+	const hue = (p: number, q: number, t0: number): number => {
+		let t = t0;
+		if (t < 0) t += 1;
+		if (t > 1) t -= 1;
+		if (t < 1 / 6) return p + (q - p) * 6 * t;
+		if (t < 1 / 2) return q;
+		if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+		return p;
+	};
+	let r: number;
+	let g: number;
+	let b: number;
+	if (sN === 0) {
+		r = lN;
+		g = lN;
+		b = lN;
+	} else {
+		const q = lN < 0.5 ? lN * (1 + sN) : lN + sN - lN * sN;
+		const p = 2 * lN - q;
+		const hN = h / 360;
+		r = hue(p, q, hN + 1 / 3);
+		g = hue(p, q, hN);
+		b = hue(p, q, hN - 1 / 3);
+	}
+	return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+
+export function relativeLuminance(triplet: string): number {
+	const parsed = parseTriplet(triplet);
+	if (!parsed) return 0;
+	const [r, g, b] = hslToRgb(parsed[0], parsed[1], parsed[2]).map((c) => {
+		const cs = c / 255;
+		return cs <= 0.03928 ? cs / 12.92 : ((cs + 0.055) / 1.055) ** 2.4;
+	});
+	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+export function contrastRatio(a: string, b: string): number {
+	const la = relativeLuminance(a);
+	const lb = relativeLuminance(b);
+	const [hi, lo] = la >= lb ? [la, lb] : [lb, la];
+	return (hi + 0.05) / (lo + 0.05);
+}
+
 // TokenMap (triplets) -> NativeWind vars() input ({ "--background": "0 0% 100%" }).
 export function tokensToVars(tokens: TokenMap): Record<string, string> {
 	const out: Record<string, string> = {};
