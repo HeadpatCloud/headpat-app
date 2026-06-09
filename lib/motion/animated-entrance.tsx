@@ -36,6 +36,7 @@ export function AnimatedEntrance({
 				.springify()
 				.damping(springs.gentle.damping)
 				.stiffness(springs.gentle.stiffness)
+				.mass(springs.gentle.mass)
 				.delay(plan.delayMs);
 
 	return (
