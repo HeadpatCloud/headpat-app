@@ -25,6 +25,7 @@ function Input({
 	error,
 	onFocus,
 	onBlur,
+	ref,
 	...props
 }: InputProps) {
 	const { colors, glow } = useTheme();
@@ -45,6 +46,7 @@ function Input({
 		<View className={cn("gap-1.5", containerClassName)}>
 			<View className="relative justify-center">
 				<TextInput
+					ref={ref}
 					className={cn(
 						"border-input bg-background text-foreground h-12 rounded-xl border px-3 text-base",
 						props.editable === false && "opacity-50",
