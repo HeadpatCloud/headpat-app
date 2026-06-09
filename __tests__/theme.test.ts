@@ -1,4 +1,4 @@
-import { contrastRatio, hexToTriplet, relativeLuminance, tripletToHex } from "@/lib/theme/color";
+import { contrastRatio, hexToTriplet, readableForeground, relativeLuminance, tripletToHex } from "@/lib/theme/color";
 import { PRESETS } from "@/lib/theme/presets";
 import { TOKEN_KEYS } from "@/lib/theme/tokens";
 
@@ -35,6 +35,15 @@ describe("contrastRatio", () => {
 		expect(contrastRatio("0 0% 100%", "0 0% 0%")).toBeCloseTo(21, 0));
 	it("is symmetric", () =>
 		expect(contrastRatio("0 0% 0%", "0 0% 100%")).toBeCloseTo(21, 0));
+});
+
+describe("readableForeground", () => {
+	it("white background -> black text", () =>
+		expect(readableForeground("0 0% 100%")).toBe("0 0% 0%"));
+	it("black background -> white text", () =>
+		expect(readableForeground("0 0% 0%")).toBe("0 0% 100%"));
+	it("dark brand -> white text", () =>
+		expect(readableForeground("160 100% 25%")).toBe("0 0% 100%"));
 });
 
 describe("PRESETS", () => {

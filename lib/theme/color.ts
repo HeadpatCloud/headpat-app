@@ -121,6 +121,14 @@ export function contrastRatio(a: string, b: string): number {
 	return (hi + 0.05) / (lo + 0.05);
 }
 
+const WHITE = "0 0% 100%";
+const BLACK = "0 0% 0%";
+
+// Returns the bare triplet (WHITE or BLACK) with the higher contrast on `bg`.
+export function readableForeground(bg: string): string {
+	return contrastRatio(bg, WHITE) >= contrastRatio(bg, BLACK) ? WHITE : BLACK;
+}
+
 // TokenMap (triplets) -> NativeWind vars() input ({ "--background": "0 0% 100%" }).
 export function tokensToVars(tokens: TokenMap): Record<string, string> {
 	const out: Record<string, string> = {};
