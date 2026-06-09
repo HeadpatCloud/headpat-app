@@ -4,7 +4,11 @@ import {
 	type BottomSheetBackgroundProps,
 	BottomSheetModal,
 	BottomSheetView,
+	useBottomSheetSpringConfigs,
+	useBottomSheetTimingConfigs,
 } from "@gorhom/bottom-sheet";
+import { durations, springs } from "@/lib/motion/springs";
+import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { forwardRef, type ReactNode } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -39,10 +43,14 @@ function Backdrop(props: BottomSheetBackdropProps) {
 export const Sheet = forwardRef<BottomSheetModal, { children: ReactNode }>(
 	({ children }, ref) => {
 		const insets = useSafeAreaInsets();
+		const reduced = useReducedMotion();
+		const spring = useBottomSheetSpringConfigs(springs.gentle);
+		const timing = useBottomSheetTimingConfigs({ duration: durations.base });
 		return (
 			<BottomSheetModal
 				ref={ref}
 				enableDynamicSizing
+				animationConfigs={reduced ? timing : spring}
 				backgroundComponent={SheetBackground}
 				handleComponent={SheetHandle}
 				backdropComponent={Backdrop}
