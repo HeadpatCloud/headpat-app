@@ -7,11 +7,13 @@ import {
 	useBottomSheetSpringConfigs,
 	useBottomSheetTimingConfigs,
 } from "@gorhom/bottom-sheet";
-import { durations, springs } from "@/lib/motion/springs";
-import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { forwardRef, type ReactNode } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Gradient } from "@/components/ui/gradient";
+import { Text } from "@/components/ui/text";
+import { durations, springs } from "@/lib/motion/springs";
+import { useReducedMotion } from "@/lib/motion/reduced-motion";
 
 function SheetBackground({ style }: BottomSheetBackgroundProps) {
 	return (
@@ -38,30 +40,43 @@ function Backdrop(props: BottomSheetBackdropProps) {
 
 /**
  * Themed bottom sheet wrapper. Use a ref: sheetRef.current?.present() / .dismiss().
- * Sizes to its content (enableDynamicSizing).
+ * Sizes to its content (enableDynamicSizing). Pass `title` for a header row and
+ * `accent` for a slim gradient hairline at the top.
  */
-export const Sheet = forwardRef<BottomSheetModal, { children: ReactNode }>(
-	({ children }, ref) => {
-		const insets = useSafeAreaInsets();
-		const reduced = useReducedMotion();
-		const spring = useBottomSheetSpringConfigs(springs.gentle);
-		const timing = useBottomSheetTimingConfigs({ duration: durations.base });
-		return (
-			<BottomSheetModal
-				ref={ref}
-				enableDynamicSizing
-				animationConfigs={reduced ? timing : spring}
-				backgroundComponent={SheetBackground}
-				handleComponent={SheetHandle}
-				backdropComponent={Backdrop}
+export const Sheet = forwardRef<
+	BottomSheetModal,
+	{ children: ReactNode; title?: string; accent?: boolean }
+>(({ children, title, accent }, ref) => {
+	const insets = useSafeAreaInsets();
+	const reduced = useReducedMotion();
+	const spring = useBottomSheetSpringConfigs(springs.gentle);
+	const timing = useBottomSheetTimingConfigs({ duration: durations.base });
+	return (
+		<BottomSheetModal
+			ref={ref}
+			enableDynamicSizing
+			animationConfigs={reduced ? timing : spring}
+			backgroundComponent={SheetBackground}
+			handleComponent={SheetHandle}
+			backdropComponent={Backdrop}
+		>
+			<BottomSheetView
+				style={{ paddingBottom: insets.bottom + 16, paddingHorizontal: 16 }}
 			>
-				<BottomSheetView
-					style={{ paddingBottom: insets.bottom + 16, paddingHorizontal: 16 }}
-				>
-					{children}
-				</BottomSheetView>
-			</BottomSheetModal>
-		);
-	},
-);
+				{accent ? (
+					<Gradient
+						borderRadius={999}
+						style={{ height: 3, width: 40, alignSelf: "center", marginBottom: 12 }}
+					/>
+				) : null}
+				{title ? (
+					<Text variant="large" className="pb-3" accessibilityRole="header">
+						{title}
+					</Text>
+				) : null}
+				{children}
+			</BottomSheetView>
+		</BottomSheetModal>
+	);
+});
 Sheet.displayName = "Sheet";
