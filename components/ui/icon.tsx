@@ -37,15 +37,19 @@ cssInterop(IconImpl, {
  * <Icon as={ArrowRight} className="text-red-500" size={16} />
  * ```
  *
+ * For a gradient-colored glyph (rare — e.g. hero stat icons), the caller wraps
+ * `<Icon>` in a `<MaskedView>` over `<Gradient />`; `Icon` itself stays a thin
+ * theme-class primitive and gets no color/gradient prop.
+ *
  * @param {LucideIcon} as - The Lucide icon component to render.
  * @param {string} className - Utility classes to style the icon using Nativewind.
- * @param {number} size - Icon size (defaults to 14).
+ * @param {number} size - Icon size (defaults to 16, Comfortable density).
  * @param {...LucideProps} ...props - Additional Lucide icon props passed to the "as" icon.
  */
 function Icon({
 	as: IconComponent,
 	className,
-	size = 14,
+	size = 16,
 	...props
 }: IconProps) {
 	const textClass = React.useContext(TextClassContext);
