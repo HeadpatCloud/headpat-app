@@ -1,9 +1,10 @@
 import "@/global.css";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
 import { Stack, useRouter, useSegments } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSession } from "@/lib/auth-client";
@@ -20,13 +21,21 @@ function useProtectedRoute() {
 	const { data, isPending } = useSession();
 	const segments = useSegments();
 	const router = useRouter();
+	const [onboarded, setOnboarded] = useState<boolean | null>(null);
 
 	useEffect(() => {
-		if (isPending) return;
+		AsyncStorage.getItem("hp-onboarded").then((v) => setOnboarded(v === "1"));
+	}, []);
+
+	useEffect(() => {
+		if (isPending || onboarded === null) return;
 		const inAuthGroup = segments[0] === "(auth)";
-		if (!data && !inAuthGroup) router.replace("/(auth)/welcome");
-		else if (data && inAuthGroup) router.replace("/(tabs)");
-	}, [data, isPending, segments, router]);
+		if (!data && !inAuthGroup) {
+			router.replace(onboarded ? "/(auth)/welcome" : "/(auth)/onboarding");
+		} else if (data && inAuthGroup) {
+			router.replace("/(tabs)");
+		}
+	}, [data, isPending, segments, router, onboarded]);
 }
 
 function RootNav() {
