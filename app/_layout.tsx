@@ -64,6 +64,14 @@ function RootNav() {
 				options={{ headerShown: true, title: "Discover people" }}
 			/>
 			<Stack.Screen name="user" />
+			<Stack.Screen
+				name="profile-edit"
+				options={{
+					headerShown: true,
+					title: "Edit profile",
+					presentation: "modal",
+				}}
+			/>
 		</Stack>
 	);
 }

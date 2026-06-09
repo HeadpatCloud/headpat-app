@@ -59,5 +59,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		"expo-secure-store",
 		"expo-web-browser",
 		"expo-apple-authentication",
+		[
+			"expo-image-picker",
+			{
+				photosPermission:
+					"Headpat uses your photos so you can share them in the gallery and set your avatar.",
+			},
+		],
 	],
 });

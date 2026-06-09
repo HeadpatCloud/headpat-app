@@ -5,6 +5,10 @@ export default function GalleryLayout() {
 		<Stack>
 			<Stack.Screen name="index" options={{ title: "Gallery" }} />
 			<Stack.Screen name="[galleryId]" options={{ title: "" }} />
+			<Stack.Screen
+				name="upload"
+				options={{ title: "New post", presentation: "modal" }}
+			/>
 		</Stack>
 	);
 }

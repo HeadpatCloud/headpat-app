@@ -6,6 +6,7 @@ import {
 	type LucideIcon,
 	Palette,
 	ShieldCheck,
+	UserPen,
 } from "lucide-react-native";
 import { useRef } from "react";
 import { View } from "react-native";
@@ -16,6 +17,7 @@ import { Text } from "@/components/ui/text";
 import { signOut, useSession } from "@/lib/auth-client";
 
 const ROWS: { href: Href; icon: LucideIcon; label: string }[] = [
+	{ href: "/profile-edit", icon: UserPen, label: "Edit profile" },
 	{ href: "/appearance", icon: Palette, label: "Appearance" },
 	{ href: "/security", icon: ShieldCheck, label: "Security" },
 	{ href: "/connections", icon: Link2, label: "Connections" },

@@ -1,7 +1,7 @@
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Inbox } from "lucide-react-native";
+import { Inbox, Plus } from "lucide-react-native";
 import {
 	ActivityIndicator,
 	Pressable,
@@ -11,6 +11,7 @@ import {
 import { EmptyState } from "@/components/empty-state";
 import { StorageImage } from "@/components/storage-image";
 import { Badge } from "@/components/ui/badge";
+import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
@@ -50,55 +51,67 @@ export default function Gallery() {
 	const items = query.data?.pages.flatMap((p) => p.items) ?? [];
 
 	return (
-		<FlashList
-			data={items}
-			numColumns={2}
-			keyExtractor={(item) => item.id}
-			contentContainerStyle={{ padding: 8 }}
-			renderItem={({ item }) => (
-				<Pressable
-					className="p-1"
-					style={{ flex: 1 }}
-					onPress={() => router.push(`/gallery/${item.id}`)}
-					accessibilityRole="button"
-					accessibilityLabel={item.name}
-				>
-					<View className="bg-card border-border overflow-hidden rounded-xl border">
-						<StorageImage
-							kind="gallery"
-							fileId={item.fileId}
-							blurhash={item.blurHash}
-							style={{ aspectRatio: 1, width: "100%" }}
-							accessibilityLabel={item.name}
-						/>
-						{item.nsfw ? (
-							<Badge
-								variant="destructive"
-								className="absolute right-1.5 top-1.5"
-							>
-								NSFW
-							</Badge>
-						) : null}
-					</View>
-				</Pressable>
-			)}
-			onEndReachedThreshold={0.5}
-			onEndReached={() => {
-				if (query.hasNextPage && !query.isFetchingNextPage)
-					query.fetchNextPage();
-			}}
-			refreshControl={
-				<RefreshControl
-					refreshing={query.isRefetching && !query.isFetchingNextPage}
-					onRefresh={() => query.refetch()}
-				/>
-			}
-			ListEmptyComponent={
-				<EmptyState icon={Inbox} title="No gallery items yet" />
-			}
-			ListFooterComponent={
-				query.isFetchingNextPage ? <ActivityIndicator className="py-4" /> : null
-			}
-		/>
+		<View className="bg-background flex-1">
+			<FlashList
+				data={items}
+				numColumns={2}
+				keyExtractor={(item) => item.id}
+				contentContainerStyle={{ padding: 8 }}
+				renderItem={({ item }) => (
+					<Pressable
+						className="p-1"
+						style={{ flex: 1 }}
+						onPress={() => router.push(`/gallery/${item.id}`)}
+						accessibilityRole="button"
+						accessibilityLabel={item.name}
+					>
+						<View className="bg-card border-border overflow-hidden rounded-xl border">
+							<StorageImage
+								kind="gallery"
+								fileId={item.fileId}
+								blurhash={item.blurHash}
+								style={{ aspectRatio: 1, width: "100%" }}
+								accessibilityLabel={item.name}
+							/>
+							{item.nsfw ? (
+								<Badge
+									variant="destructive"
+									className="absolute right-1.5 top-1.5"
+								>
+									NSFW
+								</Badge>
+							) : null}
+						</View>
+					</Pressable>
+				)}
+				onEndReachedThreshold={0.5}
+				onEndReached={() => {
+					if (query.hasNextPage && !query.isFetchingNextPage)
+						query.fetchNextPage();
+				}}
+				refreshControl={
+					<RefreshControl
+						refreshing={query.isRefetching && !query.isFetchingNextPage}
+						onRefresh={() => query.refetch()}
+					/>
+				}
+				ListEmptyComponent={
+					<EmptyState icon={Inbox} title="No gallery items yet" />
+				}
+				ListFooterComponent={
+					query.isFetchingNextPage ? (
+						<ActivityIndicator className="py-4" />
+					) : null
+				}
+			/>
+			<Pressable
+				onPress={() => router.push("/gallery/upload")}
+				accessibilityRole="button"
+				accessibilityLabel="New gallery post"
+				className="bg-primary absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full shadow-lg"
+			>
+				<Icon as={Plus} size={26} className="text-primary-foreground" />
+			</Pressable>
+		</View>
 	);
 }
