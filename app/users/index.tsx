@@ -16,12 +16,15 @@ export default function Users() {
 	const { t } = useI18n();
 	const [text, setText] = useState("");
 	const [search, setSearch] = useState("");
+	// Fresh seed per visit: the backend shuffles browse results by it, keeping
+	// the order stable across pages. Search results stay relevance-ordered.
+	const [seed] = useState(() => Math.random().toString(36).slice(2, 10));
 	const query = useInfiniteQuery({
 		...orpc.profile.list.infiniteOptions({
 			input: (page: number) => ({
 				page,
 				pageSize: 24,
-				...(search ? { search } : {}),
+				...(search ? { search } : { seed }),
 			}),
 			initialPageParam: 1,
 			getNextPageParam: (last) =>
@@ -31,10 +34,6 @@ export default function Users() {
 		// search term loads, instead of flashing the skeleton screen.
 		placeholderData: keepPreviousData,
 	});
-
-	// The list orders by followers desc — reward the top profile with a
-	// slightly stronger gradient ring.
-	const firstId = query.data?.pages[0]?.items[0]?.userId;
 
 	return (
 		<PaginatedList
@@ -76,7 +75,7 @@ export default function Users() {
 							kind="avatar"
 							size={48}
 							ring
-							ringWidth={u.userId === firstId ? 3 : 2}
+							ringWidth={2}
 						/>
 						<View className="flex-1 gap-0.5">
 							<Text variant="large" numberOfLines={1}>
