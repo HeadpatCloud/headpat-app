@@ -1,7 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { format } from "date-fns/format";
 import { StyleSheet, View } from "react-native";
-import { GlowBackdrop } from "@/components/brand/glow-backdrop";
 import { PaginatedList } from "@/components/paginated-list";
 import { Badge } from "@/components/ui/badge";
 import { GlowCard } from "@/components/ui/card";
@@ -55,7 +54,6 @@ export default function Changelog() {
 			emptyTitle={t("changelog.empty")}
 			ListHeaderComponent={
 				<View className="gap-1 pb-4 pt-2">
-					<GlowBackdrop size={220} style={styles.bloom} />
 					<GradientText className="text-4xl font-extrabold leading-10 tracking-tight">
 						{t("changelog.heading")}
 					</GradientText>
@@ -108,7 +106,6 @@ export default function Changelog() {
 }
 
 const styles = StyleSheet.create({
-	bloom: { position: "absolute", top: -70, left: -60 },
 	gutter: { width: 28 },
 	// bottom -12 bridges the h-3 list separator so the rail reads continuous
 	rail: {
