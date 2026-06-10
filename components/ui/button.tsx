@@ -1,15 +1,23 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import * as Haptics from "expo-haptics";
 import type React from "react";
-import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
+import {
+	ActivityIndicator,
+	type GestureResponderEvent,
+	Platform,
+	Pressable,
+	type PressableProps,
+	StyleSheet,
+	View,
+} from "react-native";
 import { Gradient } from "@/components/ui/gradient";
 import { TextClassContext } from "@/components/ui/text";
-import { PressableScale } from "@/lib/motion/pressable-scale";
 import { useTheme } from "@/lib/theme/provider";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
 	cn(
-		"group relative shrink-0 flex-row items-center justify-center gap-2 overflow-hidden shadow-none",
+		"group relative shrink-0 flex-row items-center justify-center gap-2 overflow-hidden shadow-none active:scale-[0.98]",
 		Platform.select({
 			web: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 		}),
@@ -112,10 +120,7 @@ const RADIUS_BY_SIZE: Record<ButtonSize, number> = {
 
 const SPINNER_TOKEN: Record<
 	ButtonVariant,
-	| "primary-foreground"
-	| "secondary-foreground"
-	| "accent-foreground"
-	| "primary"
+	"primary-foreground" | "secondary-foreground" | "accent-foreground" | "primary"
 > = {
 	default: "primary-foreground",
 	destructive: "primary-foreground",
@@ -125,7 +130,7 @@ const SPINNER_TOKEN: Record<
 	link: "primary",
 };
 
-type ButtonProps = Omit<React.ComponentProps<typeof PressableScale>, "children"> &
+type ButtonProps = Omit<PressableProps, "children"> &
 	VariantProps<typeof buttonVariants> & {
 		loading?: boolean;
 		fullWidth?: boolean;
@@ -139,6 +144,7 @@ function Button({
 	loading = false,
 	fullWidth = false,
 	disabled,
+	onPressIn,
 	children,
 	...props
 }: ButtonProps) {
@@ -148,6 +154,12 @@ function Button({
 	const isDisabled = disabled || loading;
 	const isGradient = resolvedVariant === "default";
 	const radius = RADIUS_BY_SIZE[resolvedSize];
+
+	const handlePressIn = (e: GestureResponderEvent) => {
+		if (Platform.OS !== "web")
+			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+		onPressIn?.(e);
+	};
 
 	const content = (
 		<>
@@ -172,9 +184,9 @@ function Button({
 		</>
 	);
 
-	// The gradient variant renders the fill in an outer box BEHIND the pressable
-	// (which stays transparent) so the gradient covers the whole button while the
-	// Pressable keeps its full-size touch target.
+	// Gradient (default) variant: the fill lives in an outer box BEHIND a
+	// transparent Pressable, so it covers the whole button while the Pressable
+	// keeps a full-size touch target and lays its children out as a row.
 	if (isGradient) {
 		return (
 			<TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
@@ -195,15 +207,16 @@ function Button({
 						accessibilityElementsHidden
 						importantForAccessibility="no-hide-descendants"
 					/>
-					<PressableScale
+					<Pressable
 						className={buttonVariants({ variant, size })}
 						role="button"
 						disabled={isDisabled}
 						accessibilityState={{ disabled: !!isDisabled, busy: loading }}
+						onPressIn={handlePressIn}
 						{...props}
 					>
 						{content}
-					</PressableScale>
+					</Pressable>
 				</View>
 			</TextClassContext.Provider>
 		);
@@ -211,7 +224,7 @@ function Button({
 
 	return (
 		<TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
-			<PressableScale
+			<Pressable
 				className={cn(
 					isDisabled && "opacity-50",
 					fullWidth && "self-stretch",
@@ -221,10 +234,11 @@ function Button({
 				role="button"
 				disabled={isDisabled}
 				accessibilityState={{ disabled: !!isDisabled, busy: loading }}
+				onPressIn={handlePressIn}
 				{...props}
 			>
 				{content}
-			</PressableScale>
+			</Pressable>
 		</TextClassContext.Provider>
 	);
 }

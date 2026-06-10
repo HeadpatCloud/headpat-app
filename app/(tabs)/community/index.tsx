@@ -10,9 +10,11 @@ import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { useSession } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 
 export default function Communities() {
+	const { data: session } = useSession();
 	const [text, setText] = useState("");
 	const [search, setSearch] = useState("");
 
@@ -105,14 +107,16 @@ export default function Communities() {
 					</Pressable>
 				)}
 			/>
-			<Pressable
-				onPress={() => router.push("/community/new")}
-				accessibilityRole="button"
-				accessibilityLabel="New community"
-				className="bg-primary absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full shadow-lg"
-			>
-				<Icon as={Plus} size={26} className="text-primary-foreground" />
-			</Pressable>
+			{session ? (
+				<Pressable
+					onPress={() => router.push("/community/new")}
+					accessibilityRole="button"
+					accessibilityLabel="New community"
+					className="bg-primary absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full shadow-lg"
+				>
+					<Icon as={Plus} size={26} className="text-primary-foreground" />
+				</Pressable>
+			) : null}
 		</View>
 	);
 }

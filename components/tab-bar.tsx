@@ -10,11 +10,10 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Gradient, GlowShadow } from "@/components/ui/gradient";
+import { Gradient } from "@/components/ui/gradient";
 import { Text } from "@/components/ui/text";
 import { springs } from "@/lib/motion/springs";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
-import { useTheme } from "@/lib/theme/provider";
 
 // Derive the tab-bar props from expo-router itself (SDK 56 decoupled from
 // @react-navigation, so there's no package to import the type from).
@@ -88,7 +87,6 @@ function TabItem({
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 	const insets = useSafeAreaInsets();
 	const reduced = useReducedMotion();
-	const { glow } = useTheme();
 	const [slots, setSlots] = useState<{ x: number; width: number }[]>([]);
 
 	const x = useSharedValue(0);
@@ -132,9 +130,9 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 				style={[{ top: 8 }, pillStyle]}
 			>
 				<Gradient
-					glow
+					opacity={0.9}
 					borderRadius={999}
-					style={[GlowShadow(glow), { height: 32, paddingHorizontal: 20 }]}
+					style={{ height: 32, paddingHorizontal: 20 }}
 					className="rounded-full"
 				/>
 			</Animated.View>

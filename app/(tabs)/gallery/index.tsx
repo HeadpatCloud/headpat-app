@@ -13,10 +13,12 @@ import { StorageImage } from "@/components/storage-image";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSession } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 
 export default function Gallery() {
+	const { data: session } = useSession();
 	const query = useInfiniteQuery(
 		orpc.gallery.list.infiniteOptions({
 			input: (page: number) => ({ page, pageSize: 24 }),
@@ -104,14 +106,16 @@ export default function Gallery() {
 					) : null
 				}
 			/>
-			<Pressable
-				onPress={() => router.push("/gallery/upload")}
-				accessibilityRole="button"
-				accessibilityLabel="New gallery post"
-				className="bg-primary absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full shadow-lg"
-			>
-				<Icon as={Plus} size={26} className="text-primary-foreground" />
-			</Pressable>
+			{session ? (
+				<Pressable
+					onPress={() => router.push("/gallery/upload")}
+					accessibilityRole="button"
+					accessibilityLabel="New gallery post"
+					className="bg-primary absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full shadow-lg"
+				>
+					<Icon as={Plus} size={26} className="text-primary-foreground" />
+				</Pressable>
+			) : null}
 		</View>
 	);
 }

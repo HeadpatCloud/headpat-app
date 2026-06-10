@@ -8,9 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { useSession } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 
 export default function Events() {
+	const { data: session } = useSession();
 	const query = useInfiniteQuery(
 		orpc.event.list.infiniteOptions({
 			input: (page: number) => ({ page, pageSize: 24 }),
@@ -79,14 +81,16 @@ export default function Events() {
 					</Pressable>
 				)}
 			/>
-			<Pressable
-				onPress={() => router.push("/events/new")}
-				accessibilityRole="button"
-				accessibilityLabel="New event"
-				className="bg-primary absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full shadow-lg"
-			>
-				<Icon as={Plus} size={26} className="text-primary-foreground" />
-			</Pressable>
+			{session ? (
+				<Pressable
+					onPress={() => router.push("/events/new")}
+					accessibilityRole="button"
+					accessibilityLabel="New event"
+					className="bg-primary absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full shadow-lg"
+				>
+					<Icon as={Plus} size={26} className="text-primary-foreground" />
+				</Pressable>
+			) : null}
 		</View>
 	);
 }
