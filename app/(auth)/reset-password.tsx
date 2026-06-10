@@ -38,7 +38,9 @@ export default function ResetPassword() {
 
 	useEffect(() => {
 		const fill = Math.min(password.length / 8, 1);
-		strength.value = reduced ? fill : withTiming(fill, { duration: durations.base });
+		strength.value = reduced
+			? fill
+			: withTiming(fill, { duration: durations.base });
 	}, [password, reduced, strength]);
 
 	const strengthStyle = useAnimatedStyle(() => ({

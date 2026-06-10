@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	AccessibilityInfo,
@@ -7,7 +8,6 @@ import {
 	StyleSheet,
 	View,
 } from "react-native";
-import * as Haptics from "expo-haptics";
 import Animated, {
 	type SharedValue,
 	useAnimatedStyle,
@@ -57,7 +57,9 @@ function OtpCell({
 		);
 	}, [filled, reduced, pop]);
 
-	const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
+	const popStyle = useAnimatedStyle(() => ({
+		transform: [{ scale: pop.value }],
+	}));
 
 	const borderColor = error
 		? colors.destructive
@@ -255,7 +257,10 @@ export default function Mfa() {
 				/>
 
 				{error ? (
-					<Text className="text-destructive text-center" accessibilityRole="alert">
+					<Text
+						className="text-destructive text-center"
+						accessibilityRole="alert"
+					>
 						{error}
 					</Text>
 				) : null}

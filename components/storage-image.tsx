@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Image, type ImageProps } from "expo-image";
-import { ImageOff } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
+import { ImageOff } from "@/components/icons";
 import { Icon } from "@/components/ui/icon";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { orpc } from "@/lib/orpc";
@@ -59,6 +59,7 @@ export function StorageImage({
 		retry: 2,
 	});
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: fileId change = recycled cell, reset state
 	useEffect(() => {
 		setRetries(0);
 		setFailed(false);

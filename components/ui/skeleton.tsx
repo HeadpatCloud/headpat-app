@@ -27,7 +27,9 @@ export function Skeleton({ className, style, ...props }: ViewProps) {
 	}, [reduced, progress]);
 
 	const sheenStyle = useAnimatedStyle(() => ({
-		transform: [{ translateX: interpolate(progress.value, [0, 1], [-width, width]) }],
+		transform: [
+			{ translateX: interpolate(progress.value, [0, 1], [-width, width]) },
+		],
 	}));
 
 	if (reduced) {

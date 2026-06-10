@@ -108,7 +108,9 @@ const buttonTextVariants = cva(
 	},
 );
 
-type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>["variant"]>;
+type ButtonVariant = NonNullable<
+	VariantProps<typeof buttonVariants>["variant"]
+>;
 type ButtonSize = NonNullable<VariantProps<typeof buttonVariants>["size"]>;
 
 const RADIUS_BY_SIZE: Record<ButtonSize, number> = {
@@ -120,7 +122,10 @@ const RADIUS_BY_SIZE: Record<ButtonSize, number> = {
 
 const SPINNER_TOKEN: Record<
 	ButtonVariant,
-	"primary-foreground" | "secondary-foreground" | "accent-foreground" | "primary"
+	| "primary-foreground"
+	| "secondary-foreground"
+	| "accent-foreground"
+	| "primary"
 > = {
 	default: "primary-foreground",
 	destructive: "primary-foreground",

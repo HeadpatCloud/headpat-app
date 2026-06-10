@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import type * as React from "react";
+import { useEffect } from "react";
 import { TextInput, type TextInputProps, View } from "react-native";
 import Animated, {
 	useAnimatedStyle,

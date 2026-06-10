@@ -1,7 +1,7 @@
 import { router } from "expo-router";
-import { Check, Pencil, Plus } from "@/components/icons";
 import { Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Check, Pencil, Plus } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";

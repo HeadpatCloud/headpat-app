@@ -1,7 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { Link, router } from "expo-router";
-import { Moon, Sun } from "@/components/icons";
 import { useCallback, useRef, useState } from "react";
 import {
 	Image,
@@ -15,8 +14,8 @@ import {
 } from "react-native";
 import Animated, {
 	Extrapolation,
-	type SharedValue,
 	interpolate,
+	type SharedValue,
 	useAnimatedScrollHandler,
 	useAnimatedStyle,
 	useSharedValue,
@@ -24,6 +23,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Aurora } from "@/components/brand/aurora";
+import { Moon, Sun } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
@@ -121,7 +121,13 @@ function Dots({
 	return (
 		<View className="flex-row items-center justify-center gap-2">
 			{Array.from({ length: PANELS }).map((_, i) => (
-				<Dot key={i} index={i} scrollX={scrollX} width={width} colors={colors} />
+				<Dot
+					key={i}
+					index={i}
+					scrollX={scrollX}
+					width={width}
+					colors={colors}
+				/>
 			))}
 		</View>
 	);
@@ -198,7 +204,9 @@ export default function Onboarding() {
 		if (reduced) return {};
 		return {
 			transform: [
-				{ translateX: interpolate(scrollX.value, [0, width], [0, width * 0.25]) },
+				{
+					translateX: interpolate(scrollX.value, [0, width], [0, width * 0.25]),
+				},
 			],
 		};
 	});

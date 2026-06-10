@@ -1,8 +1,8 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { Trash2 } from "@/components/icons";
 import { useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Trash2 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";

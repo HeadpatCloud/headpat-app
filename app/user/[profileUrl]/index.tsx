@@ -1,5 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
+import { Alert, Pressable, ScrollView, View } from "react-native";
 import {
 	AtSign,
 	type LucideIcon,
@@ -7,8 +9,6 @@ import {
 	Send,
 	Twitch,
 } from "@/components/icons";
-import { useState } from "react";
-import { Alert, Pressable, ScrollView, View } from "react-native";
 import { StorageImage } from "@/components/storage-image";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";

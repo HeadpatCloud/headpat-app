@@ -1,5 +1,5 @@
 import { StyleSheet, View, type ViewProps } from "react-native";
-import { Gradient, GlowShadow } from "@/components/ui/gradient";
+import { GlowShadow, Gradient } from "@/components/ui/gradient";
 import { useTheme } from "@/lib/theme/provider";
 import { cn } from "@/lib/utils";
 

@@ -10,7 +10,11 @@ type GlowBackdropProps = {
 // Decorative soft bloom behind heroes/headings. A tinted radial-alpha PNG, not
 // an SVG radial gradient — react-native-svg gradients render banded/clipped on
 // some devices. Callers position/animate it; no motion here.
-export function GlowBackdrop({ size = 280, style, className }: GlowBackdropProps) {
+export function GlowBackdrop({
+	size = 280,
+	style,
+	className,
+}: GlowBackdropProps) {
 	const { glow } = useTheme();
 	const m = /^rgba\((\d+), (\d+), (\d+), ([\d.]+)\)$/.exec(glow);
 	const tint = m

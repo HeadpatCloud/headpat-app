@@ -1,8 +1,8 @@
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Plus, Search, Users } from "@/components/icons";
 import { useState } from "react";
 import { View } from "react-native";
+import { Plus, Search, Users } from "@/components/icons";
 import { PaginatedList } from "@/components/paginated-list";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";

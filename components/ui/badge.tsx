@@ -1,6 +1,6 @@
-import type { LucideIcon } from "@/components/icons";
 import type { ReactNode } from "react";
 import { View } from "react-native";
+import type { LucideIcon } from "@/components/icons";
 import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Text, TextClassContext } from "@/components/ui/text";
@@ -44,15 +44,14 @@ export function Badge({
 	className?: string;
 }) {
 	const inner = (
-		<TextClassContext.Provider
-			value={cn("text-xs font-medium", text[variant])}
-		>
+		<TextClassContext.Provider value={cn("text-xs font-medium", text[variant])}>
 			{icon ? <Icon as={icon} size={12} /> : null}
 			{typeof children === "string" ? <Text>{children}</Text> : children}
 		</TextClassContext.Provider>
 	);
 
-	const layout = "flex-row items-center gap-1 self-start rounded-full px-2.5 py-0.5";
+	const layout =
+		"flex-row items-center gap-1 self-start rounded-full px-2.5 py-0.5";
 
 	if (variant === "gradient") {
 		return (

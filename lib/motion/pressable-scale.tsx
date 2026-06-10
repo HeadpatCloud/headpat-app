@@ -12,8 +12,8 @@ import Animated, {
 	useSharedValue,
 	withSpring,
 } from "react-native-reanimated";
-import { springs } from "@/lib/motion/springs";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
+import { springs } from "@/lib/motion/springs";
 
 type PressableScaleProps = Omit<PressableProps, "style" | "children"> & {
 	scaleTo?: number;

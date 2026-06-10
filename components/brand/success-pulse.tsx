@@ -1,4 +1,3 @@
-import { Check } from "@/components/icons";
 import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
@@ -7,6 +6,7 @@ import Animated, {
 	withSpring,
 	withTiming,
 } from "react-native-reanimated";
+import { Check } from "@/components/icons";
 import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
@@ -58,11 +58,7 @@ export function SuccessPulse({ size = 72 }: SuccessPulseProps) {
 		>
 			<Animated.View
 				pointerEvents="none"
-				style={[
-					StyleSheet.absoluteFill,
-					{ borderRadius: size / 2 },
-					ringStyle,
-				]}
+				style={[StyleSheet.absoluteFill, { borderRadius: size / 2 }, ringStyle]}
 			>
 				<Gradient
 					borderRadius={size / 2}

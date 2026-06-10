@@ -20,13 +20,28 @@ export const TYPE: Record<
 	"display" | "h1" | "h2" | "title" | "body" | "small" | "caption",
 	TypeStyle
 > = {
-	display: { fontSize: 40, fontWeight: "800", letterSpacing: -0.5, lineHeight: 44 },
+	display: {
+		fontSize: 40,
+		fontWeight: "800",
+		letterSpacing: -0.5,
+		lineHeight: 44,
+	},
 	h1: { fontSize: 32, fontWeight: "800", letterSpacing: -0.5, lineHeight: 38 },
 	h2: { fontSize: 26, fontWeight: "700", letterSpacing: -0.4, lineHeight: 32 },
-	title: { fontSize: 20, fontWeight: "600", letterSpacing: -0.2, lineHeight: 26 },
+	title: {
+		fontSize: 20,
+		fontWeight: "600",
+		letterSpacing: -0.2,
+		lineHeight: 26,
+	},
 	body: { fontSize: 16, fontWeight: "400", letterSpacing: 0, lineHeight: 24 },
 	small: { fontSize: 14, fontWeight: "400", letterSpacing: 0, lineHeight: 20 },
-	caption: { fontSize: 12, fontWeight: "500", letterSpacing: 0, lineHeight: 16 },
+	caption: {
+		fontSize: 12,
+		fontWeight: "500",
+		letterSpacing: 0,
+		lineHeight: 16,
+	},
 };
 
 // Mode-aware elevation. Dark = colored glow shadow; light = soft ambient shadow

@@ -1,8 +1,12 @@
 import type { ReactNode } from "react";
 import type { ViewProps } from "react-native";
-import Animated, { FadeIn, FadeInDown, FadeInUp } from "react-native-reanimated";
-import { durations, springs } from "@/lib/motion/springs";
+import Animated, {
+	FadeIn,
+	FadeInDown,
+	FadeInUp,
+} from "react-native-reanimated";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
+import { durations, springs } from "@/lib/motion/springs";
 import { entranceFor } from "@/lib/motion/stagger";
 
 type Preset = "fade" | "fadeDown" | "fadeUp";

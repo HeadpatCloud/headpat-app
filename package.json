@@ -16,7 +16,9 @@
   },
   "jest": {
     "preset": "jest-expo",
-    "testMatch": ["**/__tests__/**/*.test.ts?(x)"],
+    "testMatch": [
+      "**/__tests__/**/*.test.ts?(x)"
+    ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/$1"
     }
@@ -57,6 +59,7 @@
     "expo-status-bar": "~56.0.4",
     "expo-system-ui": "~56.0.5",
     "expo-web-browser": "~56.0.5",
+    "i18n-js": "^4.5.3",
     "lucide-react-native": "^0.545.0",
     "nativewind": "^4.2.3",
     "react": "19.2.3",

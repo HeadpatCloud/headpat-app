@@ -2,6 +2,9 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { type Href, router } from "expo-router";
+import { useRef } from "react";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { GlowBackdrop } from "@/components/brand/glow-backdrop";
 import {
 	CalendarPlus,
 	ChevronRight,
@@ -13,9 +16,6 @@ import {
 	RefreshCw,
 	UsersRound,
 } from "@/components/icons";
-import { useRef } from "react";
-import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
-import { GlowBackdrop } from "@/components/brand/glow-backdrop";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -111,9 +111,22 @@ function EventCard({ event, featured }: { event: Event; featured?: boolean }) {
 					<>
 						<GlowBackdrop
 							size={180}
-							style={{ position: "absolute", left: -60, top: -40, opacity: 0.25 }}
+							style={{
+								position: "absolute",
+								left: -60,
+								top: -40,
+								opacity: 0.25,
+							}}
 						/>
-						<Gradient style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3 }} />
+						<Gradient
+							style={{
+								position: "absolute",
+								left: 0,
+								top: 0,
+								bottom: 0,
+								width: 3,
+							}}
+						/>
 					</>
 				) : null}
 				<Avatar

@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns/format";
 import { useLocalSearchParams } from "expo-router";
-import { Send } from "@/components/icons";
 import { useState } from "react";
 import {
 	Alert,
@@ -11,6 +10,7 @@ import {
 	View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Send } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -66,10 +66,7 @@ export default function Ticket() {
 		setStatusBusy(true);
 		try {
 			const row = await client.ticket.setStatus({ ticketId, status });
-			qc.setQueryData(
-				getKey,
-				(old) => old && { ...old, status: row.status },
-			);
+			qc.setQueryData(getKey, (old) => old && { ...old, status: row.status });
 			refresh();
 			qc.invalidateQueries({ queryKey: orpc.ticket.myList.key() });
 		} catch (e) {

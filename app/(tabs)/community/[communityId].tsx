@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns/format";
 import { router, useLocalSearchParams } from "expo-router";
-import { CalendarDays, MapPin, Users } from "@/components/icons";
 import { useState } from "react";
 import { Alert, ScrollView, View } from "react-native";
+import { CalendarDays, MapPin, Users } from "@/components/icons";
 import { StorageImage } from "@/components/storage-image";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";

@@ -1,5 +1,5 @@
-import { entranceFor } from "@/lib/motion/stagger";
 import { durations, springs } from "@/lib/motion/springs";
+import { entranceFor } from "@/lib/motion/stagger";
 
 describe("springs", () => {
 	it("gentle = entrance overshoot", () =>
@@ -14,15 +14,33 @@ describe("springs", () => {
 
 describe("entranceFor", () => {
 	it("staggers the first screenful by 50ms each", () => {
-		expect(entranceFor(0, { reduced: false })).toEqual({ animate: true, delayMs: 0 });
-		expect(entranceFor(3, { reduced: false })).toEqual({ animate: true, delayMs: 150 });
+		expect(entranceFor(0, { reduced: false })).toEqual({
+			animate: true,
+			delayMs: 0,
+		});
+		expect(entranceFor(3, { reduced: false })).toEqual({
+			animate: true,
+			delayMs: 150,
+		});
 	});
 	it("stops animating past the cap (default 8)", () =>
-		expect(entranceFor(8, { reduced: false })).toEqual({ animate: false, delayMs: 0 }));
+		expect(entranceFor(8, { reduced: false })).toEqual({
+			animate: false,
+			delayMs: 0,
+		}));
 	it("respects a custom cap", () =>
-		expect(entranceFor(3, { reduced: false, cap: 3 })).toEqual({ animate: false, delayMs: 0 }));
+		expect(entranceFor(3, { reduced: false, cap: 3 })).toEqual({
+			animate: false,
+			delayMs: 0,
+		}));
 	it("disabled never animates", () =>
-		expect(entranceFor(0, { reduced: false, disabled: true })).toEqual({ animate: false, delayMs: 0 }));
+		expect(entranceFor(0, { reduced: false, disabled: true })).toEqual({
+			animate: false,
+			delayMs: 0,
+		}));
 	it("reduced motion fades with no stagger delay", () =>
-		expect(entranceFor(5, { reduced: true })).toEqual({ animate: true, delayMs: 0 }));
+		expect(entranceFor(5, { reduced: true })).toEqual({
+			animate: true,
+			delayMs: 0,
+		}));
 });

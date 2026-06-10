@@ -90,7 +90,10 @@ export function Avatar({
 				justifyContent: "center",
 			}}
 		>
-			<View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+			<View
+				accessibilityElementsHidden
+				importantForAccessibility="no-hide-descendants"
+			>
 				{inner}
 			</View>
 		</Gradient>

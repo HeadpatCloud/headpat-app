@@ -1,11 +1,12 @@
 import { FlashList } from "@shopify/flash-list";
-import { Inbox } from "@/components/icons";
 import { type ReactElement, useRef, useState } from "react";
 import { ActivityIndicator, RefreshControl, View } from "react-native";
 import { EmptyState } from "@/components/empty-state";
+import { Inbox } from "@/components/icons";
 import { Skeleton } from "@/components/ui/skeleton";
-import { humanizeError } from "@/lib/orpc-error";
+import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
+import { humanizeError } from "@/lib/orpc-error";
 import { useTheme } from "@/lib/theme/provider";
 
 type Page<T> = { items: T[] };
@@ -29,7 +30,7 @@ export function PaginatedList<T>({
 	renderItem,
 	keyExtractor,
 	ListHeaderComponent,
-	emptyTitle = "Nothing here yet",
+	emptyTitle,
 	emptySubtitle,
 	contentPadding = 16,
 	skeleton,
@@ -50,6 +51,7 @@ export function PaginatedList<T>({
 	estimatedItemSize?: number;
 }) {
 	const { colors } = useTheme();
+	const { t } = useI18n();
 	const animated = useRef(new Set<number>());
 	// Manual pull-to-refresh only — binding isRefetching here pops the spinner
 	// on every background stale-while-revalidate refetch.
@@ -60,11 +62,9 @@ export function PaginatedList<T>({
 			<View className="gap-3 p-4">
 				{Array.from({ length: skeletonCount }, (_, i) =>
 					skeleton ? (
-						// biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders
-						<View key={i}>{skeleton}</View>
+						<View key={`s${i}`}>{skeleton}</View>
 					) : (
-						// biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders
-						<Skeleton key={i} className="h-20 w-full rounded-xl" />
+						<Skeleton key={`s${i}`} className="h-20 w-full rounded-xl" />
 					),
 				)}
 			</View>
@@ -75,9 +75,9 @@ export function PaginatedList<T>({
 		return (
 			<EmptyState
 				icon={Inbox}
-				title="Couldn't load"
+				title={t("common.couldntLoad")}
 				subtitle={humanizeError(query.error)}
-				action={{ label: "Retry", onPress: () => query.refetch() }}
+				action={{ label: t("common.retry"), onPress: () => query.refetch() }}
 			/>
 		);
 	}
@@ -128,7 +128,11 @@ export function PaginatedList<T>({
 				/>
 			}
 			ListEmptyComponent={
-				<EmptyState icon={Inbox} title={emptyTitle} subtitle={emptySubtitle} />
+				<EmptyState
+					icon={Inbox}
+					title={emptyTitle ?? t("common.nothingHere")}
+					subtitle={emptySubtitle}
+				/>
 			}
 			ListFooterComponent={
 				query.isFetchingNextPage ? (

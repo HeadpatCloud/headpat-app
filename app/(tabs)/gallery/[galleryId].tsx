@@ -2,6 +2,8 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { router, useLocalSearchParams } from "expo-router";
+import { useRef, useState } from "react";
+import { Alert, Pressable, ScrollView, View } from "react-native";
 import {
 	Heart,
 	type LucideIcon,
@@ -10,8 +12,6 @@ import {
 	Trash2,
 	UserRound,
 } from "@/components/icons";
-import { useRef, useState } from "react";
-import { Alert, Pressable, ScrollView, View } from "react-native";
 import { StorageImage } from "@/components/storage-image";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -213,157 +213,163 @@ export default function GalleryItem() {
 				className="bg-background flex-1"
 				contentContainerStyle={{ padding: 16, gap: 16 }}
 			>
-			<StorageImage
-				kind="gallery"
-				fileId={item.data.fileId}
-				variant="1280"
-				priority="high"
-				blurhash={item.data.blurHash}
-				style={{ aspectRatio: 1, width: "100%", borderRadius: 12 }}
-				contentFit="contain"
-				accessibilityLabel={item.data.name}
-			/>
+				<StorageImage
+					kind="gallery"
+					fileId={item.data.fileId}
+					variant="1280"
+					priority="high"
+					blurhash={item.data.blurHash}
+					style={{ aspectRatio: 1, width: "100%", borderRadius: 12 }}
+					contentFit="contain"
+					accessibilityLabel={item.data.name}
+				/>
 
-			<View className="gap-1">
-				<Text variant="h3">{item.data.name}</Text>
-				<Text variant="small" className="text-muted-foreground">
-					{formatDistanceToNow(new Date(item.data.createdAt), {
-						addSuffix: true,
-					})}
-				</Text>
-			</View>
-
-			{author ? (
-				<PressableScale
-					onPress={() => router.push(`/user/${author.profileUrl}`)}
-					haptic="selection"
-					accessibilityRole="button"
-					accessibilityLabel={`View ${author.displayName ?? "user"}'s profile`}
-				>
-					<Card className="flex-row items-center gap-3 p-3">
-						<Avatar
-							fileId={author.avatarFileId}
-							name={author.displayName}
-							size={44}
-						/>
-						<View className="flex-1">
-							<Text variant="large" numberOfLines={1}>
-								{author.displayName ?? "Unknown"}
-							</Text>
-						</View>
-					</Card>
-				</PressableScale>
-			) : null}
-
-			{item.data.longText ? (
-				<Text className="text-foreground leading-6">{item.data.longText}</Text>
-			) : null}
-
-			{item.data.tags.length > 0 ? (
-				<View className="flex-row flex-wrap gap-2">
-					{item.data.tags.map((tag) => (
-						<Badge key={tag} variant="secondary">
-							{tag}
-						</Badge>
-					))}
+				<View className="gap-1">
+					<Text variant="h3">{item.data.name}</Text>
+					<Text variant="small" className="text-muted-foreground">
+						{formatDistanceToNow(new Date(item.data.createdAt), {
+							addSuffix: true,
+						})}
+					</Text>
 				</View>
-			) : null}
 
-			<View className="flex-row items-center gap-3">
-				<Button
-					variant={item.data.likedByMe ? "default" : "outline"}
-					size="sm"
-					onPress={toggleLike}
-					accessibilityRole="button"
-					accessibilityLabel={item.data.likedByMe ? "Unlike" : "Like"}
-				>
-					<Icon
-						as={Heart}
-						size={18}
-						className={
-							item.data.likedByMe
-								? "text-primary-foreground"
-								: "text-foreground"
-						}
-					/>
-					<Text>{item.data.likesCount}</Text>
-				</Button>
-				<View className="flex-row items-center gap-1.5">
-					<Icon
-						as={MessageCircle}
-						size={18}
-						className="text-muted-foreground"
-					/>
-					<Text variant="muted">{item.data.commentsCount}</Text>
-				</View>
-			</View>
-
-			<View className="gap-3">
-				<Text variant="small" className="text-muted-foreground uppercase">
-					Comments
-				</Text>
-
-				<View className="flex-row items-center gap-2">
-					<Input
-						containerClassName="flex-1"
-						placeholder="Add a comment..."
-						value={body}
-						onChangeText={setBody}
-						accessibilityLabel="Comment input"
-					/>
-					<Button
-						size="icon"
-						loading={sending}
-						disabled={body.trim().length === 0}
-						onPress={sendComment}
+				{author ? (
+					<PressableScale
+						onPress={() => router.push(`/user/${author.profileUrl}`)}
+						haptic="selection"
 						accessibilityRole="button"
-						accessibilityLabel="Send comment"
+						accessibilityLabel={`View ${author.displayName ?? "user"}'s profile`}
 					>
-						<Icon as={Send} size={18} className="text-primary-foreground" />
+						<Card className="flex-row items-center gap-3 p-3">
+							<Avatar
+								fileId={author.avatarFileId}
+								name={author.displayName}
+								size={44}
+							/>
+							<View className="flex-1">
+								<Text variant="large" numberOfLines={1}>
+									{author.displayName ?? "Unknown"}
+								</Text>
+							</View>
+						</Card>
+					</PressableScale>
+				) : null}
+
+				{item.data.longText ? (
+					<Text className="text-foreground leading-6">
+						{item.data.longText}
+					</Text>
+				) : null}
+
+				{item.data.tags.length > 0 ? (
+					<View className="flex-row flex-wrap gap-2">
+						{item.data.tags.map((tag) => (
+							<Badge key={tag} variant="secondary">
+								{tag}
+							</Badge>
+						))}
+					</View>
+				) : null}
+
+				<View className="flex-row items-center gap-3">
+					<Button
+						variant={item.data.likedByMe ? "default" : "outline"}
+						size="sm"
+						onPress={toggleLike}
+						accessibilityRole="button"
+						accessibilityLabel={item.data.likedByMe ? "Unlike" : "Like"}
+					>
+						<Icon
+							as={Heart}
+							size={18}
+							className={
+								item.data.likedByMe
+									? "text-primary-foreground"
+									: "text-foreground"
+							}
+						/>
+						<Text>{item.data.likesCount}</Text>
 					</Button>
+					<View className="flex-row items-center gap-1.5">
+						<Icon
+							as={MessageCircle}
+							size={18}
+							className="text-muted-foreground"
+						/>
+						<Text variant="muted">{item.data.commentsCount}</Text>
+					</View>
 				</View>
 
-				{comments.isLoading ? (
-					<Skeleton className="h-16 w-full" />
-				) : comments.data && comments.data.length > 0 ? (
-					comments.data.map((c) => (
-						<PressableScale
-							key={c.id}
-							haptic="selection"
-							onLongPress={() => {
-								setSelected(c);
-								sheetRef.current?.present();
-							}}
-							accessibilityLabel={`Comment by ${c.author.displayName ?? "Unknown"}`}
-							accessibilityHint="Hold for options"
+				<View className="gap-3">
+					<Text variant="small" className="text-muted-foreground uppercase">
+						Comments
+					</Text>
+
+					<View className="flex-row items-center gap-2">
+						<Input
+							containerClassName="flex-1"
+							placeholder="Add a comment..."
+							value={body}
+							onChangeText={setBody}
+							accessibilityLabel="Comment input"
+						/>
+						<Button
+							size="icon"
+							loading={sending}
+							disabled={body.trim().length === 0}
+							onPress={sendComment}
+							accessibilityRole="button"
+							accessibilityLabel="Send comment"
 						>
-							<Card className="flex-row gap-3 p-3">
-							<Avatar
-								fileId={c.author.avatarFileId}
-								name={c.author.displayName}
-								size={36}
-							/>
-							<View className="flex-1 gap-0.5">
-								<View className="flex-row items-center gap-2">
-									<Text variant="small" className="flex-1" numberOfLines={1}>
-										{c.author.displayName ?? "Unknown"}
-									</Text>
-									<Text variant="small" className="text-muted-foreground">
-										{formatDistanceToNow(new Date(c.createdAt), {
-											addSuffix: true,
-										})}
-									</Text>
-								</View>
-								<Text className="text-foreground text-sm">{c.body}</Text>
-							</View>
-							</Card>
-						</PressableScale>
-					))
-				) : (
-					<Text variant="muted">No comments yet.</Text>
-				)}
-			</View>
-		</ScrollView>
+							<Icon as={Send} size={18} className="text-primary-foreground" />
+						</Button>
+					</View>
+
+					{comments.isLoading ? (
+						<Skeleton className="h-16 w-full" />
+					) : comments.data && comments.data.length > 0 ? (
+						comments.data.map((c) => (
+							<PressableScale
+								key={c.id}
+								haptic="selection"
+								onLongPress={() => {
+									setSelected(c);
+									sheetRef.current?.present();
+								}}
+								accessibilityLabel={`Comment by ${c.author.displayName ?? "Unknown"}`}
+								accessibilityHint="Hold for options"
+							>
+								<Card className="flex-row gap-3 p-3">
+									<Avatar
+										fileId={c.author.avatarFileId}
+										name={c.author.displayName}
+										size={36}
+									/>
+									<View className="flex-1 gap-0.5">
+										<View className="flex-row items-center gap-2">
+											<Text
+												variant="small"
+												className="flex-1"
+												numberOfLines={1}
+											>
+												{c.author.displayName ?? "Unknown"}
+											</Text>
+											<Text variant="small" className="text-muted-foreground">
+												{formatDistanceToNow(new Date(c.createdAt), {
+													addSuffix: true,
+												})}
+											</Text>
+										</View>
+										<Text className="text-foreground text-sm">{c.body}</Text>
+									</View>
+								</Card>
+							</PressableScale>
+						))
+					) : (
+						<Text variant="muted">No comments yet.</Text>
+					)}
+				</View>
+			</ScrollView>
 
 			<Sheet ref={sheetRef} title="Comment" accent>
 				<View className="gap-1">

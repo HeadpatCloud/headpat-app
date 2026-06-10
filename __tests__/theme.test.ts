@@ -1,4 +1,13 @@
-import { contrastRatio, glowColor, gradientStops, hexToTriplet, readableForeground, relativeLuminance, tripletToHex, withAlpha } from "@/lib/theme/color";
+import {
+	contrastRatio,
+	glowColor,
+	gradientStops,
+	hexToTriplet,
+	readableForeground,
+	relativeLuminance,
+	tripletToHex,
+	withAlpha,
+} from "@/lib/theme/color";
 import { resolveThemeVisuals } from "@/lib/theme/derive";
 import { elevation, RADIUS, TYPE } from "@/lib/theme/foundations";
 import { PRESETS } from "@/lib/theme/presets";
@@ -27,7 +36,8 @@ describe("tripletToHex", () => {
 describe("relativeLuminance", () => {
 	it("white is ~1", () =>
 		expect(relativeLuminance("0 0% 100%")).toBeCloseTo(1, 2));
-	it("black is 0", () => expect(relativeLuminance("0 0% 0%")).toBeCloseTo(0, 2));
+	it("black is 0", () =>
+		expect(relativeLuminance("0 0% 0%")).toBeCloseTo(0, 2));
 	it("falls back to 0 for garbage", () =>
 		expect(relativeLuminance("nope")).toBe(0));
 });
@@ -162,7 +172,9 @@ describe("preset gradients", () => {
 
 describe("preset accents", () => {
 	it("headpat light accent differs from its primary", () => {
-		expect(PRESETS.headpat.light.accent).not.toBe(PRESETS.headpat.light.primary);
+		expect(PRESETS.headpat.light.accent).not.toBe(
+			PRESETS.headpat.light.primary,
+		);
 	});
 	it("slate accent differs from its primary in both schemes", () => {
 		expect(PRESETS.slate.light.accent).not.toBe(PRESETS.slate.light.primary);

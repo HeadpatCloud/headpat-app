@@ -1,0 +1,46 @@
+{
+	"tabs": {
+		"home": "Home",
+		"gallery": "Galerie",
+		"community": "Community",
+		"events": "Events",
+		"account": "Konto"
+	},
+	"titles": {
+		"gallery": "Galerie",
+		"galleryUpload": "Neuer Beitrag",
+		"communities": "Communities",
+		"communityNew": "Neue Community",
+		"events": "Events",
+		"eventNew": "Neues Event",
+		"appearance": "Erscheinungsbild",
+		"themeBuilder": "Theme-Builder",
+		"security": "Sicherheit",
+		"connections": "Verknüpfungen",
+		"changelog": "Was ist neu",
+		"users": "Leute entdecken",
+		"profileEdit": "Profil bearbeiten",
+		"announcements": "Ankündigungen",
+		"tickets": "Support",
+		"ticketNew": "Neues Ticket",
+		"ticket": "Ticket",
+		"communityAdmin": "Community verwalten",
+		"followers": "Follower",
+		"following": "Folgt"
+	},
+	"header": {
+		"language": "Sprache",
+		"toggleMode": "Hell-/Dunkelmodus umschalten"
+	},
+	"common": {
+		"nothingHere": "Noch nichts hier",
+		"couldntLoad": "Konnte nicht geladen werden",
+		"retry": "Erneut versuchen",
+		"cancel": "Abbrechen",
+		"create": "Erstellen",
+		"save": "Speichern",
+		"delete": "Löschen",
+		"search": "Suchen",
+		"loading": "Lädt…"
+	}
+}

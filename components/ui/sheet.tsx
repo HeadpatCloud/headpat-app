@@ -12,8 +12,8 @@ import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Gradient } from "@/components/ui/gradient";
 import { Text } from "@/components/ui/text";
-import { durations, springs } from "@/lib/motion/springs";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
+import { durations, springs } from "@/lib/motion/springs";
 
 function SheetBackground({ style }: BottomSheetBackgroundProps) {
 	return (
@@ -66,7 +66,12 @@ export const Sheet = forwardRef<
 				{accent ? (
 					<Gradient
 						borderRadius={999}
-						style={{ height: 3, width: 40, alignSelf: "center", marginBottom: 12 }}
+						style={{
+							height: 3,
+							width: 40,
+							alignSelf: "center",
+							marginBottom: 12,
+						}}
 					/>
 				) : null}
 				{title ? (

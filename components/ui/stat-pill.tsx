@@ -1,6 +1,6 @@
-import type { LucideIcon } from "@/components/icons";
 import { View } from "react-native";
-import { Gradient, GlowShadow } from "@/components/ui/gradient";
+import type { LucideIcon } from "@/components/icons";
+import { GlowShadow, Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { PressableScale } from "@/lib/motion/pressable-scale";

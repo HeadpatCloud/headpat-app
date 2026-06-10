@@ -1,7 +1,6 @@
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Inbox, Plus } from "@/components/icons";
 import {
 	ActivityIndicator,
 	Pressable,
@@ -9,6 +8,7 @@ import {
 	View,
 } from "react-native";
 import { EmptyState } from "@/components/empty-state";
+import { Inbox, Plus } from "@/components/icons";
 import { StorageImage } from "@/components/storage-image";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
@@ -65,7 +65,10 @@ export default function Gallery() {
 						className="p-1"
 						style={{ flex: 1 }}
 						onPress={() => router.push(`/gallery/${item.id}`)}
-						android_ripple={{ color: "rgba(255,255,255,0.15)", foreground: true }}
+						android_ripple={{
+							color: "rgba(255,255,255,0.15)",
+							foreground: true,
+						}}
 						accessibilityRole="button"
 						accessibilityLabel={item.name}
 					>

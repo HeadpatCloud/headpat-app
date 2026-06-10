@@ -1,6 +1,12 @@
 import { LinearGradient } from "expo-linear-gradient";
 import type { ReactNode } from "react";
-import { type StyleProp, StyleSheet, View, type ViewProps, type ViewStyle } from "react-native";
+import {
+	type StyleProp,
+	StyleSheet,
+	View,
+	type ViewProps,
+	type ViewStyle,
+} from "react-native";
 import { withAlpha } from "@/lib/theme/color";
 import { useTheme } from "@/lib/theme/provider";
 

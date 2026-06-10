@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { Camera, Hash, Trash2 } from "@/components/icons";
 import { useEffect, useState } from "react";
 import {
 	ActivityIndicator,
@@ -10,6 +9,7 @@ import {
 	View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Camera, Hash, Trash2 } from "@/components/icons";
 import { StorageImage } from "@/components/storage-image";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";

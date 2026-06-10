@@ -1,5 +1,7 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { type Href, Link, router } from "expo-router";
+import { useRef } from "react";
+import { View } from "react-native";
 import {
 	ChevronRight,
 	LifeBuoy,
@@ -9,8 +11,6 @@ import {
 	ShieldCheck,
 	UserPen,
 } from "@/components/icons";
-import { useRef } from "react";
-import { View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
@@ -69,7 +69,11 @@ export default function Account() {
 							<Icon as={Palette} size={20} className="text-foreground" />
 							<Text>Appearance</Text>
 						</View>
-						<Icon as={ChevronRight} size={20} className="text-muted-foreground" />
+						<Icon
+							as={ChevronRight}
+							size={20}
+							className="text-muted-foreground"
+						/>
 					</Button>
 				</Link>
 			</View>

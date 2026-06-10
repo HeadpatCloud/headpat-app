@@ -1,0 +1,46 @@
+{
+	"tabs": {
+		"home": "Home",
+		"gallery": "Galerij",
+		"community": "Community",
+		"events": "Evenementen",
+		"account": "Account"
+	},
+	"titles": {
+		"gallery": "Galerij",
+		"galleryUpload": "Nieuwe post",
+		"communities": "Communities",
+		"communityNew": "Nieuwe community",
+		"events": "Evenementen",
+		"eventNew": "Nieuw evenement",
+		"appearance": "Weergave",
+		"themeBuilder": "Theme builder",
+		"security": "Beveiliging",
+		"connections": "Koppelingen",
+		"changelog": "Wat is nieuw",
+		"users": "Mensen ontdekken",
+		"profileEdit": "Profiel bewerken",
+		"announcements": "Aankondigingen",
+		"tickets": "Support",
+		"ticketNew": "Nieuw ticket",
+		"ticket": "Ticket",
+		"communityAdmin": "Community beheren",
+		"followers": "Volgers",
+		"following": "Volgend"
+	},
+	"header": {
+		"language": "Taal",
+		"toggleMode": "Licht/donker wisselen"
+	},
+	"common": {
+		"nothingHere": "Nog niets hier",
+		"couldntLoad": "Laden mislukt",
+		"retry": "Opnieuw proberen",
+		"cancel": "Annuleren",
+		"create": "Aanmaken",
+		"save": "Opslaan",
+		"delete": "Verwijderen",
+		"search": "Zoeken",
+		"loading": "Laden…"
+	}
+}

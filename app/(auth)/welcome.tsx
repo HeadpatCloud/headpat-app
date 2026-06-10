@@ -1,4 +1,7 @@
 import { router } from "expo-router";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Aurora } from "@/components/brand/aurora";
 import {
 	CalendarDays,
 	ChevronRight,
@@ -7,9 +10,6 @@ import {
 	ShoppingBag,
 	UsersRound,
 } from "@/components/icons";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Aurora } from "@/components/brand/aurora";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Gradient } from "@/components/ui/gradient";
@@ -35,7 +35,10 @@ function AreaCard({
 	const inner = (
 		<Card className="flex-row items-center gap-3 rounded-2xl p-4">
 			<View className="h-11 w-11 items-center justify-center overflow-hidden rounded-full">
-				<Gradient opacity={soon ? 0.08 : 0.18} style={StyleSheet.absoluteFill} />
+				<Gradient
+					opacity={soon ? 0.08 : 0.18}
+					style={StyleSheet.absoluteFill}
+				/>
 				<Icon
 					as={icon}
 					size={22}

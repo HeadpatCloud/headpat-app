@@ -136,9 +136,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 		try {
 			const rows = (await client.theme.myThemes({})) as CustomTheme[];
 			const next = JSON.stringify(rows);
-			setCustomThemes((prev) =>
-				JSON.stringify(prev) === next ? prev : rows,
-			);
+			setCustomThemes((prev) => (JSON.stringify(prev) === next ? prev : rows));
 			await AsyncStorage.setItem(CUSTOM_KEY, next);
 		} catch {}
 	}, []);

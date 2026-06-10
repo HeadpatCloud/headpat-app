@@ -1,6 +1,6 @@
 import * as AppleAuthentication from "expo-apple-authentication";
-import { Globe, MessagesSquare } from "@/components/icons";
 import { Alert, Platform, View } from "react-native";
+import { Globe, MessagesSquare } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";

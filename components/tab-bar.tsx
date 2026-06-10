@@ -1,7 +1,12 @@
 import * as Haptics from "expo-haptics";
 import type { Tabs } from "expo-router";
 import { type ComponentProps, useEffect, useRef, useState } from "react";
-import { type LayoutChangeEvent, Platform, Pressable, View } from "react-native";
+import {
+	type LayoutChangeEvent,
+	Platform,
+	Pressable,
+	View,
+} from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
@@ -12,8 +17,8 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Gradient } from "@/components/ui/gradient";
 import { Text } from "@/components/ui/text";
-import { springs } from "@/lib/motion/springs";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
+import { springs } from "@/lib/motion/springs";
 
 // Derive the tab-bar props from expo-router itself (SDK 56 decoupled from
 // @react-navigation, so there's no package to import the type from).

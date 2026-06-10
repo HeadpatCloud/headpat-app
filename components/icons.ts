@@ -1,5 +1,7 @@
 // Deep imports: the lucide-react-native barrel pulls all ~1600 icon modules
 // into the bundle and evaluates them at startup. Import icons ONLY from here.
+
+export type { LucideIcon, LucideProps } from "lucide-react-native";
 export { default as AtSign } from "lucide-react-native/dist/esm/icons/at-sign.js";
 export { default as CalendarClock } from "lucide-react-native/dist/esm/icons/calendar-clock.js";
 export { default as CalendarDays } from "lucide-react-native/dist/esm/icons/calendar-days.js";
@@ -16,6 +18,7 @@ export { default as ImageOff } from "lucide-react-native/dist/esm/icons/image-of
 export { default as ImagePlus } from "lucide-react-native/dist/esm/icons/image-plus.js";
 export { default as Images } from "lucide-react-native/dist/esm/icons/images.js";
 export { default as Inbox } from "lucide-react-native/dist/esm/icons/inbox.js";
+export { default as Languages } from "lucide-react-native/dist/esm/icons/languages.js";
 export { default as LifeBuoy } from "lucide-react-native/dist/esm/icons/life-buoy.js";
 export { default as Link2 } from "lucide-react-native/dist/esm/icons/link-2.js";
 export { default as MapPin } from "lucide-react-native/dist/esm/icons/map-pin.js";
@@ -39,4 +42,3 @@ export { default as UserPen } from "lucide-react-native/dist/esm/icons/user-pen.
 export { default as UserRound } from "lucide-react-native/dist/esm/icons/user-round.js";
 export { default as Users } from "lucide-react-native/dist/esm/icons/users.js";
 export { default as UsersRound } from "lucide-react-native/dist/esm/icons/users-round.js";
-export type { LucideIcon, LucideProps } from "lucide-react-native";

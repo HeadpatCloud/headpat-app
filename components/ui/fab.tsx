@@ -1,4 +1,3 @@
-import type { LucideIcon } from "@/components/icons";
 import { useEffect } from "react";
 import { Platform, type ViewStyle } from "react-native";
 import Animated, {
@@ -7,11 +6,12 @@ import Animated, {
 	withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import type { LucideIcon } from "@/components/icons";
 import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { PressableScale } from "@/lib/motion/pressable-scale";
+import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { springs } from "@/lib/motion/springs";
 import { RADIUS } from "@/lib/theme/foundations";
 import { useTheme } from "@/lib/theme/provider";

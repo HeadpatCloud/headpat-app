@@ -6,10 +6,10 @@ import Animated, {
 	type SharedValue,
 	useAnimatedStyle,
 } from "react-native-reanimated";
+import { StorageImage, type StorageKind } from "@/components/storage-image";
 import { Avatar } from "@/components/ui/avatar";
 import { Gradient } from "@/components/ui/gradient";
 import { Text } from "@/components/ui/text";
-import { StorageImage, type StorageKind } from "@/components/storage-image";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { TYPE } from "@/lib/theme/foundations";
 import { useTheme } from "@/lib/theme/provider";

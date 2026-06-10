@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { router } from "expo-router";
-import { MapPin, Plus, Users } from "@/components/icons";
 import { View } from "react-native";
+import { MapPin, Plus, Users } from "@/components/icons";
 import { PaginatedList } from "@/components/paginated-list";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";

@@ -166,7 +166,8 @@ export function gradientStops(
 		!a || (hueDistance(p[0], a[0]) <= 12 && Math.abs(p[2] - a[2]) <= 8);
 	if (!nearlyEqual) return [firstHex, tripletToHex(accent)];
 	const h2 = (p[0] + 14) % 360;
-	const l2 = scheme === "dark" ? Math.min(100, p[2] + 6) : Math.max(0, p[2] - 6);
+	const l2 =
+		scheme === "dark" ? Math.min(100, p[2] + 6) : Math.max(0, p[2] - 6);
 	return [firstHex, tripletToHex(`${h2} ${p[1]}% ${l2}%`)];
 }
 

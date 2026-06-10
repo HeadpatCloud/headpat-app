@@ -1,4 +1,10 @@
-import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import {
+	createContext,
+	type ReactNode,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 import { AccessibilityInfo } from "react-native";
 
 // Default false (motion on) so a component used outside the provider still works.

@@ -1,4 +1,3 @@
-import type { LucideIcon } from "@/components/icons";
 import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
@@ -7,12 +6,13 @@ import Animated, {
 	withSpring,
 	withTiming,
 } from "react-native-reanimated";
+import type { LucideIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Gradient, GlowShadow } from "@/components/ui/gradient";
+import { GlowShadow, Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import { durations, springs } from "@/lib/motion/springs";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
+import { durations, springs } from "@/lib/motion/springs";
 import { TYPE } from "@/lib/theme/foundations";
 import { useTheme } from "@/lib/theme/provider";
 
@@ -60,10 +60,7 @@ export function EmptyState({
 						glow
 						borderRadius={HALO / 2}
 						opacity={0.18}
-						style={[
-							styles.halo,
-							GlowShadow(glow),
-						]}
+						style={[styles.halo, GlowShadow(glow)]}
 					>
 						{emoji ? (
 							<Text className="text-4xl">{emoji}</Text>

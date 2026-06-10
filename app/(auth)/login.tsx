@@ -16,8 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { signIn } from "@/lib/auth-client";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
-import { durations } from "@/lib/motion/springs";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
+import { durations } from "@/lib/motion/springs";
 import { humanizeError } from "@/lib/orpc-error";
 
 export default function Login() {
@@ -134,7 +134,9 @@ export default function Login() {
 					<View className="min-h-11 flex-row items-center gap-1">
 						<Text variant="muted">New here?</Text>
 						<Link href="/(auth)/register">
-							<Text className="text-primary font-medium">Create an account</Text>
+							<Text className="text-primary font-medium">
+								Create an account
+							</Text>
 						</Link>
 					</View>
 				</AnimatedEntrance>
