@@ -1,8 +1,16 @@
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { router, useLocalSearchParams } from "expo-router";
-import { Heart, MessageCircle, Send } from "lucide-react-native";
-import { useState } from "react";
+import {
+	Heart,
+	type LucideIcon,
+	MessageCircle,
+	Send,
+	Trash2,
+	UserRound,
+} from "lucide-react-native";
+import { useRef, useState } from "react";
 import { Alert, Pressable, ScrollView, View } from "react-native";
 import { StorageImage } from "@/components/storage-image";
 import { Avatar } from "@/components/ui/avatar";
@@ -11,10 +19,51 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { useSession } from "@/lib/auth-client";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
+import { cn } from "@/lib/utils";
+
+function CommentAction({
+	icon,
+	label,
+	destructive,
+	disabled,
+	onPress,
+}: {
+	icon: LucideIcon;
+	label: string;
+	destructive?: boolean;
+	disabled?: boolean;
+	onPress: () => void;
+}) {
+	return (
+		<Pressable
+			onPress={onPress}
+			disabled={disabled}
+			accessibilityRole="button"
+			accessibilityLabel={label}
+			className="flex-row items-center gap-3 py-3.5"
+		>
+			<Icon
+				as={icon}
+				size={18}
+				className={destructive ? "text-destructive" : "text-foreground"}
+			/>
+			<Text
+				className={cn(
+					"font-medium",
+					destructive ? "text-destructive" : "text-foreground",
+				)}
+			>
+				{label}
+			</Text>
+		</Pressable>
+	);
+}
 
 export default function GalleryItem() {
 	const { galleryId } = useLocalSearchParams<{ galleryId: string }>();
@@ -29,6 +78,54 @@ export default function GalleryItem() {
 	const comments = useQuery(
 		orpc.gallery.comments.queryOptions({ input: { itemId: galleryId } }),
 	);
+
+	const { data: session } = useSession();
+	const perms = useQuery({
+		...orpc.adminRole.myPermissions.queryOptions(),
+		enabled: !!session,
+	});
+	const canModerate = (perms.data ?? []).some(
+		(p) => p === "*:*" || p === "gallery:*" || p === "gallery:delete",
+	);
+
+	const sheetRef = useRef<BottomSheetModal>(null);
+	const [selected, setSelected] = useState<
+		NonNullable<typeof comments.data>[number] | null
+	>(null);
+	const [deleting, setDeleting] = useState(false);
+
+	const myId = session?.user.id;
+	const canDelete =
+		!!selected &&
+		!!myId &&
+		(selected.author.userId === myId ||
+			item.data?.author?.userId === myId ||
+			canModerate);
+
+	function viewProfile() {
+		if (!selected) return;
+		sheetRef.current?.dismiss();
+		router.push(`/user/${selected.author.profileUrl}`);
+	}
+
+	async function deleteSelected() {
+		if (!selected || deleting) return;
+		setDeleting(true);
+		try {
+			await client.gallery.deleteComment({ commentId: selected.id });
+			sheetRef.current?.dismiss();
+			await Promise.all([
+				queryClient.invalidateQueries({
+					queryKey: orpc.gallery.comments.key(),
+				}),
+				queryClient.invalidateQueries({ queryKey: orpc.gallery.byId.key() }),
+			]);
+		} catch (e) {
+			Alert.alert("Couldn't delete comment", humanizeError(e));
+		} finally {
+			setDeleting(false);
+		}
+	}
 
 	async function toggleLike() {
 		if (!item.data || liking) return;
@@ -90,10 +187,11 @@ export default function GalleryItem() {
 	const { author } = item.data;
 
 	return (
-		<ScrollView
-			className="bg-background flex-1"
-			contentContainerStyle={{ padding: 16, gap: 16 }}
-		>
+		<>
+			<ScrollView
+				className="bg-background flex-1"
+				contentContainerStyle={{ padding: 16, gap: 16 }}
+			>
 			<StorageImage
 				kind="gallery"
 				fileId={item.data.fileId}
@@ -206,7 +304,16 @@ export default function GalleryItem() {
 					<Skeleton className="h-16 w-full" />
 				) : comments.data && comments.data.length > 0 ? (
 					comments.data.map((c) => (
-						<Card key={c.id} className="flex-row gap-3 p-3">
+						<Pressable
+							key={c.id}
+							onLongPress={() => {
+								setSelected(c);
+								sheetRef.current?.present();
+							}}
+							accessibilityLabel={`Comment by ${c.author.displayName ?? "Unknown"}`}
+							accessibilityHint="Hold for options"
+						>
+							<Card className="flex-row gap-3 p-3">
 							<Avatar
 								fileId={c.author.avatarFileId}
 								name={c.author.displayName}
@@ -225,12 +332,33 @@ export default function GalleryItem() {
 								</View>
 								<Text className="text-foreground text-sm">{c.body}</Text>
 							</View>
-						</Card>
+							</Card>
+						</Pressable>
 					))
 				) : (
 					<Text variant="muted">No comments yet.</Text>
 				)}
 			</View>
 		</ScrollView>
+
+			<Sheet ref={sheetRef} title="Comment" accent>
+				<View className="gap-1">
+					<CommentAction
+						icon={UserRound}
+						label="View profile"
+						onPress={viewProfile}
+					/>
+					{canDelete ? (
+						<CommentAction
+							icon={Trash2}
+							label="Delete comment"
+							destructive
+							disabled={deleting}
+							onPress={deleteSelected}
+						/>
+					) : null}
+				</View>
+			</Sheet>
+		</>
 	);
 }
