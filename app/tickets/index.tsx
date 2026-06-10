@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 
@@ -86,14 +87,20 @@ export default function Tickets() {
 					/>
 				}
 			/>
-			<Pressable
+			<PressableScale
 				onPress={() => router.push("/tickets/new")}
+				haptic="selection"
 				accessibilityRole="button"
 				accessibilityLabel="New ticket"
-				className="bg-primary absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full shadow-lg"
+				className="absolute bottom-6 right-6"
 			>
-				<Icon as={Plus} size={26} className="text-primary-foreground" />
-			</Pressable>
+				<View
+					className="bg-primary h-14 w-14 items-center justify-center rounded-full"
+					style={{ boxShadow: "0 4 12 rgba(0, 0, 0, 0.25)" }}
+				>
+					<Icon as={Plus} size={26} className="text-primary-foreground" />
+				</View>
+			</PressableScale>
 		</View>
 	);
 }

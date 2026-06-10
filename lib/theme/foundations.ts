@@ -1,4 +1,5 @@
 import type { TextStyle, ViewStyle } from "react-native";
+import { withAlpha } from "@/lib/theme/color";
 
 export const RADIUS = {
 	xs: 8,
@@ -34,18 +35,13 @@ export function elevation(
 	level: 1 | 2 | 3,
 	scheme: "light" | "dark",
 	glow: string,
-	foreground = "hsl(0 0% 0%)",
+	foreground = "#000000",
 ): ViewStyle {
 	const ramp = {
-		1: { radius: 8, offset: 3, opacity: scheme === "dark" ? 0.5 : 0.1, elev: 2 },
-		2: { radius: 16, offset: 6, opacity: scheme === "dark" ? 0.55 : 0.14, elev: 5 },
-		3: { radius: 28, offset: 12, opacity: scheme === "dark" ? 0.6 : 0.18, elev: 10 },
+		1: { radius: 8, offset: 3, opacity: scheme === "dark" ? 0.5 : 0.1 },
+		2: { radius: 16, offset: 6, opacity: scheme === "dark" ? 0.55 : 0.14 },
+		3: { radius: 28, offset: 12, opacity: scheme === "dark" ? 0.6 : 0.18 },
 	}[level];
-	return {
-		shadowColor: scheme === "dark" ? glow : foreground,
-		shadowOffset: { width: 0, height: ramp.offset },
-		shadowOpacity: ramp.opacity,
-		shadowRadius: ramp.radius,
-		elevation: ramp.elev,
-	};
+	const color = withAlpha(scheme === "dark" ? glow : foreground, ramp.opacity);
+	return { boxShadow: `0 ${ramp.offset} ${ramp.radius} ${color}` };
 }

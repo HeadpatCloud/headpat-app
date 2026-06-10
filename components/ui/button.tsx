@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
 	cn(
-		"group relative shrink-0 flex-row items-center justify-center gap-2 overflow-hidden shadow-none active:scale-[0.98]",
+		"group relative shrink-0 flex-row items-center justify-center gap-2 overflow-hidden active:scale-[0.98]",
 		Platform.select({
 			web: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 		}),
@@ -27,19 +27,19 @@ const buttonVariants = cva(
 			variant: {
 				default: "active:opacity-95",
 				destructive: cn(
-					"bg-destructive active:bg-destructive/90 dark:bg-destructive/60 shadow-sm shadow-black/5",
+					"bg-destructive active:bg-destructive/90 dark:bg-destructive/60",
 					Platform.select({
 						web: "hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
 					}),
 				),
 				outline: cn(
-					"border-border bg-background active:bg-accent dark:bg-input/30 dark:border-input dark:active:bg-input/50 border shadow-sm shadow-black/5",
+					"border-border bg-background active:bg-accent dark:bg-input/30 dark:border-input dark:active:bg-input/50 border",
 					Platform.select({
 						web: "hover:bg-accent dark:hover:bg-input/50",
 					}),
 				),
 				secondary: cn(
-					"bg-secondary active:bg-secondary/80 shadow-sm shadow-black/5",
+					"bg-secondary active:bg-secondary/80",
 					Platform.select({ web: "hover:bg-secondary/80" }),
 				),
 				ghost: cn(

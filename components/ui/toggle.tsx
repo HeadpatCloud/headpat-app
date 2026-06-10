@@ -71,9 +71,14 @@ export function Toggle({
 					/>
 				) : null}
 				<Animated.View
-					className="bg-white shadow"
+					className="bg-white"
 					style={[
-						{ width: KNOB, height: KNOB, borderRadius: KNOB / 2 },
+						{
+							width: KNOB,
+							height: KNOB,
+							borderRadius: KNOB / 2,
+							boxShadow: "0 1 2 rgba(0, 0, 0, 0.25)",
+						},
 						knobStyle,
 					]}
 				/>

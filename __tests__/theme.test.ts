@@ -1,4 +1,4 @@
-import { contrastRatio, glowColor, gradientStops, hexToTriplet, readableForeground, relativeLuminance, tripletToHex } from "@/lib/theme/color";
+import { contrastRatio, glowColor, gradientStops, hexToTriplet, readableForeground, relativeLuminance, tripletToHex, withAlpha } from "@/lib/theme/color";
 import { resolveThemeVisuals } from "@/lib/theme/derive";
 import { elevation, RADIUS, TYPE } from "@/lib/theme/foundations";
 import { PRESETS } from "@/lib/theme/presets";
@@ -84,6 +84,15 @@ describe("gradientStops", () => {
 	});
 });
 
+describe("withAlpha", () => {
+	it("hex gains the alpha", () =>
+		expect(withAlpha("#ff0000", 0.5)).toBe("rgba(255, 0, 0, 0.5)"));
+	it("rgba alphas multiply", () =>
+		expect(withAlpha("rgba(1, 2, 3, 0.5)", 0.6)).toBe("rgba(1, 2, 3, 0.3)"));
+	it("passes through unparseable colors", () =>
+		expect(withAlpha("teal", 0.5)).toBe("teal"));
+});
+
 describe("glowColor", () => {
 	it("dark uses 0.45 alpha", () =>
 		expect(glowColor("160 100% 25%", "dark")).toMatch(/, 0\.45\)$/));
@@ -117,14 +126,13 @@ describe("foundations", () => {
 		expect(TYPE.display.fontWeight).toBe("800");
 		expect(TYPE.display.letterSpacing).toBe(-0.5);
 	});
-	it("dark elevation uses the passed glow as shadowColor", () => {
+	it("dark elevation carries the glow in its boxShadow", () => {
 		const e = elevation(2, "dark", "rgba(1, 2, 3, 0.45)");
-		expect(e.shadowColor).toBe("rgba(1, 2, 3, 0.45)");
-		expect(e.elevation).toBeGreaterThan(0);
+		expect(e.boxShadow).toBe("0 6 16 rgba(1, 2, 3, 0.248)");
 	});
 	it("light elevation uses the foreground-derived shadow, not glow", () => {
-		const e = elevation(2, "light", "rgba(1, 2, 3, 0.45)", "hsl(0 0% 0%)");
-		expect(e.shadowColor).toBe("hsl(0 0% 0%)");
+		const e = elevation(2, "light", "rgba(1, 2, 3, 0.45)", "#000000");
+		expect(e.boxShadow).toBe("0 6 16 rgba(0, 0, 0, 0.14)");
 	});
 });
 

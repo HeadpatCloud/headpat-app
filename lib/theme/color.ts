@@ -63,6 +63,23 @@ export function tripletToHex(triplet: string): string {
 	return `#${to(r)}${to(g)}${to(b)}`;
 }
 
+// Compose an alpha onto a "#rrggbb" or "rgba(...)" color (an rgba's own alpha
+// multiplies). boxShadow has no separate opacity prop, so shadow colors carry
+// their alpha directly.
+export function withAlpha(color: string, alpha: number): string {
+	const round = (n: number) => Math.round(n * 1000) / 1000;
+	const hex = /^#?([0-9a-f]{6})$/i.exec(color.trim());
+	if (hex) {
+		const int = Number.parseInt(hex[1], 16);
+		return `rgba(${(int >> 16) & 255}, ${(int >> 8) & 255}, ${int & 255}, ${round(alpha)})`;
+	}
+	const rgba = /^rgba\((\d+), (\d+), (\d+), ([\d.]+)\)$/.exec(color.trim());
+	if (rgba) {
+		return `rgba(${rgba[1]}, ${rgba[2]}, ${rgba[3]}, ${round(Number(rgba[4]) * alpha)})`;
+	}
+	return color;
+}
+
 function parseTriplet(triplet: string): [number, number, number] | null {
 	const m = /^\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*$/.exec(triplet);
 	if (!m) return null;

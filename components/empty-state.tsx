@@ -84,7 +84,7 @@ export function EmptyState({
 			{action ? (
 				<Button
 					onPress={action.onPress}
-					className="mt-2 overflow-hidden bg-transparent shadow-none"
+					className="mt-2 overflow-hidden bg-transparent"
 				>
 					<Gradient style={StyleSheet.absoluteFill} />
 					<Text>{action.label}</Text>

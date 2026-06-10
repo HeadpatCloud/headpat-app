@@ -65,11 +65,7 @@ function GlowCard({
 
 const styles = StyleSheet.create({
 	lightShadow: {
-		shadowColor: "#000",
-		shadowOpacity: 0.08,
-		shadowRadius: 8,
-		shadowOffset: { width: 0, height: 2 },
-		elevation: 2,
+		boxShadow: "0 2 8 rgba(0, 0, 0, 0.08)",
 	},
 	edge: {
 		position: "absolute",

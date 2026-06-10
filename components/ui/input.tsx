@@ -28,7 +28,7 @@ function Input({
 	ref,
 	...props
 }: InputProps) {
-	const { colors, glow } = useTheme();
+	const { colors } = useTheme();
 	const reduced = useReducedMotion();
 	const focus = useSharedValue(0);
 	const hasError = typeof error === "string" && error.length > 0;
@@ -75,11 +75,7 @@ function Input({
 				<Animated.View
 					pointerEvents="none"
 					className="absolute inset-0 rounded-xl border-2"
-					style={[
-						{ borderColor: ringColor },
-						{ ...GlowShadow(glow), shadowColor: ringColor },
-						ringStyle,
-					]}
+					style={[{ borderColor: ringColor }, GlowShadow(ringColor), ringStyle]}
 				/>
 			</View>
 			{hasError ? (

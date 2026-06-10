@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import type { ReactNode } from "react";
 import { type StyleProp, StyleSheet, View, type ViewProps, type ViewStyle } from "react-native";
+import { withAlpha } from "@/lib/theme/color";
 import { useTheme } from "@/lib/theme/provider";
 
 type GradientProps = ViewProps & {
@@ -17,15 +18,11 @@ type GradientProps = ViewProps & {
 	children?: ReactNode;
 };
 
-// iOS-only on purpose: Android's elevation draws the shadow through the
-// transparent wrappers this lands on (input ring, halos) as a smeared wash.
+// CSS-spec boxShadow (New Arch): renders on both platforms and is clipped
+// outside the box, so it can't bleed through transparent wrappers the way
+// Android elevation did. The legacy shadow* props are deprecated.
 export function GlowShadow(glow: string): ViewStyle {
-	return {
-		shadowColor: glow,
-		shadowOpacity: 0.6,
-		shadowRadius: 16,
-		shadowOffset: { width: 0, height: 8 },
-	};
+	return { boxShadow: `0 8 16 ${withAlpha(glow, 0.6)}` };
 }
 
 export function Gradient({

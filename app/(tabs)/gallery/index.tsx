@@ -118,7 +118,10 @@ export default function Gallery() {
 					accessibilityLabel="New gallery post"
 					className="absolute bottom-6 right-6"
 				>
-					<View className="bg-primary h-14 w-14 items-center justify-center rounded-full shadow-lg">
+					<View
+						className="bg-primary h-14 w-14 items-center justify-center rounded-full"
+						style={{ boxShadow: "0 4 12 rgba(0, 0, 0, 0.25)" }}
+					>
 						<Icon as={Plus} size={26} className="text-primary-foreground" />
 					</View>
 				</PressableScale>
