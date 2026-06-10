@@ -1,112 +1,161 @@
-import { Link, useRouter } from "expo-router";
-import { useEffect } from "react";
-import { Image, View } from "react-native";
+import { router } from "expo-router";
+import {
+	CalendarDays,
+	ChevronRight,
+	Images,
+	type LucideIcon,
+	ShoppingBag,
+	UsersRound,
+} from "lucide-react-native";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, {
-	FadeInDown,
-	useAnimatedStyle,
-	useSharedValue,
-	withTiming,
-} from "react-native-reanimated";
-import { GlowBackdrop } from "@/components/brand/glow-backdrop";
+import { Aurora } from "@/components/brand/aurora";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Gradient } from "@/components/ui/gradient";
 import { GradientText } from "@/components/ui/gradient-text";
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import { durations } from "@/lib/motion/springs";
-import { useReducedMotion } from "@/lib/motion/reduced-motion";
+import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
+import { PressableScale } from "@/lib/motion/pressable-scale";
+
+function AreaCard({
+	icon,
+	title,
+	subtitle,
+	onPress,
+	soon,
+}: {
+	icon: LucideIcon;
+	title: string;
+	subtitle: string;
+	onPress?: () => void;
+	soon?: boolean;
+}) {
+	const inner = (
+		<Card className="flex-row items-center gap-3 rounded-2xl p-4">
+			<View className="h-11 w-11 items-center justify-center overflow-hidden rounded-full">
+				<Gradient opacity={soon ? 0.08 : 0.18} style={StyleSheet.absoluteFill} />
+				<Icon
+					as={icon}
+					size={22}
+					className={soon ? "text-muted-foreground" : "text-primary"}
+				/>
+			</View>
+			<View className="flex-1 gap-0.5">
+				<View className="flex-row items-center gap-2">
+					<Text variant="large">{title}</Text>
+					{soon ? (
+						<View className="bg-muted rounded-full px-2 py-0.5">
+							<Text variant="caption" className="text-muted-foreground">
+								Soon
+							</Text>
+						</View>
+					) : null}
+				</View>
+				<Text variant="muted" numberOfLines={1}>
+					{subtitle}
+				</Text>
+			</View>
+			{soon ? null : (
+				<Icon as={ChevronRight} size={20} className="text-muted-foreground" />
+			)}
+		</Card>
+	);
+
+	if (soon || !onPress) {
+		return <View className="opacity-60">{inner}</View>;
+	}
+	return (
+		<PressableScale
+			onPress={onPress}
+			accessibilityRole="button"
+			accessibilityLabel={title}
+		>
+			{inner}
+		</PressableScale>
+	);
+}
 
 export default function Welcome() {
 	const insets = useSafeAreaInsets();
-	const router = useRouter();
-	const reduced = useReducedMotion();
-
-	const logoOpacity = useSharedValue(reduced ? 1 : 0);
-	const logoScale = useSharedValue(reduced ? 1 : 0.92);
-	const glowOpacity = useSharedValue(reduced ? 1 : 0);
-
-	useEffect(() => {
-		if (reduced) {
-			logoOpacity.value = 1;
-			logoScale.value = 1;
-			glowOpacity.value = 1;
-			return;
-		}
-		logoOpacity.value = withTiming(1, { duration: durations.slow });
-		logoScale.value = withTiming(1, { duration: durations.slow });
-		glowOpacity.value = withTiming(1, { duration: durations.slow * 2 });
-	}, [reduced, logoOpacity, logoScale, glowOpacity]);
-
-	const logoStyle = useAnimatedStyle(() => ({
-		opacity: logoOpacity.value,
-		transform: [{ scale: logoScale.value }],
-	}));
-	const glowStyle = useAnimatedStyle(() => ({ opacity: glowOpacity.value }));
-
 	return (
-		<View
-			className="bg-background flex-1 px-6"
-			style={{ paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }}
-		>
-			<View className="flex-1 items-center justify-center gap-6">
-				<Animated.View
-					style={glowStyle}
-					pointerEvents="none"
-					className="absolute inset-0 items-center justify-center"
-				>
-					<GlowBackdrop size={320} />
-				</Animated.View>
-
-				<Animated.View style={logoStyle}>
+		<View className="bg-background flex-1">
+			<Aurora />
+			<ScrollView
+				contentContainerStyle={{
+					paddingTop: insets.top + 24,
+					paddingBottom: insets.bottom + 24,
+					paddingHorizontal: 24,
+					gap: 24,
+				}}
+			>
+				<AnimatedEntrance index={0} className="items-center gap-3">
 					<Image
 						source={require("../../assets/images/headpat_logo.png")}
-						style={{ width: 120, height: 120 }}
+						style={{ width: 84, height: 84 }}
 						resizeMode="contain"
 						accessibilityRole="image"
 						accessibilityLabel="Headpat logo"
 					/>
-				</Animated.View>
+					<GradientText className="text-center text-3xl font-extrabold tracking-tight">
+						Welcome to Headpat
+					</GradientText>
+					<Text variant="muted" className="text-center">
+						Explore freely — sign in when you're ready.
+					</Text>
+				</AnimatedEntrance>
 
-				<View className="items-center gap-3">
-					<Animated.View
-						entering={reduced ? undefined : FadeInDown.duration(durations.base).delay(80)}
+				<AnimatedEntrance index={1} className="gap-2">
+					<Text variant="caption" className="text-muted-foreground">
+						Explore
+					</Text>
+					<AreaCard
+						icon={Images}
+						title="Gallery"
+						subtitle="Art, photos & posts"
+						onPress={() => router.push("/(tabs)/gallery")}
+					/>
+					<AreaCard
+						icon={CalendarDays}
+						title="Events"
+						subtitle="Meetups & happenings"
+						onPress={() => router.push("/(tabs)/events")}
+					/>
+					<AreaCard
+						icon={UsersRound}
+						title="Communities"
+						subtitle="Groups & friends"
+						onPress={() => router.push("/(tabs)/community")}
+					/>
+					<AreaCard
+						icon={ShoppingBag}
+						title="Marketplace"
+						subtitle="Buy & sell"
+						soon
+					/>
+				</AnimatedEntrance>
+
+				<AnimatedEntrance index={2} className="gap-2">
+					<Button
+						size="lg"
+						fullWidth
+						onPress={() => router.push("/(auth)/login")}
+						accessibilityRole="button"
+						accessibilityLabel="Sign in"
 					>
-						<GradientText className="text-center text-4xl font-extrabold tracking-tight">
-							Welcome to Headpat
-						</GradientText>
-					</Animated.View>
-					<Animated.View
-						entering={reduced ? undefined : FadeInDown.duration(durations.base).delay(130)}
-					>
-						<Text variant="muted" className="text-center">
-							The cozy place for the community — events, galleries, and friends.
-						</Text>
-					</Animated.View>
-				</View>
-			</View>
-
-			<Animated.View
-				entering={reduced ? undefined : FadeInDown.duration(durations.base).delay(180)}
-				className="gap-2"
-			>
-				<Button
-					size="lg"
-					onPress={() => router.push("/(auth)/login")}
-					accessibilityRole="button"
-					accessibilityLabel="Get started, go to sign in"
-				>
-					<Text>Get started</Text>
-				</Button>
-
-				<Link href="/(auth)/login" asChild>
+						<Text>Sign in</Text>
+					</Button>
 					<Button
 						variant="link"
+						onPress={() => router.push("/(auth)/register")}
 						accessibilityRole="link"
-						accessibilityLabel="Already have an account? Sign in"
+						accessibilityLabel="Create an account"
 					>
-						<Text>Already have an account? Sign in</Text>
+						<Text>New here? Create an account</Text>
 					</Button>
-				</Link>
-			</Animated.View>
+				</AnimatedEntrance>
+			</ScrollView>
 		</View>
 	);
 }

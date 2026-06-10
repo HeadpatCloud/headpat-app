@@ -23,18 +23,22 @@ function useProtectedRoute() {
 	const router = useRouter();
 	const [onboarded, setOnboarded] = useState<boolean | null>(null);
 
+	// Re-read on each navigation so finishing onboarding takes effect and a guest
+	// is never bounced back into onboarding once the flag is set.
 	useEffect(() => {
 		AsyncStorage.getItem("hp-onboarded").then((v) => setOnboarded(v === "1"));
-	}, []);
+	}, [segments]);
 
 	useEffect(() => {
 		if (isPending || onboarded === null) return;
 		const inAuthGroup = segments[0] === "(auth)";
-		if (!data && !inAuthGroup) {
-			router.replace(onboarded ? "/(auth)/welcome" : "/(auth)/onboarding");
+		if (!data && !onboarded && !inAuthGroup) {
+			router.replace("/(auth)/onboarding");
 		} else if (data && inAuthGroup) {
 			router.replace("/(tabs)");
 		}
+		// Onboarded but signed-out users roam freely (guest browsing): the (auth)
+		// screens to sign in, or the (tabs) to browse public content.
 	}, [data, isPending, segments, router, onboarded]);
 }
 

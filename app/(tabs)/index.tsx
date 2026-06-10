@@ -158,6 +158,11 @@ export default function Home() {
 		router.push(path);
 	};
 
+	const requireAuth = (action: () => void) => {
+		if (session) action();
+		else router.push("/(auth)/login");
+	};
+
 	const list = (events.data ?? []) as Event[];
 
 	return (
@@ -179,7 +184,7 @@ export default function Home() {
 							style={{ position: "absolute", left: -40, top: -80, opacity: 0.4 }}
 						/>
 						<Text variant="caption" className="text-muted-foreground">
-							Welcome back
+							{session ? "Welcome back" : "Welcome"}
 						</Text>
 						<GradientText className="text-4xl font-extrabold tracking-tight">
 							{session?.user?.name ?? "Headpat"}
@@ -192,7 +197,7 @@ export default function Home() {
 						variant="default"
 						size="lg"
 						fullWidth
-						onPress={() => createRef.current?.present()}
+						onPress={() => requireAuth(() => createRef.current?.present())}
 						accessibilityRole="button"
 						accessibilityLabel="Create"
 					>
@@ -241,7 +246,7 @@ export default function Home() {
 							<Button
 								variant="ghost"
 								size="sm"
-								onPress={() => create("/events/new")}
+								onPress={() => requireAuth(() => create("/events/new"))}
 								accessibilityRole="button"
 								accessibilityLabel="Create an event"
 							>

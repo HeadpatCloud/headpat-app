@@ -295,9 +295,9 @@ export default function Onboarding() {
 							fullWidth
 							onPress={finishOnboarding}
 							accessibilityRole="button"
-							accessibilityLabel="Get started"
+							accessibilityLabel="Continue"
 						>
-							<Text>Get started</Text>
+							<Text>Continue</Text>
 						</Button>
 						<Link href="/(auth)/login" asChild>
 							<Button

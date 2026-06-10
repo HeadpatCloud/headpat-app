@@ -1,5 +1,5 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { type Href, Link } from "expo-router";
+import { type Href, Link, router } from "expo-router";
 import {
 	ChevronRight,
 	LifeBuoy,
@@ -28,6 +28,53 @@ const ROWS: { href: Href; icon: LucideIcon; label: string }[] = [
 export default function Account() {
 	const { data } = useSession();
 	const sheetRef = useRef<BottomSheetModal>(null);
+
+	if (!data) {
+		return (
+			<View className="bg-background flex-1 gap-6 p-6">
+				<View className="gap-1">
+					<Text variant="large">You're browsing as a guest</Text>
+					<Text variant="muted">
+						Sign in to post, join communities, and sync your profile.
+					</Text>
+				</View>
+				<View className="gap-3">
+					<Button
+						size="lg"
+						fullWidth
+						onPress={() => router.push("/(auth)/login")}
+						accessibilityRole="button"
+						accessibilityLabel="Sign in"
+					>
+						<Text>Sign in</Text>
+					</Button>
+					<Button
+						variant="outline"
+						fullWidth
+						onPress={() => router.push("/(auth)/register")}
+						accessibilityRole="button"
+						accessibilityLabel="Create account"
+					>
+						<Text>Create account</Text>
+					</Button>
+				</View>
+				<Link href="/appearance" asChild>
+					<Button
+						variant="outline"
+						accessibilityRole="button"
+						accessibilityLabel="Appearance settings"
+						className="h-14 justify-between"
+					>
+						<View className="flex-row items-center gap-3">
+							<Icon as={Palette} size={20} className="text-foreground" />
+							<Text>Appearance</Text>
+						</View>
+						<Icon as={ChevronRight} size={20} className="text-muted-foreground" />
+					</Button>
+				</Link>
+			</View>
+		);
+	}
 
 	return (
 		<View className="bg-background flex-1 gap-6 p-6">
