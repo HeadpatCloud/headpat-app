@@ -222,8 +222,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
 	// Stable identity matters: a fresh vars() object invalidates css-interop's
 	// variable context at the root and re-renders every styled component.
+	// The backgroundColor here is the app-wide backdrop: it covers the (white)
+	// native root view whenever screens detach mid-transition.
 	const rootStyle = useMemo(
-		() => [{ flex: 1 }, vars(tokensToVars(triplets))],
+		() => [
+			{ flex: 1, backgroundColor: tripletToHex(triplets.background) },
+			vars(tokensToVars(triplets)),
+		],
 		[triplets],
 	);
 
