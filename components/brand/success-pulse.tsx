@@ -1,4 +1,4 @@
-import { Check } from "lucide-react-native";
+import { Check } from "@/components/icons";
 import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {

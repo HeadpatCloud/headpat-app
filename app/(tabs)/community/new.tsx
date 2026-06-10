@@ -35,7 +35,7 @@ export default function NewCommunity() {
 				tags: tagList.length > 0 ? tagList : undefined,
 				settings: { isFindable, hasPublicPage, nsfw },
 			});
-			await qc.invalidateQueries({ queryKey: orpc.community.list.key() });
+			qc.invalidateQueries({ queryKey: orpc.community.list.key() });
 			router.replace(`/community/${created.id}`);
 		} catch (e) {
 			Alert.alert("Couldn't create community", humanizeError(e));

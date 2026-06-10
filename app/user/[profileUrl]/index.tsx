@@ -6,7 +6,7 @@ import {
 	MessageCircle,
 	Send,
 	Twitch,
-} from "lucide-react-native";
+} from "@/components/icons";
 import { useState } from "react";
 import { Alert, Pressable, ScrollView, View } from "react-native";
 import { StorageImage } from "@/components/storage-image";
@@ -66,24 +66,56 @@ export default function UserProfile() {
 
 	const p = profile.data;
 
+	// Optimistic: flip iFollow + followersCount in the cache immediately, roll
+	// back on error — the tap must not wait on the network.
 	async function toggleFollow() {
-		if (!targetUserId || !follow.data) return;
+		if (!targetUserId || !follow.data || pending) return;
 		setPending(true);
+		const followKey = orpc.follow.status.queryOptions({
+			input: { targetUserId },
+		}).queryKey;
+		const profileKey = orpc.profile.byUrl.queryOptions({
+			input: { profileUrl },
+		}).queryKey;
+		await Promise.all([
+			queryClient.cancelQueries({ queryKey: followKey }),
+			queryClient.cancelQueries({ queryKey: profileKey }),
+		]);
+		const prevFollow = queryClient.getQueryData(followKey);
+		const prevProfile = queryClient.getQueryData(profileKey);
+		const wasFollowing = follow.data.iFollow;
+		queryClient.setQueryData(
+			followKey,
+			(old) => old && { ...old, iFollow: !old.iFollow },
+		);
+		queryClient.setQueryData(
+			profileKey,
+			(old) =>
+				old && {
+					...old,
+					followersCount: Math.max(
+						old.followersCount + (wasFollowing ? -1 : 1),
+						0,
+					),
+				},
+		);
 		try {
-			if (follow.data.iFollow) {
+			if (wasFollowing) {
 				await client.follow.remove({ targetUserId });
 			} else {
 				await client.follow.add({ targetUserId });
 			}
-			await queryClient.invalidateQueries({
-				queryKey: orpc.follow.status.key(),
-			});
-			await queryClient.invalidateQueries({
-				queryKey: orpc.profile.byUrl.key(),
-			});
 		} catch (e) {
+			queryClient.setQueryData(followKey, prevFollow);
+			queryClient.setQueryData(profileKey, prevProfile);
 			Alert.alert("Couldn't update follow", humanizeError(e));
 		} finally {
+			queryClient.invalidateQueries({
+				queryKey: orpc.follow.status.key({ input: { targetUserId } }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: orpc.profile.byUrl.key({ input: { profileUrl } }),
+			});
 			setPending(false);
 		}
 	}
@@ -108,6 +140,7 @@ export default function UserProfile() {
 					<StorageImage
 						kind="banner"
 						fileId={p.bannerFileId}
+						variant="1600"
 						style={{ width: "100%", height: "100%" }}
 						accessibilityLabel={`${p.displayName ?? p.profileUrl} banner`}
 					/>
@@ -134,7 +167,6 @@ export default function UserProfile() {
 				{follow.data ? (
 					<Button
 						variant={follow.data.iFollow ? "outline" : "default"}
-						disabled={pending}
 						onPress={toggleFollow}
 						accessibilityRole="button"
 						accessibilityLabel={follow.data.iFollow ? "Unfollow" : "Follow"}

@@ -1,6 +1,6 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { router, useLocalSearchParams } from "expo-router";
 import {
 	Heart,
@@ -9,7 +9,7 @@ import {
 	Send,
 	Trash2,
 	UserRound,
-} from "lucide-react-native";
+} from "@/components/icons";
 import { useRef, useState } from "react";
 import { Alert, Pressable, ScrollView, View } from "react-native";
 import { StorageImage } from "@/components/storage-image";
@@ -23,6 +23,7 @@ import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 import { cn } from "@/lib/utils";
@@ -46,7 +47,7 @@ function CommentAction({
 			disabled={disabled}
 			accessibilityRole="button"
 			accessibilityLabel={label}
-			className="flex-row items-center gap-3 py-3.5"
+			className="active:bg-accent/50 flex-row items-center gap-3 rounded-xl py-3.5"
 		>
 			<Icon
 				as={icon}
@@ -114,12 +115,12 @@ export default function GalleryItem() {
 		try {
 			await client.gallery.deleteComment({ commentId: selected.id });
 			sheetRef.current?.dismiss();
-			await Promise.all([
-				queryClient.invalidateQueries({
-					queryKey: orpc.gallery.comments.key(),
-				}),
-				queryClient.invalidateQueries({ queryKey: orpc.gallery.byId.key() }),
-			]);
+			queryClient.invalidateQueries({
+				queryKey: orpc.gallery.comments.key({ input: { itemId: galleryId } }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: orpc.gallery.byId.key({ input: { itemId: galleryId } }),
+			});
 		} catch (e) {
 			Alert.alert("Couldn't delete comment", humanizeError(e));
 		} finally {
@@ -127,21 +128,41 @@ export default function GalleryItem() {
 		}
 	}
 
+	// Optimistic: flip the cached item immediately, roll back on error. The tap
+	// must never wait on the network for visual feedback.
 	async function toggleLike() {
 		if (!item.data || liking) return;
 		setLiking(true);
+		const key = orpc.gallery.byId.queryOptions({
+			input: { itemId: galleryId },
+		}).queryKey;
+		await queryClient.cancelQueries({ queryKey: key });
+		const prev = queryClient.getQueryData(key);
+		const wasLiked = item.data.likedByMe;
+		queryClient.setQueryData(
+			key,
+			(old) =>
+				old && {
+					...old,
+					likedByMe: !old.likedByMe,
+					likesCount: old.likedByMe
+						? Math.max(old.likesCount - 1, 0)
+						: old.likesCount + 1,
+				},
+		);
 		try {
-			if (item.data.likedByMe) {
+			if (wasLiked) {
 				await client.gallery.unlike({ itemId: galleryId });
 			} else {
 				await client.gallery.like({ itemId: galleryId });
 			}
-			await queryClient.invalidateQueries({
-				queryKey: orpc.gallery.byId.key(),
-			});
 		} catch (e) {
+			queryClient.setQueryData(key, prev);
 			Alert.alert("Couldn't update like", humanizeError(e));
 		} finally {
+			queryClient.invalidateQueries({
+				queryKey: orpc.gallery.byId.key({ input: { itemId: galleryId } }),
+			});
 			setLiking(false);
 		}
 	}
@@ -153,12 +174,12 @@ export default function GalleryItem() {
 		try {
 			await client.gallery.comment({ itemId: galleryId, body: trimmed });
 			setBody("");
-			await Promise.all([
-				queryClient.invalidateQueries({
-					queryKey: orpc.gallery.comments.key(),
-				}),
-				queryClient.invalidateQueries({ queryKey: orpc.gallery.byId.key() }),
-			]);
+			queryClient.invalidateQueries({
+				queryKey: orpc.gallery.comments.key({ input: { itemId: galleryId } }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: orpc.gallery.byId.key({ input: { itemId: galleryId } }),
+			});
 		} catch (e) {
 			Alert.alert("Couldn't post comment", humanizeError(e));
 		} finally {
@@ -195,6 +216,8 @@ export default function GalleryItem() {
 			<StorageImage
 				kind="gallery"
 				fileId={item.data.fileId}
+				variant="1280"
+				priority="high"
 				blurhash={item.data.blurHash}
 				style={{ aspectRatio: 1, width: "100%", borderRadius: 12 }}
 				contentFit="contain"
@@ -211,8 +234,9 @@ export default function GalleryItem() {
 			</View>
 
 			{author ? (
-				<Pressable
+				<PressableScale
 					onPress={() => router.push(`/user/${author.profileUrl}`)}
+					haptic="selection"
 					accessibilityRole="button"
 					accessibilityLabel={`View ${author.displayName ?? "user"}'s profile`}
 				>
@@ -228,7 +252,7 @@ export default function GalleryItem() {
 							</Text>
 						</View>
 					</Card>
-				</Pressable>
+				</PressableScale>
 			) : null}
 
 			{item.data.longText ? (
@@ -249,7 +273,6 @@ export default function GalleryItem() {
 				<Button
 					variant={item.data.likedByMe ? "default" : "outline"}
 					size="sm"
-					disabled={liking}
 					onPress={toggleLike}
 					accessibilityRole="button"
 					accessibilityLabel={item.data.likedByMe ? "Unlike" : "Like"}
@@ -286,12 +309,12 @@ export default function GalleryItem() {
 						placeholder="Add a comment..."
 						value={body}
 						onChangeText={setBody}
-						editable={!sending}
 						accessibilityLabel="Comment input"
 					/>
 					<Button
 						size="icon"
-						disabled={sending || body.trim().length === 0}
+						loading={sending}
+						disabled={body.trim().length === 0}
 						onPress={sendComment}
 						accessibilityRole="button"
 						accessibilityLabel="Send comment"
@@ -304,8 +327,9 @@ export default function GalleryItem() {
 					<Skeleton className="h-16 w-full" />
 				) : comments.data && comments.data.length > 0 ? (
 					comments.data.map((c) => (
-						<Pressable
+						<PressableScale
 							key={c.id}
+							haptic="selection"
 							onLongPress={() => {
 								setSelected(c);
 								sheetRef.current?.present();
@@ -333,7 +357,7 @@ export default function GalleryItem() {
 								<Text className="text-foreground text-sm">{c.body}</Text>
 							</View>
 							</Card>
-						</Pressable>
+						</PressableScale>
 					))
 				) : (
 					<Text variant="muted">No comments yet.</Text>

@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Camera } from "lucide-react-native";
+import { Camera } from "@/components/icons";
 import { useEffect, useState } from "react";
 import {
 	ActivityIndicator,
@@ -104,7 +104,7 @@ export default function ProfileEdit() {
 				indexingEnabled: indexing,
 				nsfwEnabled: nsfw,
 			});
-			await qc.invalidateQueries({ queryKey: orpc.profile.me.key() });
+			qc.invalidateQueries({ queryKey: orpc.profile.me.key() });
 			router.back();
 		} catch (e) {
 			Alert.alert("Couldn't save", humanizeError(e));
@@ -137,6 +137,7 @@ export default function ProfileEdit() {
 					<StorageImage
 						kind="banner"
 						fileId={bannerFileId}
+						variant="800"
 						style={{ width: "100%", height: "100%" }}
 					/>
 				) : null}

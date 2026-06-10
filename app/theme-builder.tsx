@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { Trash2 } from "lucide-react-native";
+import { Trash2 } from "@/components/icons";
 import { useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

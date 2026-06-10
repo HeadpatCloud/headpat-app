@@ -6,7 +6,7 @@ import {
 	type LucideIcon,
 	User,
 	UsersRound,
-} from "lucide-react-native";
+} from "@/components/icons";
 import { TabBar } from "@/components/tab-bar";
 import { Icon } from "@/components/ui/icon";
 
@@ -24,7 +24,7 @@ export default function TabsLayout() {
 	return (
 		<Tabs
 			tabBar={(props) => <TabBar {...props} />}
-			screenOptions={{ headerShown: true }}
+			screenOptions={{ headerShown: true, freezeOnBlur: true }}
 		>
 			<Tabs.Screen
 				name="index"

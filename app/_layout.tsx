@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
 import { Stack, useRouter, useSegments } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -16,6 +17,10 @@ export {
 	// Catch any errors thrown by the Layout component.
 	ErrorBoundary,
 } from "expo-router";
+
+// Hold the splash until ThemeProvider has hydrated the stored theme — the
+// first visible frame is then already in the user's colors, not the default.
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function useProtectedRoute() {
 	const { data, isPending } = useSession();

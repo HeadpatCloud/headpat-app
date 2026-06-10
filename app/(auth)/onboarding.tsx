@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { Link, router } from "expo-router";
-import { Moon, Sun } from "lucide-react-native";
+import { Moon, Sun } from "@/components/icons";
 import { useCallback, useRef, useState } from "react";
 import {
 	Image,
@@ -20,7 +20,6 @@ import Animated, {
 	useAnimatedScrollHandler,
 	useAnimatedStyle,
 	useSharedValue,
-	withSpring,
 	withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -30,7 +29,6 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
-import { springs } from "@/lib/motion/springs";
 import { tripletToHex } from "@/lib/theme/color";
 import { PRESET_LIST, PRESETS } from "@/lib/theme/presets";
 import { useTheme } from "@/lib/theme/provider";
@@ -50,8 +48,8 @@ function commaHsl(hsl: string): string {
 	);
 }
 
-async function finishOnboarding() {
-	await AsyncStorage.setItem(ONBOARDED_KEY, "1");
+function finishOnboarding() {
+	AsyncStorage.setItem(ONBOARDED_KEY, "1").catch(() => {});
 	router.replace("/(auth)/welcome");
 }
 
@@ -147,8 +145,10 @@ function Dot({
 			[0, 1, 0],
 			Extrapolation.CLAMP,
 		);
+		// No withSpring here: spawning a spring per scroll frame (and animating
+		// layout `width`) janks the swipe on slower phones.
 		return {
-			width: withSpring(8 + active * 12, springs.layout),
+			width: 8 + active * 12,
 			backgroundColor: active > 0.5 ? colors.primary : colors.muted,
 			opacity: 0.4 + active * 0.6,
 		};

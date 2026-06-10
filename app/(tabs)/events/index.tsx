@@ -1,14 +1,15 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { router } from "expo-router";
-import { MapPin, Plus, Users } from "lucide-react-native";
-import { Pressable, View } from "react-native";
+import { MapPin, Plus, Users } from "@/components/icons";
+import { View } from "react-native";
 import { PaginatedList } from "@/components/paginated-list";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
 
 export default function Events() {
@@ -30,8 +31,9 @@ export default function Events() {
 				emptyTitle="No events yet"
 				emptySubtitle="Upcoming events will show up here."
 				renderItem={(e) => (
-					<Pressable
+					<PressableScale
 						onPress={() => router.push(`/events/${e.id}`)}
+						haptic="selection"
 						accessibilityRole="button"
 						accessibilityLabel={e.title}
 					>
@@ -78,18 +80,21 @@ export default function Events() {
 								</View>
 							) : null}
 						</Card>
-					</Pressable>
+					</PressableScale>
 				)}
 			/>
 			{session ? (
-				<Pressable
+				<PressableScale
 					onPress={() => router.push("/events/new")}
+					haptic="selection"
 					accessibilityRole="button"
 					accessibilityLabel="New event"
-					className="bg-primary absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full shadow-lg"
+					className="absolute bottom-6 right-6"
 				>
-					<Icon as={Plus} size={26} className="text-primary-foreground" />
-				</Pressable>
+					<View className="bg-primary h-14 w-14 items-center justify-center rounded-full shadow-lg">
+						<Icon as={Plus} size={26} className="text-primary-foreground" />
+					</View>
+				</PressableScale>
 			) : null}
 		</View>
 	);

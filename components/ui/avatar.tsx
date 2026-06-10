@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { PixelRatio, View } from "react-native";
 import { StorageImage, type StorageKind } from "@/components/storage-image";
 import { Gradient } from "@/components/ui/gradient";
 import { Text } from "@/components/ui/text";
@@ -42,6 +42,8 @@ export function Avatar({
 		<StorageImage
 			kind={kind}
 			fileId={fileId}
+			variant={size * PixelRatio.get() <= 96 ? "sm" : "md"}
+			transition={0}
 			style={style}
 			accessibilityLabel={label}
 		/>

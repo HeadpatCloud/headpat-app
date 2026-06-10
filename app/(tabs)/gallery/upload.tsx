@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import type { ImagePickerAsset } from "expo-image-picker";
 import { router } from "expo-router";
-import { ImagePlus } from "lucide-react-native";
+import { ImagePlus } from "@/components/icons";
 import { useState } from "react";
 import { Alert, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -46,7 +46,7 @@ export default function GalleryUpload() {
 				mimeType: asset.mimeType ?? "image/jpeg",
 				fileId,
 			});
-			await qc.invalidateQueries({ queryKey: orpc.gallery.list.key() });
+			qc.invalidateQueries({ queryKey: orpc.gallery.list.key() });
 			router.back();
 		} catch (e) {
 			Alert.alert("Upload failed", humanizeError(e));
@@ -67,6 +67,7 @@ export default function GalleryUpload() {
 		>
 			<Pressable
 				onPress={choose}
+				android_ripple={{ color: "rgba(127,127,127,0.18)" }}
 				accessibilityRole="button"
 				accessibilityLabel="Choose image"
 				className="border-border bg-card aspect-square items-center justify-center overflow-hidden rounded-xl border"

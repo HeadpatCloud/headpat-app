@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format } from "date-fns/format";
 import { View } from "react-native";
 import { PaginatedList } from "@/components/paginated-list";
 import { Badge } from "@/components/ui/badge";

@@ -6,7 +6,7 @@ import {
 	type LucideIcon,
 	ShoppingBag,
 	UsersRound,
-} from "lucide-react-native";
+} from "@/components/icons";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Aurora } from "@/components/brand/aurora";

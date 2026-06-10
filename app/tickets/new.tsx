@@ -48,7 +48,7 @@ export default function NewTicket() {
 				category,
 				priority,
 			});
-			await qc.invalidateQueries({ queryKey: orpc.ticket.myList.key() });
+			qc.invalidateQueries({ queryKey: orpc.ticket.myList.key() });
 			router.replace(`/tickets/${created.id}`);
 		} catch (e) {
 			Alert.alert("Couldn't create ticket", humanizeError(e));

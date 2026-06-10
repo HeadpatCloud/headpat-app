@@ -213,6 +213,7 @@ function Button({
 						disabled={isDisabled}
 						accessibilityState={{ disabled: !!isDisabled, busy: loading }}
 						onPressIn={handlePressIn}
+						android_ripple={{ color: "rgba(255,255,255,0.2)" }}
 						{...props}
 					>
 						{content}

@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { Camera, Hash, Trash2 } from "lucide-react-native";
+import { Camera, Hash, Trash2 } from "@/components/icons";
 import { useEffect, useState } from "react";
 import {
 	ActivityIndicator,
@@ -91,8 +91,10 @@ export default function CommunityAdmin() {
 				avatarFileId,
 				bannerFileId,
 			});
-			await qc.invalidateQueries({ queryKey: orpc.community.byId.key() });
-			await qc.invalidateQueries({ queryKey: orpc.community.list.key() });
+			qc.invalidateQueries({
+				queryKey: orpc.community.byId.key({ input: { communityId } }),
+			});
+			qc.invalidateQueries({ queryKey: orpc.community.list.key() });
 			Alert.alert("Saved", "Community settings updated.");
 		} catch (e) {
 			Alert.alert("Couldn't save", humanizeError(e));
@@ -256,7 +258,7 @@ function Channels({ communityId }: { communityId: string }) {
 				name: newName.trim(),
 				topic: newTopic.trim() || undefined,
 			});
-			await refresh();
+			refresh();
 			setNewName("");
 			setNewTopic("");
 		} catch (e) {
@@ -276,7 +278,7 @@ function Channels({ communityId }: { communityId: string }) {
 					setDeletingId(channelId);
 					try {
 						await client.channel.delete({ channelId });
-						await refresh();
+						refresh();
 					} catch (e) {
 						Alert.alert("Couldn't delete channel", humanizeError(e));
 					} finally {

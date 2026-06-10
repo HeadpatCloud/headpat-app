@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format } from "date-fns/format";
 import { useLocalSearchParams } from "expo-router";
-import { Send } from "lucide-react-native";
+import { Send } from "@/components/icons";
 import { useState } from "react";
 import {
 	Alert,
@@ -38,14 +38,22 @@ export default function Ticket() {
 			queryKey: orpc.ticket.get.key({ input: { ticketId } }),
 		});
 
+	const getKey = orpc.ticket.get.queryOptions({ input: { ticketId } }).queryKey;
+
 	const send = async () => {
 		const body = reply.trim();
 		if (body.length === 0 || sending) return;
 		setSending(true);
 		try {
-			await client.ticket.reply({ ticketId, body });
+			// Server-confirmed row goes straight into the cache — the reply shows
+			// after one roundtrip instead of waiting for a full refetch.
+			const msg = await client.ticket.reply({ ticketId, body });
 			setReply("");
-			await refresh();
+			qc.setQueryData(
+				getKey,
+				(old) => old && { ...old, messages: [...old.messages, msg] },
+			);
+			refresh();
 		} catch (e) {
 			Alert.alert("Couldn't send", humanizeError(e));
 		} finally {
@@ -54,11 +62,16 @@ export default function Ticket() {
 	};
 
 	const setStatus = async (status: "open" | "closed") => {
+		if (statusBusy) return;
 		setStatusBusy(true);
 		try {
-			await client.ticket.setStatus({ ticketId, status });
-			await refresh();
-			await qc.invalidateQueries({ queryKey: orpc.ticket.myList.key() });
+			const row = await client.ticket.setStatus({ ticketId, status });
+			qc.setQueryData(
+				getKey,
+				(old) => old && { ...old, status: row.status },
+			);
+			refresh();
+			qc.invalidateQueries({ queryKey: orpc.ticket.myList.key() });
 		} catch (e) {
 			Alert.alert("Couldn't update ticket", humanizeError(e));
 		} finally {
@@ -127,7 +140,7 @@ export default function Ticket() {
 
 				<Button
 					variant="outline"
-					disabled={statusBusy}
+					loading={statusBusy}
 					onPress={() => setStatus(isOpen ? "closed" : "open")}
 					accessibilityRole="button"
 					accessibilityLabel={isOpen ? "Close ticket" : "Reopen ticket"}
@@ -152,7 +165,8 @@ export default function Ticket() {
 				/>
 				<Button
 					size="icon"
-					disabled={reply.trim().length === 0 || sending}
+					loading={sending}
+					disabled={reply.trim().length === 0}
 					onPress={send}
 					accessibilityRole="button"
 					accessibilityLabel="Send reply"

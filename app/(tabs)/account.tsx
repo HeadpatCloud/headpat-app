@@ -8,7 +8,7 @@ import {
 	Palette,
 	ShieldCheck,
 	UserPen,
-} from "lucide-react-native";
+} from "@/components/icons";
 import { useRef } from "react";
 import { View } from "react-native";
 import { Button } from "@/components/ui/button";

@@ -1,6 +1,6 @@
 import { FlashList } from "@shopify/flash-list";
-import { Inbox } from "lucide-react-native";
-import { type ReactElement, useRef } from "react";
+import { Inbox } from "@/components/icons";
+import { type ReactElement, useRef, useState } from "react";
 import { ActivityIndicator, RefreshControl, View } from "react-native";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,6 +9,8 @@ import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { useTheme } from "@/lib/theme/provider";
 
 type Page<T> = { items: T[] };
+
+const Separator = () => <View className="h-3" />;
 
 type InfiniteQuery<T> = {
 	data?: { pages: Page<T>[] };
@@ -49,6 +51,9 @@ export function PaginatedList<T>({
 }) {
 	const { colors } = useTheme();
 	const animated = useRef(new Set<number>());
+	// Manual pull-to-refresh only — binding isRefetching here pops the spinner
+	// on every background stale-while-revalidate refetch.
+	const [refreshing, setRefreshing] = useState(false);
 
 	if (query.isLoading) {
 		return (
@@ -100,7 +105,7 @@ export function PaginatedList<T>({
 			}}
 			keyExtractor={keyExtractor}
 			contentContainerStyle={{ padding: contentPadding }}
-			ItemSeparatorComponent={() => <View className="h-3" />}
+			ItemSeparatorComponent={Separator}
 			ListHeaderComponent={ListHeaderComponent}
 			onEndReachedThreshold={0.5}
 			onEndReached={() => {
@@ -109,8 +114,15 @@ export function PaginatedList<T>({
 			}}
 			refreshControl={
 				<RefreshControl
-					refreshing={query.isRefetching && !query.isFetchingNextPage}
-					onRefresh={() => query.refetch()}
+					refreshing={refreshing}
+					onRefresh={async () => {
+						setRefreshing(true);
+						try {
+							await query.refetch();
+						} finally {
+							setRefreshing(false);
+						}
+					}}
 					tintColor={colors.primary}
 					colors={[colors.primary]}
 				/>

@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format } from "date-fns/format";
 import { router, useLocalSearchParams } from "expo-router";
-import { CalendarDays, MapPin, Users } from "lucide-react-native";
+import { CalendarDays, MapPin, Users } from "@/components/icons";
 import { useState } from "react";
-import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Alert, ScrollView, View } from "react-native";
 import { StorageImage } from "@/components/storage-image";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 
@@ -33,26 +34,56 @@ export default function Community() {
 		orpc.event.listByCommunity.queryOptions({ input: { communityId } }),
 	);
 
+	// Optimistic: flip iFollow + followersCount in the cache immediately, roll
+	// back on error — the tap must not wait on the network.
 	async function toggleFollow() {
-		const iFollow = followStatus.data?.iFollow ?? false;
+		if (busy) return;
 		setBusy(true);
+		const statusKey = orpc.community.followStatus.queryOptions({
+			input: { communityId },
+		}).queryKey;
+		const byIdKey = orpc.community.byId.queryOptions({
+			input: { communityId },
+		}).queryKey;
+		await Promise.all([
+			queryClient.cancelQueries({ queryKey: statusKey }),
+			queryClient.cancelQueries({ queryKey: byIdKey }),
+		]);
+		const prevStatus = queryClient.getQueryData(statusKey);
+		const prevById = queryClient.getQueryData(byIdKey);
+		const wasFollowing = followStatus.data?.iFollow ?? false;
+		queryClient.setQueryData(
+			statusKey,
+			(old) => old && { ...old, iFollow: !wasFollowing },
+		);
+		queryClient.setQueryData(
+			byIdKey,
+			(old) =>
+				old && {
+					...old,
+					followersCount: Math.max(
+						old.followersCount + (wasFollowing ? -1 : 1),
+						0,
+					),
+				},
+		);
 		try {
-			if (iFollow) {
+			if (wasFollowing) {
 				await client.community.unfollow({ communityId });
 			} else {
 				await client.community.follow({ communityId });
 			}
-			await Promise.all([
-				queryClient.invalidateQueries({
-					queryKey: orpc.community.followStatus.key(),
-				}),
-				queryClient.invalidateQueries({
-					queryKey: orpc.community.byId.key(),
-				}),
-			]);
 		} catch (e) {
+			queryClient.setQueryData(statusKey, prevStatus);
+			queryClient.setQueryData(byIdKey, prevById);
 			Alert.alert("Couldn't update follow", humanizeError(e));
 		} finally {
+			queryClient.invalidateQueries({
+				queryKey: orpc.community.followStatus.key({ input: { communityId } }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: orpc.community.byId.key({ input: { communityId } }),
+			});
 			setBusy(false);
 		}
 	}
@@ -90,6 +121,7 @@ export default function Community() {
 				<StorageImage
 					kind="community-banner"
 					fileId={c.bannerFileId}
+					variant="1600"
 					style={{ width: "100%", height: 160 }}
 					accessibilityLabel={`${c.name} banner`}
 				/>
@@ -121,7 +153,7 @@ export default function Community() {
 				<Button
 					variant={iFollow ? "outline" : "default"}
 					onPress={toggleFollow}
-					disabled={busy || followStatus.isLoading}
+					disabled={followStatus.isLoading}
 					accessibilityRole="button"
 					accessibilityLabel={
 						iFollow ? "Unfollow community" : "Follow community"
@@ -163,8 +195,9 @@ export default function Community() {
 						<Skeleton className="h-20 w-full" />
 					) : events.data && events.data.length > 0 ? (
 						events.data.map((e) => (
-							<Pressable
+							<PressableScale
 								key={e.id}
+								haptic="selection"
 								onPress={() => router.push(`/events/${e.id}`)}
 								accessibilityRole="button"
 								accessibilityLabel={e.title}
@@ -210,7 +243,7 @@ export default function Community() {
 										</Text>
 									</View>
 								</Card>
-							</Pressable>
+							</PressableScale>
 						))
 					) : (
 						<Text variant="muted">No events yet.</Text>

@@ -1,40 +1,46 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { PaginatedList } from "@/components/paginated-list";
 import { Avatar } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
 
 export default function Users() {
+	const [text, setText] = useState("");
 	const [search, setSearch] = useState("");
-	const query = useInfiniteQuery(
-		orpc.profile.list.infiniteOptions({
+	const query = useInfiniteQuery({
+		...orpc.profile.list.infiniteOptions({
 			input: (page: number) => ({
 				page,
 				pageSize: 24,
-				...(search.trim() ? { search: search.trim() } : {}),
+				...(search ? { search } : {}),
 			}),
 			initialPageParam: 1,
 			getNextPageParam: (last) =>
 				last.page * last.pageSize < last.total ? last.page + 1 : undefined,
 		}),
-	);
+		// Keep the old results (and the search input mounted) while a new
+		// search term loads, instead of flashing the skeleton screen.
+		placeholderData: keepPreviousData,
+	});
 
 	return (
 		<PaginatedList
 			query={query}
 			keyExtractor={(u) => u.userId}
 			emptyTitle="No profiles found"
-			emptySubtitle={search.trim() ? "Try a different search." : undefined}
+			emptySubtitle={search ? "Try a different search." : undefined}
 			ListHeaderComponent={
 				<View className="pb-3">
 					<Input
-						value={search}
-						onChangeText={setSearch}
+						value={text}
+						onChangeText={setText}
+						onSubmitEditing={() => setSearch(text.trim())}
 						placeholder="Search profiles"
 						autoCapitalize="none"
 						autoCorrect={false}
@@ -44,8 +50,9 @@ export default function Users() {
 				</View>
 			}
 			renderItem={(u) => (
-				<Pressable
+				<PressableScale
 					onPress={() => router.push(`/user/${u.profileUrl}`)}
+					haptic="selection"
 					accessibilityRole="button"
 					accessibilityLabel={u.displayName ?? u.profileUrl}
 				>
@@ -77,7 +84,7 @@ export default function Users() {
 							{u.followersCount} followers
 						</Text>
 					</Card>
-				</Pressable>
+				</PressableScale>
 			)}
 		/>
 	);

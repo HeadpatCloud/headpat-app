@@ -2,9 +2,9 @@ import DateTimePicker, {
 	type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format } from "date-fns/format";
 import { router } from "expo-router";
-import { CalendarClock } from "lucide-react-native";
+import { CalendarClock } from "@/components/icons";
 import { useState } from "react";
 import { Alert, Platform, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -72,7 +72,7 @@ export default function NewEvent() {
 					.map((t) => t.trim())
 					.filter(Boolean),
 			});
-			await qc.invalidateQueries({ queryKey: orpc.event.list.key() });
+			qc.invalidateQueries({ queryKey: orpc.event.list.key() });
 			router.replace(`/events/${created.id}`);
 		} catch (e) {
 			Alert.alert("Couldn't create event", humanizeError(e));

@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format } from "date-fns/format";
 import { useLocalSearchParams } from "expo-router";
-import { CalendarClock, Globe, MapPin, Users } from "lucide-react-native";
+import { CalendarClock, Globe, MapPin, Users } from "@/components/icons";
 import { useState } from "react";
 import { Alert, Linking, ScrollView, View } from "react-native";
 import { StorageImage } from "@/components/storage-image";
@@ -27,25 +27,66 @@ export default function Event() {
 	const attending =
 		myAttending.data?.some((row) => row.eventId === eventId) ?? false;
 
+	// Optimistic: toggle the cached attendance + count immediately, roll back
+	// on error — the tap must not wait on the network for visual feedback.
 	async function toggleAttend() {
+		if (pending) return;
 		setPending(true);
+		const myKey = orpc.event.myAttending.queryOptions().queryKey;
+		const byIdKey = orpc.event.byId.queryOptions({
+			input: { eventId },
+		}).queryKey;
+		await Promise.all([
+			queryClient.cancelQueries({ queryKey: myKey }),
+			queryClient.cancelQueries({ queryKey: byIdKey }),
+		]);
+		const prevMy = queryClient.getQueryData(myKey);
+		const prevById = queryClient.getQueryData(byIdKey);
+		const wasAttending = attending;
+		queryClient.setQueryData(myKey, (old) =>
+			old
+				? wasAttending
+					? old.filter((row) => row.eventId !== eventId)
+					: [
+							...old,
+							{
+								eventId,
+								userId: "",
+								notify: false,
+								remindedAt: null,
+								createdAt: new Date(),
+							},
+						]
+				: old,
+		);
+		queryClient.setQueryData(
+			byIdKey,
+			(old) =>
+				old && {
+					...old,
+					attendeesCount: Math.max(
+						old.attendeesCount + (wasAttending ? -1 : 1),
+						0,
+					),
+				},
+		);
 		try {
-			if (attending) {
+			if (wasAttending) {
 				await client.event.unattend({ eventId });
 			} else {
 				await client.event.attend({ eventId });
 			}
-			await Promise.all([
-				queryClient.invalidateQueries({
-					queryKey: orpc.event.myAttending.key(),
-				}),
-				queryClient.invalidateQueries({
-					queryKey: orpc.event.byId.key({ input: { eventId } }),
-				}),
-			]);
 		} catch (e) {
+			queryClient.setQueryData(myKey, prevMy);
+			queryClient.setQueryData(byIdKey, prevById);
 			Alert.alert("Couldn't update attendance", humanizeError(e));
 		} finally {
+			queryClient.invalidateQueries({
+				queryKey: orpc.event.myAttending.key(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: orpc.event.byId.key({ input: { eventId } }),
+			});
 			setPending(false);
 		}
 	}
@@ -158,7 +199,7 @@ export default function Event() {
 			<Button
 				variant={attending ? "outline" : "default"}
 				onPress={toggleAttend}
-				disabled={pending || myAttending.isLoading}
+				disabled={myAttending.isLoading}
 				accessibilityRole="button"
 				accessibilityLabel={
 					attending ? "Leave this event" : "Attend this event"

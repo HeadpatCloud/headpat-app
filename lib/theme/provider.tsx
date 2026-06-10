@@ -5,6 +5,7 @@ import {
 	type Theme as NavTheme,
 	ThemeProvider as NavThemeProvider,
 } from "expo-router/react-navigation";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { colorScheme, vars } from "nativewind";
 import {
@@ -98,37 +99,53 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 	const [mode, setModeState] = useState<ThemeMode>("system");
 	const [activeTheme, setActiveThemeState] = useState<string>("headpat");
 	const [customThemes, setCustomThemes] = useState<CustomTheme[]>([]);
+	const [hydrated, setHydrated] = useState(false);
 	const { data: session } = authClient.useSession();
+	// Effects key on the user id, not the session object — better-auth emits a
+	// fresh session object on every refetch (app focus, token refresh).
+	const userId = session?.user?.id ?? null;
 
-	// Hydrate cached prefs once (pre-paint before the server responds).
+	// Hydrate cached prefs once; the splash stays up until the first frame is
+	// painted with the user's theme (no default-theme flash).
 	useEffect(() => {
 		(async () => {
-			const [m, a, c] = await Promise.all([
-				AsyncStorage.getItem(MODE_KEY),
-				AsyncStorage.getItem(ACTIVE_KEY),
-				AsyncStorage.getItem(CUSTOM_KEY),
-			]);
-			if (m === "light" || m === "dark" || m === "system") setModeState(m);
-			if (a) setActiveThemeState(a);
-			if (c) {
-				try {
-					setCustomThemes(JSON.parse(c));
-				} catch {}
+			try {
+				const [[, m], [, a], [, c]] = await AsyncStorage.multiGet([
+					MODE_KEY,
+					ACTIVE_KEY,
+					CUSTOM_KEY,
+				]);
+				if (m === "light" || m === "dark" || m === "system") setModeState(m);
+				if (a) setActiveThemeState(a);
+				if (c) {
+					try {
+						setCustomThemes(JSON.parse(c));
+					} catch {}
+				}
+			} finally {
+				setHydrated(true);
 			}
 		})();
 	}, []);
 
+	useEffect(() => {
+		if (hydrated) SplashScreen.hideAsync().catch(() => {});
+	}, [hydrated]);
+
 	const refreshCustomThemes = useCallback(async () => {
 		try {
 			const rows = (await client.theme.myThemes({})) as CustomTheme[];
-			setCustomThemes(rows);
-			await AsyncStorage.setItem(CUSTOM_KEY, JSON.stringify(rows));
+			const next = JSON.stringify(rows);
+			setCustomThemes((prev) =>
+				JSON.stringify(prev) === next ? prev : rows,
+			);
+			await AsyncStorage.setItem(CUSTOM_KEY, next);
 		} catch {}
 	}, []);
 
 	// On sign-in, the account is the source of truth for the active theme.
 	useEffect(() => {
-		if (!session) return;
+		if (!userId) return;
 		(async () => {
 			try {
 				const me = await client.profile.me({});
@@ -139,7 +156,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 			} catch {}
 			await refreshCustomThemes();
 		})();
-	}, [session, refreshCustomThemes]);
+	}, [userId, refreshCustomThemes]);
 
 	const scheme: "light" | "dark" =
 		mode === "system" ? (device === "dark" ? "dark" : "light") : mode;
@@ -168,9 +185,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 		(value: string) => {
 			setActiveThemeState(value);
 			AsyncStorage.setItem(ACTIVE_KEY, value).catch(() => {});
-			if (session) client.theme.setActive({ theme: value }).catch(() => {});
+			if (userId) client.theme.setActive({ theme: value }).catch(() => {});
 		},
-		[session],
+		[userId],
 	);
 
 	const ctx = useMemo<ThemeContextValue>(
@@ -203,13 +220,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 		[triplets, scheme],
 	);
 
+	// Stable identity matters: a fresh vars() object invalidates css-interop's
+	// variable context at the root and re-renders every styled component.
+	const rootStyle = useMemo(
+		() => [{ flex: 1 }, vars(tokensToVars(triplets))],
+		[triplets],
+	);
+
+	if (!hydrated) return null;
+
 	return (
 		<ThemeContext.Provider value={ctx}>
 			<NavThemeProvider value={navTheme}>
 				<StatusBar style={scheme === "dark" ? "light" : "dark"} />
-				<View style={[{ flex: 1 }, vars(tokensToVars(triplets))]}>
-					{children}
-				</View>
+				<View style={rootStyle}>{children}</View>
 			</NavThemeProvider>
 		</ThemeContext.Provider>
 	);

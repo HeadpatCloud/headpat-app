@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react-native";
+import type { LucideIcon } from "@/components/icons";
 import type { ReactNode } from "react";
 import { View } from "react-native";
 import { Gradient } from "@/components/ui/gradient";

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Image, type ImageProps } from "expo-image";
-import { ImageOff } from "lucide-react-native";
+import { ImageOff } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Icon } from "@/components/ui/icon";
@@ -47,10 +47,15 @@ export function StorageImage({
 
 	const { data, isError, refetch } = useQuery({
 		...orpc.storage.url.queryOptions({
-			input: { kind, fileId: fileId ?? "", ...(variant ? { variant } : {}) },
+			input: {
+				kind,
+				fileId: fileId ?? "",
+				expirySec: 3600,
+				...(variant ? { variant } : {}),
+			},
 		}),
 		enabled: !!fileId,
-		staleTime: 4 * 60 * 1000,
+		staleTime: 50 * 60 * 1000,
 		retry: 2,
 	});
 
@@ -79,7 +84,9 @@ export function StorageImage({
 
 	return (
 		<Image
-			source={data?.url}
+			// cacheKey: presigned URLs rotate per signature, which would defeat the
+			// disk cache; the served object key is the stable identity.
+			source={data ? { uri: data.url, cacheKey: data.key } : undefined}
 			placeholder={blurhash ? { blurhash } : undefined}
 			placeholderContentFit="cover"
 			recyclingKey={fileId ?? undefined}

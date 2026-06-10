@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import type { Tabs } from "expo-router";
-import { type ComponentProps, useEffect, useState } from "react";
+import { type ComponentProps, useEffect, useRef, useState } from "react";
 import { type LayoutChangeEvent, Platform, Pressable, View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
@@ -87,6 +87,7 @@ function TabItem({
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 	const insets = useSafeAreaInsets();
 	const reduced = useReducedMotion();
+	const slotsRef = useRef<{ x: number; width: number }[]>([]);
 	const [slots, setSlots] = useState<{ x: number; width: number }[]>([]);
 
 	const x = useSharedValue(0);
@@ -110,13 +111,20 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 		opacity: width.value === 0 ? 0 : 1,
 	}));
 
+	// Accumulate measurements in a ref and commit ONE state update once every
+	// slot is measured (and only when something actually moved) — per-item
+	// setState re-rendered the whole bar 5x on mount.
 	const onSlotLayout = (index: number) => (e: LayoutChangeEvent) => {
 		const { x: lx, width: lw } = e.nativeEvent.layout;
-		setSlots((prev) => {
-			const next = [...prev];
-			next[index] = { x: lx, width: lw };
-			return next;
-		});
+		slotsRef.current[index] = { x: lx, width: lw };
+		const next = slotsRef.current;
+		if (next.filter(Boolean).length < state.routes.length) return;
+		setSlots((prev) =>
+			prev.length === next.length &&
+			prev.every((s, i) => s.x === next[i].x && s.width === next[i].width)
+				? prev
+				: [...next],
+		);
 	};
 
 	return (

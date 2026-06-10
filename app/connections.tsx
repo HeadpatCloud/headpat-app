@@ -29,9 +29,11 @@ export default function Connections() {
 	const insets = useSafeAreaInsets();
 	const [accounts, setAccounts] = useState<Account[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [unlinkingId, setUnlinkingId] = useState<string | null>(null);
 
+	// No setLoading(true) here: post-unlink refetches update the list in place
+	// instead of blanking it back to "Loading…".
 	const load = useCallback(async () => {
-		setLoading(true);
 		const res = await authClient.listAccounts();
 		if (res.data) setAccounts(res.data as Account[]);
 		setLoading(false);
@@ -49,13 +51,18 @@ export default function Connections() {
 				text: "Disconnect",
 				style: "destructive",
 				onPress: async () => {
-					const res = await authClient.unlinkAccount({
-						providerId: provider,
-						accountId: a.accountId,
-					});
-					if (res.error)
-						Alert.alert("Couldn't disconnect", humanizeError(res.error));
-					else load();
+					setUnlinkingId(a.id);
+					try {
+						const res = await authClient.unlinkAccount({
+							providerId: provider,
+							accountId: a.accountId,
+						});
+						if (res.error)
+							Alert.alert("Couldn't disconnect", humanizeError(res.error));
+						else await load();
+					} finally {
+						setUnlinkingId(null);
+					}
 				},
 			},
 		]);
@@ -89,6 +96,7 @@ export default function Connections() {
 								<Button
 									variant="outline"
 									size="sm"
+									loading={unlinkingId === a.id}
 									onPress={() => unlink(a)}
 									accessibilityLabel={`Disconnect ${LABELS[provider] ?? provider}`}
 								>

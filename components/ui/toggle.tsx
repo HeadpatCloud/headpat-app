@@ -1,4 +1,5 @@
 import * as Haptics from "expo-haptics";
+import { useEffect } from "react";
 import { Platform, Pressable, View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
@@ -25,7 +26,13 @@ export function Toggle({
 }) {
 	const reduced = useReducedMotion();
 	const x = useSharedValue(value ? TRAVEL : 0);
-	x.value = reduced ? (value ? TRAVEL : 0) : withSpring(value ? TRAVEL : 0, springs.gentle);
+	useEffect(() => {
+		x.value = reduced
+			? value
+				? TRAVEL
+				: 0
+			: withSpring(value ? TRAVEL : 0, springs.gentle);
+	}, [value, reduced, x]);
 
 	const knobStyle = useAnimatedStyle(() => ({
 		transform: [{ translateX: x.value }],

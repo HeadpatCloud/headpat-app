@@ -1,8 +1,8 @@
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { router } from "expo-router";
-import { Inbox, Plus } from "lucide-react-native";
+import { Inbox, Plus } from "@/components/icons";
 import { Pressable, RefreshControl, View } from "react-native";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";

@@ -1,7 +1,7 @@
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Inbox, Plus } from "lucide-react-native";
+import { Inbox, Plus } from "@/components/icons";
 import {
 	ActivityIndicator,
 	Pressable,
@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/lib/auth-client";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 
@@ -64,6 +65,7 @@ export default function Gallery() {
 						className="p-1"
 						style={{ flex: 1 }}
 						onPress={() => router.push(`/gallery/${item.id}`)}
+						android_ripple={{ color: "rgba(255,255,255,0.15)", foreground: true }}
 						accessibilityRole="button"
 						accessibilityLabel={item.name}
 					>
@@ -71,6 +73,8 @@ export default function Gallery() {
 							<StorageImage
 								kind="gallery"
 								fileId={item.fileId}
+								variant="640"
+								transition={0}
 								blurhash={item.blurHash}
 								style={{ aspectRatio: 1, width: "100%" }}
 								accessibilityLabel={item.name}
@@ -107,14 +111,17 @@ export default function Gallery() {
 				}
 			/>
 			{session ? (
-				<Pressable
+				<PressableScale
 					onPress={() => router.push("/gallery/upload")}
+					haptic="selection"
 					accessibilityRole="button"
 					accessibilityLabel="New gallery post"
-					className="bg-primary absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full shadow-lg"
+					className="absolute bottom-6 right-6"
 				>
-					<Icon as={Plus} size={26} className="text-primary-foreground" />
-				</Pressable>
+					<View className="bg-primary h-14 w-14 items-center justify-center rounded-full shadow-lg">
+						<Icon as={Plus} size={26} className="text-primary-foreground" />
+					</View>
+				</PressableScale>
 			) : null}
 		</View>
 	);

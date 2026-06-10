@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { router } from "expo-router";
 import { Pressable } from "react-native";
 import { PaginatedList } from "@/components/paginated-list";

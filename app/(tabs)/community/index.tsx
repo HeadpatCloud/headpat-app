@@ -1,8 +1,8 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Plus, Search, Users } from "lucide-react-native";
+import { Plus, Search, Users } from "@/components/icons";
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { PaginatedList } from "@/components/paginated-list";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
 
 export default function Communities() {
@@ -18,8 +19,8 @@ export default function Communities() {
 	const [text, setText] = useState("");
 	const [search, setSearch] = useState("");
 
-	const query = useInfiniteQuery(
-		orpc.community.list.infiniteOptions({
+	const query = useInfiniteQuery({
+		...orpc.community.list.infiniteOptions({
 			input: (page: number) => ({
 				page,
 				pageSize: 24,
@@ -29,7 +30,10 @@ export default function Communities() {
 			getNextPageParam: (last) =>
 				last.page * last.pageSize < last.total ? last.page + 1 : undefined,
 		}),
-	);
+		// Keep the old results (and the search input mounted) while a new
+		// search term loads, instead of flashing the skeleton screen.
+		placeholderData: keepPreviousData,
+	});
 
 	return (
 		<View className="bg-background flex-1">
@@ -51,19 +55,26 @@ export default function Communities() {
 								accessibilityLabel="Search communities"
 							/>
 						</View>
-						<Pressable
+						<PressableScale
 							onPress={() => setSearch(text.trim())}
+							haptic="selection"
 							accessibilityRole="button"
 							accessibilityLabel="Search"
-							className="bg-primary h-11 w-11 items-center justify-center rounded-md"
 						>
-							<Icon as={Search} size={20} className="text-primary-foreground" />
-						</Pressable>
+							<View className="bg-primary h-11 w-11 items-center justify-center rounded-md">
+								<Icon
+									as={Search}
+									size={20}
+									className="text-primary-foreground"
+								/>
+							</View>
+						</PressableScale>
 					</View>
 				}
 				renderItem={(c) => (
-					<Pressable
+					<PressableScale
 						onPress={() => router.push(`/community/${c.id}`)}
+						haptic="selection"
 						accessibilityRole="button"
 						accessibilityLabel={c.name}
 					>
@@ -104,18 +115,21 @@ export default function Communities() {
 								) : null}
 							</View>
 						</Card>
-					</Pressable>
+					</PressableScale>
 				)}
 			/>
 			{session ? (
-				<Pressable
+				<PressableScale
 					onPress={() => router.push("/community/new")}
+					haptic="selection"
 					accessibilityRole="button"
 					accessibilityLabel="New community"
-					className="bg-primary absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full shadow-lg"
+					className="absolute bottom-6 right-6"
 				>
-					<Icon as={Plus} size={26} className="text-primary-foreground" />
-				</Pressable>
+					<View className="bg-primary h-14 w-14 items-center justify-center rounded-full shadow-lg">
+						<Icon as={Plus} size={26} className="text-primary-foreground" />
+					</View>
+				</PressableScale>
 			) : null}
 		</View>
 	);
