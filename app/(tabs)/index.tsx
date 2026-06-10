@@ -1,6 +1,6 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { type Href, router } from "expo-router";
 import {
 	CalendarPlus,
@@ -12,7 +12,7 @@ import {
 	Plus,
 	RefreshCw,
 	UsersRound,
-} from "lucide-react-native";
+} from "@/components/icons";
 import { useRef } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { GlowBackdrop } from "@/components/brand/glow-backdrop";
@@ -178,7 +178,7 @@ export default function Home() {
 				}
 			>
 				<AnimatedEntrance index={0}>
-					<View className="overflow-hidden rounded-3xl p-1">
+					<View className="overflow-hidden rounded-3xl px-4 py-3">
 						<GlowBackdrop
 							size={240}
 							style={{ position: "absolute", left: -40, top: -80, opacity: 0.4 }}
@@ -186,7 +186,7 @@ export default function Home() {
 						<Text variant="caption" className="text-muted-foreground">
 							{session ? "Welcome back" : "Welcome"}
 						</Text>
-						<GradientText className="text-4xl font-extrabold tracking-tight">
+						<GradientText className="text-4xl leading-[44px] font-extrabold tracking-tight">
 							{session?.user?.name ?? "Headpat"}
 						</GradientText>
 					</View>
