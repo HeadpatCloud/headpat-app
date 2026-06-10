@@ -1,32 +1,79 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
+import { Gradient } from "@/components/ui/gradient";
+import { GradientText } from "@/components/ui/gradient-text";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { useI18n } from "@/lib/i18n/provider";
+import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
+import { useTheme } from "@/lib/theme/provider";
+import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
-	{ value: "general", label: "General" },
-	{ value: "account", label: "Account" },
-	{ value: "technical", label: "Technical" },
-	{ value: "report", label: "Report" },
-	{ value: "other", label: "Other" },
+	"general",
+	"account",
+	"technical",
+	"report",
+	"other",
 ] as const;
 
-const PRIORITIES = [
-	{ value: "low", label: "Low" },
-	{ value: "normal", label: "Normal" },
-	{ value: "high", label: "High" },
-] as const;
+const PRIORITIES = ["low", "normal", "high"] as const;
 
-type Category = (typeof CATEGORIES)[number]["value"];
-type Priority = (typeof PRIORITIES)[number]["value"];
+type Category = (typeof CATEGORIES)[number];
+type Priority = (typeof PRIORITIES)[number];
+
+function Chip({
+	label,
+	selected,
+	onPress,
+	accessibilityLabel,
+	className,
+}: {
+	label: string;
+	selected: boolean;
+	onPress: () => void;
+	accessibilityLabel: string;
+	className?: string;
+}) {
+	const { colors } = useTheme();
+	return (
+		<PressableScale
+			onPress={onPress}
+			haptic="selection"
+			accessibilityRole="radio"
+			accessibilityState={{ selected }}
+			accessibilityLabel={accessibilityLabel}
+			className={className}
+		>
+			<View
+				className={cn(
+					"min-h-11 items-center justify-center overflow-hidden rounded-xl border px-3 py-2",
+					selected ? "border-transparent" : "border-border bg-card",
+				)}
+			>
+				{selected ? (
+					<Gradient style={StyleSheet.absoluteFill} pointerEvents="none" />
+				) : null}
+				<Text
+					className={selected ? "font-semibold" : "text-foreground"}
+					style={selected ? { color: colors["primary-foreground"] } : undefined}
+				>
+					{label}
+				</Text>
+			</View>
+		</PressableScale>
+	);
+}
 
 export default function NewTicket() {
+	const { t } = useI18n();
 	const insets = useSafeAreaInsets();
 	const qc = useQueryClient();
 	const [subject, setSubject] = useState("");
@@ -51,7 +98,7 @@ export default function NewTicket() {
 			qc.invalidateQueries({ queryKey: orpc.ticket.myList.key() });
 			router.replace(`/tickets/${created.id}`);
 		} catch (e) {
-			Alert.alert("Couldn't create ticket", humanizeError(e));
+			Alert.alert(t("tickets.new.createError"), humanizeError(e));
 		} finally {
 			setBusy(false);
 		}
@@ -67,99 +114,85 @@ export default function NewTicket() {
 			}}
 			keyboardShouldPersistTaps="handled"
 		>
-			<View className="gap-1.5">
+			<AnimatedEntrance index={0}>
+				<GradientText className="text-3xl font-extrabold leading-9 tracking-tight">
+					{t("tickets.new.heading")}
+				</GradientText>
+			</AnimatedEntrance>
+
+			<AnimatedEntrance index={1} className="gap-1.5">
 				<Text variant="small" className="text-muted-foreground">
-					Subject
+					{t("tickets.new.subject")}
 				</Text>
 				<Input
-					placeholder="Brief summary"
+					placeholder={t("tickets.new.subjectPlaceholder")}
 					value={subject}
 					onChangeText={setSubject}
-					accessibilityLabel="Subject"
+					accessibilityLabel={t("tickets.new.subject")}
 				/>
-			</View>
+			</AnimatedEntrance>
 
-			<View className="gap-1.5">
+			<AnimatedEntrance index={2} className="gap-1.5">
 				<Text variant="small" className="text-muted-foreground">
-					Message
+					{t("tickets.new.message")}
 				</Text>
 				<Input
-					placeholder="Describe your issue"
+					placeholder={t("tickets.new.messagePlaceholder")}
 					value={body}
 					onChangeText={setBody}
 					multiline
 					className="h-32"
-					accessibilityLabel="Message"
+					accessibilityLabel={t("tickets.new.message")}
 				/>
-			</View>
+			</AnimatedEntrance>
 
-			<View className="gap-3">
-				<Text variant="small" className="text-muted-foreground uppercase">
-					Category
-				</Text>
+			<AnimatedEntrance index={3} className="gap-3">
+				<Text variant="caption">{t("tickets.new.category")}</Text>
 				<View className="flex-row flex-wrap gap-2">
-					{CATEGORIES.map((c) => {
-						const selected = category === c.value;
-						return (
-							<Pressable
-								key={c.value}
-								onPress={() => setCategory(c.value)}
-								accessibilityRole="radio"
-								accessibilityState={{ selected }}
-								accessibilityLabel={`${c.label} category`}
-								className={`rounded-md border px-3 py-2 ${selected ? "border-primary bg-primary/10" : "border-border bg-card"}`}
-							>
-								<Text
-									className={
-										selected ? "text-primary font-semibold" : "text-foreground"
-									}
-								>
-									{c.label}
-								</Text>
-							</Pressable>
-						);
-					})}
+					{CATEGORIES.map((c) => (
+						<Chip
+							key={c}
+							label={t(`tickets.category.${c}`)}
+							selected={category === c}
+							onPress={() => setCategory(c)}
+							accessibilityLabel={t("tickets.new.categoryA11y", {
+								label: t(`tickets.category.${c}`),
+							})}
+						/>
+					))}
 				</View>
-			</View>
+			</AnimatedEntrance>
 
-			<View className="gap-3">
-				<Text variant="small" className="text-muted-foreground uppercase">
-					Priority
-				</Text>
+			<AnimatedEntrance index={4} className="gap-3">
+				<Text variant="caption">{t("tickets.new.priority")}</Text>
 				<View className="flex-row gap-2">
-					{PRIORITIES.map((p) => {
-						const selected = priority === p.value;
-						return (
-							<Pressable
-								key={p.value}
-								onPress={() => setPriority(p.value)}
-								accessibilityRole="radio"
-								accessibilityState={{ selected }}
-								accessibilityLabel={`${p.label} priority`}
-								className={`flex-1 items-center rounded-md border px-3 py-2 ${selected ? "border-primary bg-primary/10" : "border-border bg-card"}`}
-							>
-								<Text
-									className={
-										selected ? "text-primary font-semibold" : "text-foreground"
-									}
-								>
-									{p.label}
-								</Text>
-							</Pressable>
-						);
-					})}
+					{PRIORITIES.map((p) => (
+						<Chip
+							key={p}
+							label={t(`tickets.priority.${p}`)}
+							selected={priority === p}
+							onPress={() => setPriority(p)}
+							accessibilityLabel={t("tickets.new.priorityA11y", {
+								label: t(`tickets.priority.${p}`),
+							})}
+							className="flex-1"
+						/>
+					))}
 				</View>
-			</View>
+			</AnimatedEntrance>
 
-			<Button
-				disabled={!canSubmit}
-				onPress={submit}
-				accessibilityRole="button"
-				accessibilityLabel="Submit ticket"
-				className="mt-2"
-			>
-				<Text>{busy ? "Submitting…" : "Submit ticket"}</Text>
-			</Button>
+			<AnimatedEntrance index={5}>
+				<Button
+					disabled={!canSubmit}
+					loading={busy}
+					onPress={submit}
+					accessibilityRole="button"
+					accessibilityLabel={t("tickets.new.submit")}
+					className="mt-2"
+				>
+					<Text>{t("tickets.new.submit")}</Text>
+				</Button>
+			</AnimatedEntrance>
 		</ScrollView>
 	);
 }
