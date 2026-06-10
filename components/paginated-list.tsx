@@ -2,7 +2,7 @@ import { FlashList } from "@shopify/flash-list";
 import { type ReactElement, useRef, useState } from "react";
 import { ActivityIndicator, RefreshControl, View } from "react-native";
 import { EmptyState } from "@/components/empty-state";
-import { Inbox } from "@/components/icons";
+import { Inbox, type LucideIcon } from "@/components/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
@@ -30,6 +30,7 @@ export function PaginatedList<T>({
 	renderItem,
 	keyExtractor,
 	ListHeaderComponent,
+	emptyIcon = Inbox,
 	emptyTitle,
 	emptySubtitle,
 	contentPadding = 16,
@@ -42,6 +43,7 @@ export function PaginatedList<T>({
 	renderItem: (item: T) => ReactElement;
 	keyExtractor: (item: T) => string;
 	ListHeaderComponent?: ReactElement;
+	emptyIcon?: LucideIcon;
 	emptyTitle?: string;
 	emptySubtitle?: string;
 	contentPadding?: number;
@@ -129,7 +131,7 @@ export function PaginatedList<T>({
 			}
 			ListEmptyComponent={
 				<EmptyState
-					icon={Inbox}
+					icon={emptyIcon}
 					title={emptyTitle ?? t("common.nothingHere")}
 					subtitle={emptySubtitle}
 				/>

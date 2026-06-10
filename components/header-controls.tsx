@@ -2,6 +2,7 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useRef } from "react";
 import { Pressable, View } from "react-native";
 import { Check, Languages, Moon, Sun } from "@/components/icons";
+import { NotificationsBell } from "@/components/notifications-bell";
 import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
@@ -22,6 +23,7 @@ export function HeaderControls() {
 	return (
 		<>
 			<View className="flex-row items-center gap-1 pr-1">
+				<NotificationsBell />
 				<Pressable
 					onPress={() => setMode(scheme === "dark" ? "light" : "dark")}
 					hitSlop={8}

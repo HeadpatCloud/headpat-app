@@ -70,7 +70,8 @@ function RootNav() {
 			<Stack.Screen name="(tabs)" />
 			<Stack.Screen
 				name="appearance"
-				options={{ headerShown: true, title: t("titles.appearance") }}
+				// the screen renders its own hero title (spec §12)
+				options={{ headerShown: true, title: "" }}
 			/>
 			<Stack.Screen
 				name="theme-builder"
@@ -93,6 +94,10 @@ function RootNav() {
 			<Stack.Screen
 				name="changelog"
 				options={{ headerShown: true, title: t("titles.changelog") }}
+			/>
+			<Stack.Screen
+				name="notifications"
+				options={{ headerShown: true, title: t("titles.notifications") }}
 			/>
 			<Stack.Screen
 				name="users"

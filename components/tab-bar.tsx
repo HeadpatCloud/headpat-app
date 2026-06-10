@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import type { Tabs } from "expo-router";
 import { type ComponentProps, useEffect, useRef, useState } from "react";
@@ -15,10 +16,13 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { CountBadge } from "@/components/count-badge";
 import { Gradient } from "@/components/ui/gradient";
 import { Text } from "@/components/ui/text";
+import { useSession } from "@/lib/auth-client";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { springs } from "@/lib/motion/springs";
+import { orpc } from "@/lib/orpc";
 
 // Derive the tab-bar props from expo-router itself (SDK 56 decoupled from
 // @react-navigation, so there's no package to import the type from).
@@ -30,6 +34,7 @@ type TabItemProps = {
 	focused: boolean;
 	label: string;
 	icon: TabBarProps["descriptors"][string]["options"]["tabBarIcon"];
+	badge?: number;
 	onPress: () => void;
 	onLongPress: () => void;
 	onLayout: (e: LayoutChangeEvent) => void;
@@ -39,6 +44,7 @@ function TabItem({
 	focused,
 	label,
 	icon,
+	badge = 0,
 	onPress,
 	onLongPress,
 	onLayout,
@@ -79,6 +85,9 @@ function TabItem({
 				<Animated.View style={iconStyle}>
 					{icon?.({ focused, color: "", size: 22 })}
 				</Animated.View>
+				<View className="absolute -top-1 right-2" pointerEvents="none">
+					<CountBadge count={badge} />
+				</View>
 			</View>
 			<Text
 				className={`text-xs ${focused ? "text-primary font-semibold" : "text-muted-foreground"}`}
@@ -92,6 +101,15 @@ function TabItem({
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 	const insets = useSafeAreaInsets();
 	const reduced = useReducedMotion();
+	const { data: session } = useSession();
+	// One ambient unread query for the whole bar; errors just mean no badge.
+	const unread = useQuery({
+		...orpc.notification.unreadCount.queryOptions(),
+		enabled: !!session,
+		staleTime: 30_000,
+		refetchInterval: 60_000,
+	});
+	const unreadCount = session ? (unread.data?.count ?? 0) : 0;
 	const slotsRef = useRef<{ x: number; width: number }[]>([]);
 	const [slots, setSlots] = useState<{ x: number; width: number }[]>([]);
 
@@ -173,6 +191,7 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 						focused={focused}
 						label={label}
 						icon={options.tabBarIcon}
+						badge={route.name === "account" ? unreadCount : 0}
 						onPress={onPress}
 						onLongPress={() =>
 							navigation.emit({ type: "tabLongPress", target: route.key })

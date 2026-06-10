@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { GlowBackdrop } from "@/components/brand/glow-backdrop";
 import {
+	Bell,
 	CalendarPlus,
 	ChevronRight,
 	FileClock,
@@ -25,6 +26,7 @@ import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
@@ -159,6 +161,7 @@ function EventCard({ event, featured }: { event: Event; featured?: boolean }) {
 }
 
 export default function Home() {
+	const { t } = useI18n();
 	const { data: session } = useSession();
 	const createRef = useRef<BottomSheetModal>(null);
 	const events = useQuery(
@@ -265,6 +268,11 @@ export default function Home() {
 				</AnimatedEntrance>
 
 				<AnimatedEntrance index={3} className="gap-2">
+					<QuickLink
+						icon={Bell}
+						label={t("titles.notifications")}
+						href="/notifications"
+					/>
 					<QuickLink
 						icon={Megaphone}
 						label="Announcements"
