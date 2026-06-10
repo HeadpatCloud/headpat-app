@@ -1,4 +1,5 @@
 import DateTimePicker, {
+	DateTimePickerAndroid,
 	type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { useQueryClient } from "@tanstack/react-query";
@@ -40,15 +41,56 @@ export default function NewEvent() {
 	const [busy, setBusy] = useState(false);
 	const [picking, setPicking] = useState<"start" | "end" | null>(null);
 
+	// Android has no "datetime" mode (mounting the component with it crashes on
+	// unmount) — chain the imperative date dialog into the time dialog instead.
+	const openAndroidDateTime = (
+		initial: Date,
+		minimumDate: Date | undefined,
+		onPicked: (date: Date) => void,
+	) => {
+		DateTimePickerAndroid.open({
+			value: initial,
+			mode: "date",
+			minimumDate,
+			onValueChange: (_e, date) => {
+				if (!date) return;
+				DateTimePickerAndroid.open({
+					value: date,
+					mode: "time",
+					onValueChange: (_e2, withTime) => {
+						if (withTime) onPicked(withTime);
+					},
+				});
+			},
+		});
+	};
+
+	const pickStart = () => {
+		if (Platform.OS === "android") {
+			openAndroidDateTime(startsAt, undefined, (date) => {
+				setStartsAt(date);
+				setEndsAt((prev) => (prev && prev < date ? null : prev));
+			});
+			return;
+		}
+		setPicking(picking === "start" ? null : "start");
+	};
+
+	const pickEnd = () => {
+		if (Platform.OS === "android") {
+			openAndroidDateTime(endsAt ?? startsAt, startsAt, setEndsAt);
+			return;
+		}
+		setPicking(picking === "end" ? null : "end");
+	};
+
 	const onPickStart = (e: DateTimePickerEvent, date?: Date) => {
-		if (Platform.OS === "android") setPicking(null);
 		if (e.type === "dismissed" || !date) return;
 		setStartsAt(date);
-		if (endsAt && endsAt < date) setEndsAt(null);
+		setEndsAt((prev) => (prev && prev < date ? null : prev));
 	};
 
 	const onPickEnd = (e: DateTimePickerEvent, date?: Date) => {
-		if (Platform.OS === "android") setPicking(null);
 		if (e.type === "dismissed" || !date) return;
 		setEndsAt(date);
 	};
@@ -112,7 +154,7 @@ export default function NewEvent() {
 				<Field label={t("events.form.starts")}>
 					<Button
 						variant="outline"
-						onPress={() => setPicking(picking === "start" ? null : "start")}
+						onPress={pickStart}
 						accessibilityRole="button"
 						accessibilityLabel={t("events.form.pickStart")}
 					>
@@ -124,7 +166,7 @@ export default function NewEvent() {
 							<DateTimePicker
 								value={startsAt}
 								mode="datetime"
-								display={Platform.OS === "ios" ? "spinner" : "default"}
+								display="spinner"
 								onChange={onPickStart}
 							/>
 						</AnimatedEntrance>
@@ -149,7 +191,7 @@ export default function NewEvent() {
 				<Field label={t("events.form.ends")}>
 					<Button
 						variant="outline"
-						onPress={() => setPicking(picking === "end" ? null : "end")}
+						onPress={pickEnd}
 						accessibilityRole="button"
 						accessibilityLabel={t("events.form.pickEnd")}
 					>
@@ -177,7 +219,7 @@ export default function NewEvent() {
 								value={endsAt ?? startsAt}
 								mode="datetime"
 								minimumDate={startsAt}
-								display={Platform.OS === "ios" ? "spinner" : "default"}
+								display="spinner"
 								onChange={onPickEnd}
 							/>
 						</AnimatedEntrance>
