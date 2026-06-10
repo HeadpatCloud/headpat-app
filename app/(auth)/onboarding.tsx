@@ -24,7 +24,7 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { GlowBackdrop } from "@/components/brand/glow-backdrop";
+import { Aurora } from "@/components/brand/aurora";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
@@ -67,13 +67,6 @@ function Panel({
 			style={{ width }}
 			className="flex-1 items-center justify-center gap-6 px-6"
 		>
-			<View
-				pointerEvents="none"
-				style={StyleSheet.absoluteFill}
-				className="items-center justify-center"
-			>
-				<GlowBackdrop size={300} />
-			</View>
 			{children}
 		</View>
 	);
@@ -215,6 +208,8 @@ export default function Onboarding() {
 			className="bg-background flex-1"
 			style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
 		>
+			<Aurora />
+
 			<View className="flex-row items-center justify-between px-6 pt-2">
 				<Button
 					variant="ghost"
