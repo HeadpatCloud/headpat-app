@@ -1,9 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns/format";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Alert, Linking, ScrollView, View } from "react-native";
-import { CalendarClock, Globe, MapPin, Users } from "@/components/icons";
+import { DateBlock } from "@/components/event/date-block";
+import { CalendarClock, Check, Globe, MapPin, Users } from "@/components/icons";
 import { StorageImage } from "@/components/storage-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,11 +12,16 @@ import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { useSession } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n/provider";
+import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 
 export default function Event() {
 	const { eventId } = useLocalSearchParams<{ eventId: string }>();
+	const { t } = useI18n();
+	const { data: session } = useSession();
 	const queryClient = useQueryClient();
 	const [pending, setPending] = useState(false);
 
@@ -30,6 +36,10 @@ export default function Event() {
 	// Optimistic: toggle the cached attendance + count immediately, roll back
 	// on error — the tap must not wait on the network for visual feedback.
 	async function toggleAttend() {
+		if (!session) {
+			router.push("/(auth)/login");
+			return;
+		}
 		if (pending) return;
 		setPending(true);
 		const myKey = orpc.event.myAttending.queryOptions().queryKey;
@@ -79,7 +89,7 @@ export default function Event() {
 		} catch (e) {
 			queryClient.setQueryData(myKey, prevMy);
 			queryClient.setQueryData(byIdKey, prevById);
-			Alert.alert("Couldn't update attendance", humanizeError(e));
+			Alert.alert(t("events.attendFailed"), humanizeError(e));
 		} finally {
 			queryClient.invalidateQueries({
 				queryKey: orpc.event.myAttending.key(),
@@ -95,7 +105,7 @@ export default function Event() {
 		try {
 			await Linking.openURL(url);
 		} catch (e) {
-			Alert.alert("Couldn't open link", humanizeError(e));
+			Alert.alert(t("events.linkFailed"), humanizeError(e));
 		}
 	}
 
@@ -103,7 +113,7 @@ export default function Event() {
 		return (
 			<View className="bg-background flex-1 gap-3 p-4">
 				<Skeleton className="h-8 w-2/3" />
-				<Skeleton className="h-48 w-full" />
+				<Skeleton className="h-48 w-full rounded-2xl" />
 				<Skeleton className="h-24 w-full" />
 			</View>
 		);
@@ -112,7 +122,7 @@ export default function Event() {
 	if (!data) {
 		return (
 			<View className="bg-background flex-1 p-4">
-				<Text variant="muted">This event is no longer available.</Text>
+				<Text variant="muted">{t("events.unavailable")}</Text>
 			</View>
 		);
 	}
@@ -123,90 +133,126 @@ export default function Event() {
 			contentContainerStyle={{ padding: 16, gap: 16 }}
 		>
 			{data.images.length > 0 ? (
-				<StorageImage
-					kind="gallery"
-					fileId={data.images[0]}
-					style={{ width: "100%", height: 200, borderRadius: 12 }}
-					accessibilityLabel={data.title}
-				/>
-			) : null}
+				<AnimatedEntrance index={0}>
+					<View>
+						<StorageImage
+							kind="gallery"
+							fileId={data.images[0]}
+							variant="1280"
+							priority="high"
+							radius={16}
+							style={{ width: "100%", height: 200 }}
+							accessibilityLabel={data.title}
+						/>
+						<DateBlock
+							date={new Date(data.startsAt)}
+							size="lg"
+							overlay
+							className="absolute bottom-3 left-3 right-3"
+						/>
+					</View>
+				</AnimatedEntrance>
+			) : (
+				<AnimatedEntrance index={0} preset="fadeUp">
+					<DateBlock date={new Date(data.startsAt)} size="lg" />
+				</AnimatedEntrance>
+			)}
 
-			<View className="gap-1.5">
-				<Text variant="h2" className="border-0">
-					{data.title}
-				</Text>
-				{data.label ? <Text variant="muted">{data.label}</Text> : null}
-			</View>
-
-			<Card className="gap-3 p-4">
-				<View className="flex-row items-start gap-2.5">
-					<Icon
-						as={CalendarClock}
-						size={18}
-						className="text-muted-foreground mt-0.5"
-					/>
-					<Text className="text-foreground flex-1">
-						{format(new Date(data.startsAt), "PPp")}
-						{data.endsAt ? ` – ${format(new Date(data.endsAt), "PPp")}` : null}
-					</Text>
+			<AnimatedEntrance index={1} preset="fadeUp">
+				<View className="gap-1.5">
+					<Text variant="h2">{data.title}</Text>
+					{data.label ? <Text variant="muted">{data.label}</Text> : null}
 				</View>
-				{data.locationText ? (
+			</AnimatedEntrance>
+
+			<AnimatedEntrance index={2} preset="fadeUp">
+				<Card className="gap-3 p-4">
 					<View className="flex-row items-start gap-2.5">
 						<Icon
-							as={MapPin}
+							as={CalendarClock}
 							size={18}
 							className="text-muted-foreground mt-0.5"
 						/>
-						<Text className="text-foreground flex-1">{data.locationText}</Text>
+						<Text className="text-foreground flex-1">
+							{format(new Date(data.startsAt), "PPp")}
+							{data.endsAt
+								? ` – ${format(new Date(data.endsAt), "PPp")}`
+								: null}
+						</Text>
 					</View>
-				) : null}
-				<View className="flex-row items-start gap-2.5">
-					<Icon as={Users} size={18} className="text-muted-foreground mt-0.5" />
-					<Text className="text-foreground flex-1">
-						{data.attendeesCount}{" "}
-						{data.attendeesCount === 1 ? "attendee" : "attendees"}
-					</Text>
-				</View>
-				{data.website ? (
-					<Button
-						variant="outline"
-						size="sm"
-						onPress={() => openWebsite(data.website as string)}
-						accessibilityRole="link"
-						accessibilityLabel="Open event website"
-						className="self-start"
-					>
-						<Icon as={Globe} size={16} className="text-foreground" />
-						<Text>Visit website</Text>
-					</Button>
-				) : null}
-			</Card>
+					{data.locationText ? (
+						<View className="flex-row items-start gap-2.5">
+							<Icon
+								as={MapPin}
+								size={18}
+								className="text-muted-foreground mt-0.5"
+							/>
+							<Text className="text-foreground flex-1">
+								{data.locationText}
+							</Text>
+						</View>
+					) : null}
+					<View className="flex-row items-start gap-2.5">
+						<Icon
+							as={Users}
+							size={18}
+							className="text-muted-foreground mt-0.5"
+						/>
+						<Text className="text-foreground flex-1">
+							{t("events.attendees", { count: data.attendeesCount })}
+						</Text>
+					</View>
+					{data.website ? (
+						<Button
+							variant="outline"
+							size="sm"
+							onPress={() => openWebsite(data.website as string)}
+							accessibilityRole="link"
+							accessibilityLabel={t("events.openWebsite")}
+							className="self-start"
+						>
+							<Icon as={Globe} size={16} className="text-foreground" />
+							<Text>{t("events.visitWebsite")}</Text>
+						</Button>
+					) : null}
+				</Card>
+			</AnimatedEntrance>
 
 			{data.tags.length > 0 ? (
-				<View className="flex-row flex-wrap gap-1.5">
-					{data.tags.map((tag) => (
-						<Badge key={tag} variant="secondary">
-							{tag}
-						</Badge>
-					))}
-				</View>
+				<AnimatedEntrance index={3} preset="fadeUp">
+					<View className="flex-row flex-wrap gap-1.5">
+						{data.tags.map((tag) => (
+							<Badge key={tag} variant="secondary">
+								{tag}
+							</Badge>
+						))}
+					</View>
+				</AnimatedEntrance>
 			) : null}
 
 			{data.description ? (
-				<Text className="text-foreground leading-6">{data.description}</Text>
+				<AnimatedEntrance index={4} preset="fadeUp">
+					<Text className="text-foreground leading-6">{data.description}</Text>
+				</AnimatedEntrance>
 			) : null}
 
-			<Button
-				variant={attending ? "outline" : "default"}
-				onPress={toggleAttend}
-				disabled={myAttending.isLoading}
-				accessibilityRole="button"
-				accessibilityLabel={
-					attending ? "Leave this event" : "Attend this event"
-				}
-			>
-				<Text>{attending ? "Attending" : "Attend"}</Text>
-			</Button>
+			<AnimatedEntrance index={5} preset="fadeUp">
+				<Button
+					variant={attending ? "outline" : "default"}
+					fullWidth
+					onPress={toggleAttend}
+					disabled={pending || myAttending.isLoading}
+					accessibilityRole="button"
+					accessibilityLabel={
+						attending ? t("events.leaveHint") : t("events.attendHint")
+					}
+				>
+					{attending ? (
+						<Icon as={Check} size={18} className="text-foreground" />
+					) : null}
+					<Text>{attending ? t("events.attending") : t("events.attend")}</Text>
+				</Button>
+			</AnimatedEntrance>
 		</ScrollView>
 	);
 }

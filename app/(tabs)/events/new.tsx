@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns/format";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Platform, Pressable, ScrollView, View } from "react-native";
+import { Alert, Platform, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CalendarClock } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,9 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
+import { useI18n } from "@/lib/i18n/provider";
+import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 
@@ -25,6 +28,7 @@ function roundedHour(offsetHours: number) {
 export default function NewEvent() {
 	const insets = useSafeAreaInsets();
 	const qc = useQueryClient();
+	const { t } = useI18n();
 
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
@@ -53,8 +57,8 @@ export default function NewEvent() {
 		if (title.trim().length === 0) return;
 		if (endsAt && endsAt < startsAt) {
 			Alert.alert(
-				"Invalid dates",
-				"The end time must be after the start time.",
+				t("events.form.invalidDates"),
+				t("events.form.invalidDatesBody"),
 			);
 			return;
 		}
@@ -75,7 +79,7 @@ export default function NewEvent() {
 			qc.invalidateQueries({ queryKey: orpc.event.list.key() });
 			router.replace(`/events/${created.id}`);
 		} catch (e) {
-			Alert.alert("Couldn't create event", humanizeError(e));
+			Alert.alert(t("events.form.createFailed"), humanizeError(e));
 		} finally {
 			setBusy(false);
 		}
@@ -91,117 +95,145 @@ export default function NewEvent() {
 			}}
 			keyboardShouldPersistTaps="handled"
 		>
-			<Field label="Title">
-				<Input
-					placeholder="Event title"
-					value={title}
-					onChangeText={setTitle}
-					accessibilityLabel="Title"
-				/>
-			</Field>
-
-			<Field label="Description">
-				<Input
-					placeholder="What's it about? (optional)"
-					value={description}
-					onChangeText={setDescription}
-					multiline
-					className="h-24"
-					accessibilityLabel="Description"
-				/>
-			</Field>
-
-			<Field label="Starts">
-				<Button
-					variant="outline"
-					onPress={() => setPicking(picking === "start" ? null : "start")}
-					accessibilityRole="button"
-					accessibilityLabel="Pick start date and time"
-				>
-					<Icon as={CalendarClock} size={18} className="text-foreground" />
-					<Text>{format(startsAt, "PPP p")}</Text>
-				</Button>
-				{picking === "start" ? (
-					<DateTimePicker
-						value={startsAt}
-						mode="datetime"
-						display={Platform.OS === "ios" ? "spinner" : "default"}
-						onChange={onPickStart}
+			<AnimatedEntrance index={0}>
+				<Field label={t("events.form.title")}>
+					<Input
+						placeholder={t("events.form.titlePlaceholder")}
+						value={title}
+						onChangeText={setTitle}
+						className="h-14 text-xl font-semibold"
+						accessibilityLabel={t("events.form.title")}
 					/>
-				) : null}
-			</Field>
+				</Field>
+			</AnimatedEntrance>
 
-			<Field label="Ends">
-				<Button
-					variant="outline"
-					onPress={() => setPicking(picking === "end" ? null : "end")}
-					accessibilityRole="button"
-					accessibilityLabel="Pick end date and time"
-				>
-					<Icon as={CalendarClock} size={18} className="text-foreground" />
-					<Text>{endsAt ? format(endsAt, "PPP p") : "No end time"}</Text>
-				</Button>
-				{endsAt ? (
-					<Pressable
-						onPress={() => setEndsAt(null)}
+			<AnimatedEntrance index={1}>
+				<Field label={t("events.form.starts")}>
+					<Button
+						variant="outline"
+						onPress={() => setPicking(picking === "start" ? null : "start")}
 						accessibilityRole="button"
-						accessibilityLabel="Clear end time"
-						hitSlop={8}
-						className="self-start"
+						accessibilityLabel={t("events.form.pickStart")}
 					>
-						<Text variant="small" className="text-muted-foreground">
-							Clear end time
-						</Text>
-					</Pressable>
-				) : null}
-				{picking === "end" ? (
-					<DateTimePicker
-						value={endsAt ?? startsAt}
-						mode="datetime"
-						minimumDate={startsAt}
-						display={Platform.OS === "ios" ? "spinner" : "default"}
-						onChange={onPickEnd}
+						<Icon as={CalendarClock} size={18} className="text-foreground" />
+						<Text>{format(startsAt, "PPP p")}</Text>
+					</Button>
+					{picking === "start" ? (
+						<AnimatedEntrance>
+							<DateTimePicker
+								value={startsAt}
+								mode="datetime"
+								display={Platform.OS === "ios" ? "spinner" : "default"}
+								onChange={onPickStart}
+							/>
+						</AnimatedEntrance>
+					) : null}
+				</Field>
+			</AnimatedEntrance>
+
+			<AnimatedEntrance index={2}>
+				<Field label={t("events.form.description")}>
+					<Input
+						placeholder={t("events.form.descriptionPlaceholder")}
+						value={description}
+						onChangeText={setDescription}
+						multiline
+						className="h-24"
+						accessibilityLabel={t("events.form.description")}
 					/>
-				) : null}
-			</Field>
+				</Field>
+			</AnimatedEntrance>
 
-			<Field label="Location">
-				<Input
-					placeholder="Where is it? (optional)"
-					value={locationText}
-					onChangeText={setLocationText}
-					accessibilityLabel="Location"
-				/>
-			</Field>
+			<AnimatedEntrance index={3}>
+				<Field label={t("events.form.ends")}>
+					<Button
+						variant="outline"
+						onPress={() => setPicking(picking === "end" ? null : "end")}
+						accessibilityRole="button"
+						accessibilityLabel={t("events.form.pickEnd")}
+					>
+						<Icon as={CalendarClock} size={18} className="text-foreground" />
+						<Text>
+							{endsAt ? format(endsAt, "PPP p") : t("events.form.noEnd")}
+						</Text>
+					</Button>
+					{endsAt ? (
+						<PressableScale
+							onPress={() => setEndsAt(null)}
+							accessibilityRole="button"
+							accessibilityLabel={t("events.form.clearEnd")}
+							hitSlop={8}
+							className="self-start"
+						>
+							<Text variant="small" className="text-muted-foreground">
+								{t("events.form.clearEnd")}
+							</Text>
+						</PressableScale>
+					) : null}
+					{picking === "end" ? (
+						<AnimatedEntrance>
+							<DateTimePicker
+								value={endsAt ?? startsAt}
+								mode="datetime"
+								minimumDate={startsAt}
+								display={Platform.OS === "ios" ? "spinner" : "default"}
+								onChange={onPickEnd}
+							/>
+						</AnimatedEntrance>
+					) : null}
+				</Field>
+			</AnimatedEntrance>
 
-			<Field label="Tags">
-				<Input
-					placeholder="Tags, comma separated"
-					value={tags}
-					onChangeText={setTags}
-					autoCapitalize="none"
-					accessibilityLabel="Tags"
-				/>
-			</Field>
+			<AnimatedEntrance index={4}>
+				<Field label={t("events.form.location")}>
+					<Input
+						placeholder={t("events.form.locationPlaceholder")}
+						value={locationText}
+						onChangeText={setLocationText}
+						accessibilityLabel={t("events.form.location")}
+					/>
+				</Field>
+			</AnimatedEntrance>
 
-			<View className="flex-row items-center justify-between pt-1">
-				<Text className="text-foreground flex-1">Public event</Text>
-				<Toggle
-					value={isPublic}
-					onValueChange={setIsPublic}
-					accessibilityLabel="Public event"
-				/>
-			</View>
+			<AnimatedEntrance index={5}>
+				<Field label={t("events.form.tags")}>
+					<Input
+						placeholder={t("events.form.tagsPlaceholder")}
+						value={tags}
+						onChangeText={setTags}
+						autoCapitalize="none"
+						accessibilityLabel={t("events.form.tags")}
+					/>
+				</Field>
+			</AnimatedEntrance>
 
-			<Button
-				disabled={title.trim().length === 0 || busy}
-				onPress={submit}
-				accessibilityRole="button"
-				accessibilityLabel="Create event"
-				className="mt-2"
-			>
-				<Text>{busy ? "Creating…" : "Create event"}</Text>
-			</Button>
+			<AnimatedEntrance index={6}>
+				<View className="flex-row items-center justify-between pt-1">
+					<Text className="text-foreground flex-1">
+						{t("events.form.public")}
+					</Text>
+					<Toggle
+						value={isPublic}
+						onValueChange={setIsPublic}
+						accessibilityLabel={t("events.form.public")}
+					/>
+				</View>
+			</AnimatedEntrance>
+
+			<AnimatedEntrance index={7}>
+				<Button
+					fullWidth
+					disabled={title.trim().length === 0 || busy}
+					onPress={submit}
+					accessibilityRole="button"
+					accessibilityLabel={t("events.form.create")}
+					className="mt-2"
+				>
+					<Text>
+						{busy ? t("events.form.creating") : t("events.form.create")}
+					</Text>
+				</Button>
+			</AnimatedEntrance>
 		</ScrollView>
 	);
 }
@@ -215,9 +247,7 @@ function Field({
 }) {
 	return (
 		<View className="gap-1.5">
-			<Text variant="small" className="text-muted-foreground">
-				{label}
-			</Text>
+			<Text variant="caption">{label}</Text>
 			{children}
 		</View>
 	);
