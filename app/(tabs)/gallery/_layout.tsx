@@ -15,7 +15,8 @@ export default function GalleryLayout() {
 			<Stack.Screen
 				name="index"
 				options={{
-					title: t("titles.gallery"),
+					// the screen renders its own display header (spec §8)
+					title: "",
 					headerRight: () => <HeaderControls />,
 				}}
 			/>

@@ -2,10 +2,19 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { router, useLocalSearchParams } from "expo-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, Pressable, ScrollView, View } from "react-native";
+import Animated, {
+	useAnimatedStyle,
+	useSharedValue,
+	withSequence,
+	withSpring,
+} from "react-native-reanimated";
+import { EmptyState } from "@/components/empty-state";
 import {
+	ChevronRight,
 	Heart,
+	ImageOff,
 	type LucideIcon,
 	MessageCircle,
 	Send,
@@ -17,15 +26,24 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { GlowShadow, Gradient } from "@/components/ui/gradient";
+import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { SectionHeader } from "@/components/ui/section-header";
 import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StatPill } from "@/components/ui/stat-pill";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n/provider";
+import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
+import { useReducedMotion } from "@/lib/motion/reduced-motion";
+import { springs } from "@/lib/motion/springs";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
+import { useTheme } from "@/lib/theme/provider";
 import { cn } from "@/lib/utils";
 
 function CommentAction({
@@ -69,6 +87,9 @@ function CommentAction({
 export default function GalleryItem() {
 	const { galleryId } = useLocalSearchParams<{ galleryId: string }>();
 	const queryClient = useQueryClient();
+	const { glow, colors } = useTheme();
+	const { t } = useI18n();
+	const reduced = useReducedMotion();
 	const [body, setBody] = useState("");
 	const [liking, setLiking] = useState(false);
 	const [sending, setSending] = useState(false);
@@ -94,6 +115,24 @@ export default function GalleryItem() {
 		NonNullable<typeof comments.data>[number] | null
 	>(null);
 	const [deleting, setDeleting] = useState(false);
+
+	const liked = item.data?.likedByMe ?? false;
+	const heartScale = useSharedValue(1);
+	const prevLiked = useRef<boolean | null>(null);
+	// Pop only on the false -> true flip after data has loaded, so the first
+	// resolved value (liked on a cold cache) never animates.
+	useEffect(() => {
+		if (liked && prevLiked.current === false && !reduced) {
+			heartScale.value = withSequence(
+				withSpring(1.25, springs.snappy),
+				withSpring(1, springs.gentle),
+			);
+		}
+		prevLiked.current = item.data ? liked : null;
+	}, [liked, reduced, heartScale, item.data]);
+	const heartStyle = useAnimatedStyle(() => ({
+		transform: [{ scale: heartScale.value }],
+	}));
 
 	const myId = session?.user.id;
 	const canDelete =
@@ -122,7 +161,7 @@ export default function GalleryItem() {
 				queryKey: orpc.gallery.byId.key({ input: { itemId: galleryId } }),
 			});
 		} catch (e) {
-			Alert.alert("Couldn't delete comment", humanizeError(e));
+			Alert.alert(t("gallery.deleteCommentError"), humanizeError(e));
 		} finally {
 			setDeleting(false);
 		}
@@ -131,6 +170,10 @@ export default function GalleryItem() {
 	// Optimistic: flip the cached item immediately, roll back on error. The tap
 	// must never wait on the network for visual feedback.
 	async function toggleLike() {
+		if (!session) {
+			router.push("/(auth)/login");
+			return;
+		}
 		if (!item.data || liking) return;
 		setLiking(true);
 		const key = orpc.gallery.byId.queryOptions({
@@ -158,7 +201,7 @@ export default function GalleryItem() {
 			}
 		} catch (e) {
 			queryClient.setQueryData(key, prev);
-			Alert.alert("Couldn't update like", humanizeError(e));
+			Alert.alert(t("gallery.likeError"), humanizeError(e));
 		} finally {
 			queryClient.invalidateQueries({
 				queryKey: orpc.gallery.byId.key({ input: { itemId: galleryId } }),
@@ -168,6 +211,10 @@ export default function GalleryItem() {
 	}
 
 	async function sendComment() {
+		if (!session) {
+			router.push("/(auth)/login");
+			return;
+		}
 		const trimmed = body.trim();
 		if (!trimmed || sending) return;
 		setSending(true);
@@ -181,7 +228,7 @@ export default function GalleryItem() {
 				queryKey: orpc.gallery.byId.key({ input: { itemId: galleryId } }),
 			});
 		} catch (e) {
-			Alert.alert("Couldn't post comment", humanizeError(e));
+			Alert.alert(t("gallery.commentError"), humanizeError(e));
 		} finally {
 			setSending(false);
 		}
@@ -189,23 +236,24 @@ export default function GalleryItem() {
 
 	if (item.isLoading) {
 		return (
-			<View className="bg-background flex-1 gap-3 p-4">
-				<Skeleton className="aspect-square w-full rounded-xl" />
-				<Skeleton className="h-7 w-2/3" />
-				<Skeleton className="h-12 w-full" />
+			<View className="bg-background flex-1 gap-4 p-4">
+				<Skeleton className="aspect-square w-full rounded-3xl" />
+				<Skeleton className="h-8 w-2/3 rounded-xl" />
+				<Skeleton className="h-14 w-full rounded-2xl" />
 			</View>
 		);
 	}
 
 	if (!item.data) {
 		return (
-			<View className="bg-background flex-1 p-4">
-				<Text variant="muted">This gallery item is no longer available.</Text>
+			<View className="bg-background flex-1 justify-center">
+				<EmptyState icon={ImageOff} title={t("gallery.unavailable")} />
 			</View>
 		);
 	}
 
 	const { author } = item.data;
+	const unknown = t("gallery.unknownUser");
 
 	return (
 		<>
@@ -213,105 +261,128 @@ export default function GalleryItem() {
 				className="bg-background flex-1"
 				contentContainerStyle={{ padding: 16, gap: 16 }}
 			>
-				<StorageImage
-					kind="gallery"
-					fileId={item.data.fileId}
-					variant="1280"
-					priority="high"
-					blurhash={item.data.blurHash}
-					style={{ aspectRatio: 1, width: "100%", borderRadius: 12 }}
-					contentFit="contain"
-					accessibilityLabel={item.data.name}
-				/>
+				<AnimatedEntrance index={0}>
+					<View style={[GlowShadow(glow), { borderRadius: 24 }]}>
+						<StorageImage
+							kind="gallery"
+							fileId={item.data.fileId}
+							variant="1280"
+							priority="high"
+							blurhash={item.data.blurHash}
+							style={{ aspectRatio: 1, width: "100%", borderRadius: 24 }}
+							contentFit="contain"
+							accessibilityLabel={item.data.name}
+						/>
+					</View>
+				</AnimatedEntrance>
 
-				<View className="gap-1">
-					<Text variant="h3">{item.data.name}</Text>
-					<Text variant="small" className="text-muted-foreground">
-						{formatDistanceToNow(new Date(item.data.createdAt), {
-							addSuffix: true,
-						})}
-					</Text>
-				</View>
+				<AnimatedEntrance index={1}>
+					<View className="gap-1.5">
+						<GradientText className="text-3xl font-extrabold leading-9 tracking-tight">
+							{item.data.name}
+						</GradientText>
+						<View className="flex-row items-center gap-2.5">
+							<Gradient borderRadius={999} style={{ height: 3, width: 40 }} />
+							<Text variant="small" className="text-muted-foreground">
+								{formatDistanceToNow(new Date(item.data.createdAt), {
+									addSuffix: true,
+								})}
+							</Text>
+						</View>
+					</View>
+				</AnimatedEntrance>
 
 				{author ? (
-					<PressableScale
-						onPress={() => router.push(`/user/${author.profileUrl}`)}
-						haptic="selection"
-						accessibilityRole="button"
-						accessibilityLabel={`View ${author.displayName ?? "user"}'s profile`}
-					>
-						<Card className="flex-row items-center gap-3 p-3">
-							<Avatar
-								fileId={author.avatarFileId}
-								name={author.displayName}
-								size={44}
-							/>
-							<View className="flex-1">
-								<Text variant="large" numberOfLines={1}>
-									{author.displayName ?? "Unknown"}
-								</Text>
+					<AnimatedEntrance index={2}>
+						<PressableScale
+							onPress={() => router.push(`/user/${author.profileUrl}`)}
+							haptic="selection"
+							accessibilityRole="button"
+							accessibilityLabel={t("gallery.viewProfileOf", {
+								name: author.displayName ?? unknown,
+							})}
+						>
+							<Card className="flex-row items-center gap-3 p-4">
+								<Avatar
+									fileId={author.avatarFileId}
+									name={author.displayName}
+									size={44}
+								/>
+								<View className="flex-1">
+									<Text variant="large" numberOfLines={1}>
+										{author.displayName ?? unknown}
+									</Text>
+								</View>
+								<Icon
+									as={ChevronRight}
+									size={20}
+									className="text-muted-foreground"
+								/>
+							</Card>
+						</PressableScale>
+					</AnimatedEntrance>
+				) : null}
+
+				{item.data.longText || item.data.tags.length > 0 ? (
+					<AnimatedEntrance index={3} className="gap-3">
+						{item.data.longText ? (
+							<Text variant="body" className="text-foreground">
+								{item.data.longText}
+							</Text>
+						) : null}
+						{item.data.tags.length > 0 ? (
+							<View className="flex-row flex-wrap gap-2">
+								{item.data.tags.map((tag) => (
+									<Badge key={tag} variant="secondary">
+										{tag}
+									</Badge>
+								))}
 							</View>
-						</Card>
-					</PressableScale>
+						) : null}
+					</AnimatedEntrance>
 				) : null}
 
-				{item.data.longText ? (
-					<Text className="text-foreground leading-6">
-						{item.data.longText}
-					</Text>
-				) : null}
-
-				{item.data.tags.length > 0 ? (
-					<View className="flex-row flex-wrap gap-2">
-						{item.data.tags.map((tag) => (
-							<Badge key={tag} variant="secondary">
-								{tag}
-							</Badge>
-						))}
-					</View>
-				) : null}
-
-				<View className="flex-row items-center gap-3">
-					<Button
-						variant={item.data.likedByMe ? "default" : "outline"}
-						size="sm"
-						onPress={toggleLike}
-						accessibilityRole="button"
-						accessibilityLabel={item.data.likedByMe ? "Unlike" : "Like"}
-					>
-						<Icon
-							as={Heart}
-							size={18}
-							className={
-								item.data.likedByMe
-									? "text-primary-foreground"
-									: "text-foreground"
+				<AnimatedEntrance index={4}>
+					<View className="flex-row items-center gap-3">
+						<Button
+							variant={liked ? "default" : "outline"}
+							size="sm"
+							onPress={toggleLike}
+							accessibilityRole="button"
+							accessibilityLabel={
+								liked ? t("gallery.unlike") : t("gallery.like")
 							}
+						>
+							<Animated.View style={heartStyle}>
+								<Icon
+									as={Heart}
+									size={18}
+									className={
+										liked ? "text-primary-foreground" : "text-foreground"
+									}
+									fill={liked ? colors["primary-foreground"] : "transparent"}
+								/>
+							</Animated.View>
+							<Text>{item.data.likesCount}</Text>
+						</Button>
+						<StatPill
+							icon={MessageCircle}
+							value={item.data.commentsCount}
+							label={t("gallery.comments")}
 						/>
-						<Text>{item.data.likesCount}</Text>
-					</Button>
-					<View className="flex-row items-center gap-1.5">
-						<Icon
-							as={MessageCircle}
-							size={18}
-							className="text-muted-foreground"
-						/>
-						<Text variant="muted">{item.data.commentsCount}</Text>
 					</View>
-				</View>
+				</AnimatedEntrance>
 
-				<View className="gap-3">
-					<Text variant="small" className="text-muted-foreground uppercase">
-						Comments
-					</Text>
+				<AnimatedEntrance index={5} className="gap-3">
+					<SectionHeader accent title={t("gallery.comments")} />
 
 					<View className="flex-row items-center gap-2">
 						<Input
 							containerClassName="flex-1"
-							placeholder="Add a comment..."
+							placeholder={t("gallery.commentPlaceholder")}
 							value={body}
 							onChangeText={setBody}
-							accessibilityLabel="Comment input"
+							accessibilityLabel={t("gallery.commentInput")}
 						/>
 						<Button
 							size="icon"
@@ -319,69 +390,72 @@ export default function GalleryItem() {
 							disabled={body.trim().length === 0}
 							onPress={sendComment}
 							accessibilityRole="button"
-							accessibilityLabel="Send comment"
+							accessibilityLabel={t("gallery.sendComment")}
 						>
 							<Icon as={Send} size={18} className="text-primary-foreground" />
 						</Button>
 					</View>
 
 					{comments.isLoading ? (
-						<Skeleton className="h-16 w-full" />
+						<Skeleton className="h-16 w-full rounded-2xl" />
 					) : comments.data && comments.data.length > 0 ? (
-						comments.data.map((c) => (
-							<PressableScale
-								key={c.id}
-								haptic="selection"
-								onLongPress={() => {
-									setSelected(c);
-									sheetRef.current?.present();
-								}}
-								accessibilityLabel={`Comment by ${c.author.displayName ?? "Unknown"}`}
-								accessibilityHint="Hold for options"
-							>
-								<Card className="flex-row gap-3 p-3">
-									<Avatar
-										fileId={c.author.avatarFileId}
-										name={c.author.displayName}
-										size={36}
-									/>
-									<View className="flex-1 gap-0.5">
-										<View className="flex-row items-center gap-2">
-											<Text
-												variant="small"
-												className="flex-1"
-												numberOfLines={1}
-											>
-												{c.author.displayName ?? "Unknown"}
-											</Text>
-											<Text variant="small" className="text-muted-foreground">
-												{formatDistanceToNow(new Date(c.createdAt), {
-													addSuffix: true,
-												})}
-											</Text>
+						comments.data.map((c, i) => (
+							<AnimatedEntrance key={c.id} index={i} preset="fadeUp">
+								<PressableScale
+									haptic="selection"
+									onLongPress={() => {
+										setSelected(c);
+										sheetRef.current?.present();
+									}}
+									accessibilityLabel={t("gallery.commentBy", {
+										name: c.author.displayName ?? unknown,
+									})}
+									accessibilityHint={t("gallery.holdForOptions")}
+								>
+									<Card className="flex-row gap-3 p-3.5">
+										<Avatar
+											fileId={c.author.avatarFileId}
+											name={c.author.displayName}
+											size={36}
+										/>
+										<View className="flex-1 gap-0.5">
+											<View className="flex-row items-center gap-2">
+												<Text
+													variant="small"
+													className="flex-1"
+													numberOfLines={1}
+												>
+													{c.author.displayName ?? unknown}
+												</Text>
+												<Text variant="small" className="text-muted-foreground">
+													{formatDistanceToNow(new Date(c.createdAt), {
+														addSuffix: true,
+													})}
+												</Text>
+											</View>
+											<Text className="text-foreground text-sm">{c.body}</Text>
 										</View>
-										<Text className="text-foreground text-sm">{c.body}</Text>
-									</View>
-								</Card>
-							</PressableScale>
+									</Card>
+								</PressableScale>
+							</AnimatedEntrance>
 						))
 					) : (
-						<Text variant="muted">No comments yet.</Text>
+						<Text variant="muted">{t("gallery.noComments")}</Text>
 					)}
-				</View>
+				</AnimatedEntrance>
 			</ScrollView>
 
-			<Sheet ref={sheetRef} title="Comment" accent>
+			<Sheet ref={sheetRef} title={t("gallery.comment")} accent>
 				<View className="gap-1">
 					<CommentAction
 						icon={UserRound}
-						label="View profile"
+						label={t("gallery.viewProfile")}
 						onPress={viewProfile}
 					/>
 					{canDelete ? (
 						<CommentAction
 							icon={Trash2}
-							label="Delete comment"
+							label={t("gallery.deleteComment")}
 							destructive
 							disabled={deleting}
 							onPress={deleteSelected}

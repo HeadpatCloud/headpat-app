@@ -1,16 +1,21 @@
 import { useQueryClient } from "@tanstack/react-query";
+import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import type { ImagePickerAsset } from "expo-image-picker";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Alert, Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ImagePlus } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
+import { useI18n } from "@/lib/i18n/provider";
+import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 import { pickImage, uploadImage } from "@/lib/upload";
@@ -18,6 +23,7 @@ import { pickImage, uploadImage } from "@/lib/upload";
 export default function GalleryUpload() {
 	const insets = useSafeAreaInsets();
 	const qc = useQueryClient();
+	const { t } = useI18n();
 	const [asset, setAsset] = useState<ImagePickerAsset | null>(null);
 	const [name, setName] = useState("");
 	const [longText, setLongText] = useState("");
@@ -41,15 +47,17 @@ export default function GalleryUpload() {
 				nsfw,
 				tags: tags
 					.split(",")
-					.map((t) => t.trim())
+					.map((tag) => tag.trim())
 					.filter(Boolean),
 				mimeType: asset.mimeType ?? "image/jpeg",
 				fileId,
 			});
 			qc.invalidateQueries({ queryKey: orpc.gallery.list.key() });
+			if (Platform.OS !== "web")
+				Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 			router.back();
 		} catch (e) {
-			Alert.alert("Upload failed", humanizeError(e));
+			Alert.alert(t("gallery.upload.failed"), humanizeError(e));
 		} finally {
 			setBusy(false);
 		}
@@ -65,66 +73,108 @@ export default function GalleryUpload() {
 			}}
 			keyboardShouldPersistTaps="handled"
 		>
-			<Pressable
-				onPress={choose}
-				android_ripple={{ color: "rgba(127,127,127,0.18)" }}
-				accessibilityRole="button"
-				accessibilityLabel="Choose image"
-				className="border-border bg-card aspect-square items-center justify-center overflow-hidden rounded-xl border"
-			>
-				{asset ? (
-					<Image
-						source={asset.uri}
-						style={{ width: "100%", height: "100%" }}
-						contentFit="cover"
-					/>
-				) : (
-					<View className="items-center gap-2">
-						<Icon as={ImagePlus} size={32} className="text-muted-foreground" />
-						<Text variant="muted">Tap to choose an image</Text>
-					</View>
-				)}
-			</Pressable>
+			<AnimatedEntrance index={0}>
+				<PressableScale
+					scaleTo={0.98}
+					onPress={choose}
+					disabled={busy}
+					android_ripple={{ color: "rgba(127,127,127,0.18)" }}
+					accessibilityRole="button"
+					accessibilityLabel={t("gallery.upload.chooseImageA11y")}
+					className="overflow-hidden rounded-3xl"
+				>
+					{asset ? (
+						<View className="border-border aspect-square overflow-hidden rounded-3xl border">
+							<AnimatedEntrance
+								key={asset.uri}
+								preset="fade"
+								style={{ width: "100%", height: "100%" }}
+							>
+								<Image
+									source={asset.uri}
+									style={{ width: "100%", height: "100%" }}
+									contentFit="cover"
+								/>
+							</AnimatedEntrance>
+						</View>
+					) : (
+						<View className="border-border bg-card aspect-square items-center justify-center rounded-3xl border-2 border-dashed">
+							<View className="items-center gap-3">
+								<View className="h-16 w-16 items-center justify-center overflow-hidden rounded-full">
+									<Gradient opacity={0.18} style={StyleSheet.absoluteFill} />
+									<Icon as={ImagePlus} size={28} className="text-primary" />
+								</View>
+								<Text variant="muted">{t("gallery.upload.chooseImage")}</Text>
+							</View>
+						</View>
+					)}
+				</PressableScale>
+			</AnimatedEntrance>
 
-			<Input
-				placeholder="Title"
-				value={name}
-				onChangeText={setName}
-				accessibilityLabel="Title"
-			/>
-			<Input
-				placeholder="Description (optional)"
-				value={longText}
-				onChangeText={setLongText}
-				multiline
-				accessibilityLabel="Description"
-				className="h-24"
-			/>
-			<Input
-				placeholder="Tags, comma separated"
-				value={tags}
-				onChangeText={setTags}
-				autoCapitalize="none"
-				accessibilityLabel="Tags"
-			/>
-
-			<View className="flex-row items-center justify-between">
-				<Text className="text-foreground">Mark as NSFW</Text>
-				<Toggle
-					value={nsfw}
-					onValueChange={setNsfw}
-					accessibilityLabel="Mark as NSFW"
+			{asset ? (
+				<Gradient
+					borderRadius={999}
+					opacity={0.8}
+					style={{ height: 3, width: "100%" }}
+					pointerEvents="none"
 				/>
-			</View>
+			) : null}
 
-			<Button
-				disabled={!asset || name.trim().length === 0 || busy}
-				onPress={submit}
-				accessibilityRole="button"
-				accessibilityLabel="Post to gallery"
-			>
-				<Text>{busy ? "Posting…" : "Post to gallery"}</Text>
-			</Button>
+			<AnimatedEntrance index={1} className="gap-4">
+				<Input
+					placeholder={t("gallery.upload.titlePlaceholder")}
+					value={name}
+					onChangeText={setName}
+					editable={!busy}
+					accessibilityLabel={t("gallery.upload.titlePlaceholder")}
+				/>
+				<Input
+					placeholder={t("gallery.upload.descriptionPlaceholder")}
+					value={longText}
+					onChangeText={setLongText}
+					multiline
+					editable={!busy}
+					accessibilityLabel={t("gallery.upload.descriptionPlaceholder")}
+					className="h-24"
+				/>
+				<Input
+					placeholder={t("gallery.upload.tagsPlaceholder")}
+					value={tags}
+					onChangeText={setTags}
+					autoCapitalize="none"
+					editable={!busy}
+					accessibilityLabel={t("gallery.upload.tagsPlaceholder")}
+				/>
+			</AnimatedEntrance>
+
+			<AnimatedEntrance index={2}>
+				<View className="flex-row items-center justify-between">
+					<Text className="text-foreground">
+						{t("gallery.upload.nsfwLabel")}
+					</Text>
+					<Toggle
+						value={nsfw}
+						onValueChange={(v) => {
+							if (!busy) setNsfw(v);
+						}}
+						accessibilityLabel={t("gallery.upload.nsfwLabel")}
+					/>
+				</View>
+			</AnimatedEntrance>
+
+			<AnimatedEntrance index={3}>
+				<Button
+					size="lg"
+					fullWidth
+					loading={busy}
+					disabled={!asset || name.trim().length === 0}
+					onPress={submit}
+					accessibilityRole="button"
+					accessibilityLabel={t("gallery.upload.post")}
+				>
+					<Text>{t("gallery.upload.post")}</Text>
+				</Button>
+			</AnimatedEntrance>
 		</ScrollView>
 	);
 }
