@@ -333,15 +333,26 @@ export default function UserProfile() {
 		}
 	}
 
-	const socials: { icon: LucideIcon; label: string }[] = [];
+	const socials: { platform: string; icon: LucideIcon; label: string }[] = [];
 	if (p.discordName)
-		socials.push({ icon: MessageCircle, label: p.discordName });
-	if (p.telegramName) socials.push({ icon: Send, label: p.telegramName });
+		socials.push({
+			platform: "discord",
+			icon: MessageCircle,
+			label: p.discordName,
+		});
+	if (p.telegramName)
+		socials.push({ platform: "telegram", icon: Send, label: p.telegramName });
 	if (p.furaffinityName)
-		socials.push({ icon: AtSign, label: p.furaffinityName });
-	if (p.xName) socials.push({ icon: AtSign, label: p.xName });
-	if (p.twitchName) socials.push({ icon: Twitch, label: p.twitchName });
-	if (p.blueskyName) socials.push({ icon: AtSign, label: p.blueskyName });
+		socials.push({
+			platform: "furaffinity",
+			icon: AtSign,
+			label: p.furaffinityName,
+		});
+	if (p.xName) socials.push({ platform: "x", icon: AtSign, label: p.xName });
+	if (p.twitchName)
+		socials.push({ platform: "twitch", icon: Twitch, label: p.twitchName });
+	if (p.blueskyName)
+		socials.push({ platform: "bluesky", icon: AtSign, label: p.blueskyName });
 
 	const galleryTotal = gallery.data?.pages[0]?.total;
 
@@ -541,7 +552,11 @@ export default function UserProfile() {
 									<View className="gap-2">
 										<Text variant="caption">{t("profile.socials")}</Text>
 										{socials.map((s) => (
-											<SocialRow key={s.label} icon={s.icon} label={s.label} />
+											<SocialRow
+												key={s.platform}
+												icon={s.icon}
+												label={s.label}
+											/>
 										))}
 									</View>
 								) : null}
