@@ -66,6 +66,9 @@ export function StorageImage({
 	}, [fileId]);
 
 	const radiusStyle = radius != null ? { borderRadius: radius } : undefined;
+	// The backend hashes every upload; the URL response carries it for kinds
+	// that don't ship a hash with their own data (avatars, banners).
+	const hash = blurhash ?? data?.blurHash ?? undefined;
 
 	if (isError || failed) {
 		return (
@@ -88,7 +91,7 @@ export function StorageImage({
 			// cacheKey: presigned URLs rotate per signature, which would defeat the
 			// disk cache; the served object key is the stable identity.
 			source={data ? { uri: data.url, cacheKey: data.key } : undefined}
-			placeholder={blurhash ? { blurhash } : undefined}
+			placeholder={hash ? { blurhash: hash } : undefined}
 			placeholderContentFit="cover"
 			recyclingKey={fileId ?? undefined}
 			contentFit={contentFit}
@@ -105,7 +108,9 @@ export function StorageImage({
 					onError?.();
 				}
 			}}
-			className={blurhash ? undefined : "bg-muted"}
+			// constant on purpose: hash arrives async and css-interop dislikes
+			// runtime className changes; the image covers this once loaded
+			className="bg-muted"
 			style={[radiusStyle, style]}
 			{...rest}
 		/>
