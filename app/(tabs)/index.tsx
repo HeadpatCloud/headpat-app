@@ -20,7 +20,6 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Gradient } from "@/components/ui/gradient";
-import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -178,17 +177,13 @@ export default function Home() {
 				}
 			>
 				<AnimatedEntrance index={0}>
-					<View className="overflow-hidden rounded-3xl px-4 py-3">
-						<GlowBackdrop
-							size={240}
-							style={{ position: "absolute", left: -40, top: -80, opacity: 0.4 }}
-						/>
+					<View className="gap-0.5">
 						<Text variant="caption" className="text-muted-foreground">
 							{session ? "Welcome back" : "Welcome"}
 						</Text>
-						<GradientText className="text-4xl leading-[44px] font-extrabold tracking-tight">
+						<Text className="text-foreground text-4xl leading-[44px] font-extrabold tracking-tight">
 							{session?.user?.name ?? "Headpat"}
-						</GradientText>
+						</Text>
 					</View>
 				</AnimatedEntrance>
 
