@@ -3,17 +3,19 @@ import { Gradient, GlowShadow } from "@/components/ui/gradient";
 import { useTheme } from "@/lib/theme/provider";
 import { cn } from "@/lib/utils";
 
-function Card({ className, ...props }: ViewProps) {
+// The className stays constant across light/dark; the mode-specific elevation
+// goes through `style`. Toggling the className by scheme makes NativeWind think
+// the component needs a mid-life "upgrade" and it remounts/warns (which crashes
+// while serializing props that reference the navigation context).
+function Card({ className, style, ...props }: ViewProps) {
 	const { scheme } = useTheme();
 	return (
 		<View
 			className={cn(
-				"bg-card overflow-hidden rounded-2xl",
-				scheme === "dark"
-					? "border-border border bg-card/95"
-					: "border-border/60 border shadow-sm shadow-black/10",
+				"bg-card border-border overflow-hidden rounded-2xl border",
 				className,
 			)}
+			style={[scheme === "light" ? styles.lightShadow : undefined, style]}
 			{...props}
 		/>
 	);
@@ -62,6 +64,13 @@ function GlowCard({
 }
 
 const styles = StyleSheet.create({
+	lightShadow: {
+		shadowColor: "#000",
+		shadowOpacity: 0.08,
+		shadowRadius: 8,
+		shadowOffset: { width: 0, height: 2 },
+		elevation: 2,
+	},
 	edge: {
 		position: "absolute",
 		top: 0,

@@ -164,8 +164,8 @@ describe("preset accents", () => {
 
 describe("resolveThemeVisuals", () => {
 	const v = resolveThemeVisuals(PRESETS.ocean.dark, "dark");
-	it("colors are hsl space-syntax strings", () =>
-		expect(v.colors.primary).toBe(`hsl(${PRESETS.ocean.dark.primary})`));
+	it("colors are parseable hex strings", () =>
+		expect(v.colors.primary).toBe(tripletToHex(PRESETS.ocean.dark.primary)));
 	it("exposes all 22 color keys", () =>
 		expect(Object.keys(v.colors)).toHaveLength(22));
 	it("gradient has two hex stops + start/end", () => {

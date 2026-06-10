@@ -19,7 +19,7 @@ import {
 import { useColorScheme as useDeviceScheme, View } from "react-native";
 import { authClient } from "@/lib/auth-client";
 import { client } from "@/lib/orpc";
-import { hexToTriplet, tokensToVars } from "@/lib/theme/color";
+import { hexToTriplet, tokensToVars, tripletToHex } from "@/lib/theme/color";
 import { resolveThemeVisuals, type ThemeVisuals } from "@/lib/theme/derive";
 import { PRESETS, type PresetSlug } from "@/lib/theme/presets";
 import { TOKEN_KEYS, type TokenMap } from "@/lib/theme/tokens";
@@ -83,12 +83,12 @@ function buildNavTheme(triplets: TokenMap, scheme: "light" | "dark"): NavTheme {
 		...base,
 		colors: {
 			...base.colors,
-			background: `hsl(${triplets.background})`,
-			card: `hsl(${triplets.card})`,
-			text: `hsl(${triplets.foreground})`,
-			border: `hsl(${triplets.border})`,
-			primary: `hsl(${triplets.primary})`,
-			notification: `hsl(${triplets.destructive})`,
+			background: tripletToHex(triplets.background),
+			card: tripletToHex(triplets.card),
+			text: tripletToHex(triplets.foreground),
+			border: tripletToHex(triplets.border),
+			primary: tripletToHex(triplets.primary),
+			notification: tripletToHex(triplets.destructive),
 		},
 	};
 }
