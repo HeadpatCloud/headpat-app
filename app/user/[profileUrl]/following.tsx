@@ -1,13 +1,17 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { PaginatedList } from "@/components/paginated-list";
 import { Avatar } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
+import { GradientText } from "@/components/ui/gradient-text";
 import { Text } from "@/components/ui/text";
+import { useI18n } from "@/lib/i18n/provider";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
 
 export default function Following() {
+	const { t } = useI18n();
 	const { profileUrl } = useLocalSearchParams<{ profileUrl: string }>();
 	const profile = useQuery(
 		orpc.profile.byUrl.queryOptions({ input: { profileUrl } }),
@@ -26,12 +30,28 @@ export default function Following() {
 
 	return (
 		<PaginatedList
-			query={query}
+			// Show the skeleton (not the empty state) while the profile lookup that
+			// gates this query is still resolving.
+			query={{
+				...query,
+				isLoading: query.isLoading || profile.isLoading,
+				isError: query.isError || profile.isError,
+				error: query.error ?? profile.error,
+			}}
 			keyExtractor={(u) => u.userId}
-			emptyTitle="Not following anyone yet"
+			emptyTitle={t("profile.notFollowingAnyone")}
+			ListHeaderComponent={
+				<View className="gap-0.5 pb-4">
+					<GradientText className="text-2xl font-bold tracking-tight">
+						{`@${profileUrl}`}
+					</GradientText>
+					<Text variant="muted">{t("profile.followingSubtitle")}</Text>
+				</View>
+			}
 			renderItem={(u) => (
-				<Pressable
+				<PressableScale
 					onPress={() => router.push(`/user/${u.profileUrl}`)}
+					haptic="selection"
 					accessibilityRole="button"
 					accessibilityLabel={u.displayName ?? u.profileUrl}
 				>
@@ -40,7 +60,9 @@ export default function Following() {
 							fileId={u.avatarFileId}
 							name={u.displayName ?? u.name}
 							kind="avatar"
-							size={44}
+							size={48}
+							ring
+							ringWidth={2}
 						/>
 						<View className="flex-1 gap-0.5">
 							<Text variant="large" numberOfLines={1}>
@@ -51,7 +73,7 @@ export default function Following() {
 							</Text>
 						</View>
 					</Card>
-				</Pressable>
+				</PressableScale>
 			)}
 		/>
 	);

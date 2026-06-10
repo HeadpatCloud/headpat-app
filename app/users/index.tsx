@@ -5,12 +5,15 @@ import { View } from "react-native";
 import { PaginatedList } from "@/components/paginated-list";
 import { Avatar } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
+import { GradientText } from "@/components/ui/gradient-text";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { useI18n } from "@/lib/i18n/provider";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
 
 export default function Users() {
+	const { t } = useI18n();
 	const [text, setText] = useState("");
 	const [search, setSearch] = useState("");
 	const query = useInfiniteQuery({
@@ -29,23 +32,33 @@ export default function Users() {
 		placeholderData: keepPreviousData,
 	});
 
+	// The list orders by followers desc — reward the top profile with a
+	// slightly stronger gradient ring.
+	const firstId = query.data?.pages[0]?.items[0]?.userId;
+
 	return (
 		<PaginatedList
 			query={query}
 			keyExtractor={(u) => u.userId}
-			emptyTitle="No profiles found"
-			emptySubtitle={search ? "Try a different search." : undefined}
+			emptyTitle={t("users.noProfiles")}
+			emptySubtitle={search ? t("users.tryDifferentSearch") : undefined}
 			ListHeaderComponent={
-				<View className="pb-3">
+				<View className="gap-4 pb-4">
+					<View className="gap-1">
+						<GradientText className="text-3xl font-extrabold leading-9 tracking-tight">
+							{t("users.heading")}
+						</GradientText>
+						<Text variant="muted">{t("users.subtitle")}</Text>
+					</View>
 					<Input
 						value={text}
 						onChangeText={setText}
 						onSubmitEditing={() => setSearch(text.trim())}
-						placeholder="Search profiles"
+						placeholder={t("users.searchPlaceholder")}
 						autoCapitalize="none"
 						autoCorrect={false}
 						returnKeyType="search"
-						accessibilityLabel="Search profiles"
+						accessibilityLabel={t("users.searchPlaceholder")}
 					/>
 				</View>
 			}
@@ -62,6 +75,8 @@ export default function Users() {
 							name={u.displayName ?? u.name}
 							kind="avatar"
 							size={48}
+							ring
+							ringWidth={u.userId === firstId ? 3 : 2}
 						/>
 						<View className="flex-1 gap-0.5">
 							<Text variant="large" numberOfLines={1}>
@@ -81,7 +96,7 @@ export default function Users() {
 							) : null}
 						</View>
 						<Text variant="small" className="text-muted-foreground">
-							{u.followersCount} followers
+							{t("users.followersCount", { count: u.followersCount })}
 						</Text>
 					</Card>
 				</PressableScale>
