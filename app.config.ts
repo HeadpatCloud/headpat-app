@@ -9,6 +9,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	icon: "./assets/images/icon.png",
 	scheme: "headpat",
 	userInterfaceStyle: "automatic",
+	// Root native view behind all screens — white flashes through transitions
+	// otherwise. Matches the splash background.
+	backgroundColor: "#000000",
 	runtimeVersion: { policy: "appVersion" },
 	assetBundlePatterns: ["**/*"],
 	ios: {

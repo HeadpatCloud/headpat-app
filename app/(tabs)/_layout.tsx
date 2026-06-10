@@ -9,6 +9,7 @@ import {
 } from "@/components/icons";
 import { TabBar } from "@/components/tab-bar";
 import { Icon } from "@/components/ui/icon";
+import { useTheme } from "@/lib/theme/provider";
 
 const iconFor =
 	(Glyph: LucideIcon) =>
@@ -21,10 +22,15 @@ const iconFor =
 	);
 
 export default function TabsLayout() {
+	const { colors } = useTheme();
 	return (
 		<Tabs
 			tabBar={(props) => <TabBar {...props} />}
-			screenOptions={{ headerShown: true, freezeOnBlur: true }}
+			screenOptions={{
+				headerShown: true,
+				freezeOnBlur: true,
+				sceneStyle: { backgroundColor: colors.background },
+			}}
 		>
 			<Tabs.Screen
 				name="index"

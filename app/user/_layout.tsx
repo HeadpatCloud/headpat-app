@@ -1,8 +1,14 @@
 import { Stack } from "expo-router";
+import { useTheme } from "@/lib/theme/provider";
 
 export default function UserLayout() {
+	const { colors } = useTheme();
 	return (
-		<Stack>
+		<Stack
+			screenOptions={{
+				contentStyle: { backgroundColor: colors.background },
+			}}
+		>
 			<Stack.Screen name="[profileUrl]/index" options={{ title: "" }} />
 			<Stack.Screen
 				name="[profileUrl]/followers"

@@ -11,7 +11,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSession } from "@/lib/auth-client";
 import { MotionProvider, useReducedMotion } from "@/lib/motion/reduced-motion";
 import { AppProviders } from "@/lib/providers";
-import { ThemeProvider } from "@/lib/theme/provider";
+import { ThemeProvider, useTheme } from "@/lib/theme/provider";
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -50,6 +50,7 @@ function useProtectedRoute() {
 function RootNav() {
 	useProtectedRoute();
 	const reduced = useReducedMotion();
+	const { colors } = useTheme();
 	return (
 		<Stack
 			screenOptions={{
@@ -57,6 +58,9 @@ function RootNav() {
 				animation: reduced ? "fade" : "slide_from_right",
 				animationDuration: reduced ? 120 : undefined,
 				gestureEnabled: true,
+				// Paint the native screen container — the nav theme only colors the
+				// JS view, so transitions otherwise flash the white window behind.
+				contentStyle: { backgroundColor: colors.background },
 			}}
 		>
 			<Stack.Screen name="(auth)" />
