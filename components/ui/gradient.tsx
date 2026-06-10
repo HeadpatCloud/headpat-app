@@ -17,13 +17,14 @@ type GradientProps = ViewProps & {
 	children?: ReactNode;
 };
 
+// iOS-only on purpose: Android's elevation draws the shadow through the
+// transparent wrappers this lands on (input ring, halos) as a smeared wash.
 export function GlowShadow(glow: string): ViewStyle {
 	return {
 		shadowColor: glow,
 		shadowOpacity: 0.6,
 		shadowRadius: 16,
 		shadowOffset: { width: 0, height: 8 },
-		elevation: 8,
 	};
 }
 
