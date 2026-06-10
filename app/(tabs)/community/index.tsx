@@ -47,7 +47,7 @@ export default function Communities() {
 								onSubmitEditing={() => setSearch(text.trim())}
 								returnKeyType="search"
 								placeholder="Search communities"
-								className="flex-1"
+								containerClassName="flex-1"
 								accessibilityLabel="Search communities"
 							/>
 						</View>

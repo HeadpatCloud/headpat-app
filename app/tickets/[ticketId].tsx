@@ -146,7 +146,8 @@ export default function Ticket() {
 					value={reply}
 					onChangeText={setReply}
 					multiline
-					className="max-h-28 flex-1"
+					className="max-h-28"
+					containerClassName="flex-1"
 					accessibilityLabel="Reply"
 				/>
 				<Button

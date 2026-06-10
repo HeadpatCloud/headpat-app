@@ -184,7 +184,7 @@ export default function GalleryItem() {
 
 				<View className="flex-row items-center gap-2">
 					<Input
-						className="flex-1"
+						containerClassName="flex-1"
 						placeholder="Add a comment..."
 						value={body}
 						onChangeText={setBody}
