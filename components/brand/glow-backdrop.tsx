@@ -1,5 +1,6 @@
-import { StyleSheet, type StyleProp, View, type ViewStyle } from "react-native";
-import { Gradient } from "@/components/ui/gradient";
+import { useId } from "react";
+import { type StyleProp, View, type ViewStyle } from "react-native";
+import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
 import { useTheme } from "@/lib/theme/provider";
 
 type GlowBackdropProps = {
@@ -8,38 +9,29 @@ type GlowBackdropProps = {
 	className?: string;
 };
 
-// Decorative soft bloom behind heroes/headings. No real blur without expo-blur,
-// so the halo is faked with a large colored shadow on a rounded-full disc plus a
-// low-opacity gradient core. Callers animate opacity; this owns no motion.
+// Decorative soft bloom behind heroes/headings. RN has no blur, so the soft
+// falloff comes from an SVG radial gradient — the theme glow color in the center
+// fading to fully transparent at the edge. Callers position/animate it; no motion.
 export function GlowBackdrop({ size = 280, style, className }: GlowBackdropProps) {
 	const { glow } = useTheme();
-	const radius = size / 2;
+	const id = useId().replace(/:/g, "");
 	return (
 		<View
 			pointerEvents="none"
 			accessibilityElementsHidden
 			importantForAccessibility="no-hide-descendants"
 			className={className}
-			style={[
-				{
-					width: size,
-					height: size,
-					borderRadius: radius,
-					backgroundColor: glow,
-					shadowColor: glow,
-					shadowOpacity: 1,
-					shadowRadius: radius * 0.9,
-					shadowOffset: { width: 0, height: 0 },
-					elevation: 24,
-				},
-				style,
-			]}
+			style={[{ width: size, height: size }, style]}
 		>
-			<Gradient
-				borderRadius={radius}
-				opacity={0.5}
-				style={StyleSheet.absoluteFill}
-			/>
+			<Svg width={size} height={size}>
+				<Defs>
+					<RadialGradient id={id} cx="50%" cy="50%" r="50%">
+						<Stop offset="0" stopColor={glow} stopOpacity={1} />
+						<Stop offset="1" stopColor={glow} stopOpacity={0} />
+					</RadialGradient>
+				</Defs>
+				<Rect x="0" y="0" width={size} height={size} fill={`url(#${id})`} />
+			</Svg>
 		</View>
 	);
 }
