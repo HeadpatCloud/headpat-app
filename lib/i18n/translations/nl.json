@@ -44,6 +44,123 @@
 		"search": "Zoeken",
 		"loading": "Laden…"
 	},
+	"auth": {
+		"login": {
+			"title": "Inloggen",
+			"subtitle": "Welkom terug bij Headpat.",
+			"emailPlaceholder": "E-mail",
+			"emailA11y": "E-mailadres",
+			"passwordPlaceholder": "Wachtwoord",
+			"passwordA11y": "Wachtwoord",
+			"submit": "Inloggen",
+			"submitting": "Inloggen…",
+			"forgotPassword": "Wachtwoord vergeten?",
+			"newHere": "Nieuw hier?",
+			"createAccount": "Account aanmaken"
+		},
+		"register": {
+			"title": "Account aanmaken",
+			"subtitle": "Word lid van de Headpat-community.",
+			"namePlaceholder": "Weergavenaam",
+			"nameA11y": "Weergavenaam",
+			"emailPlaceholder": "E-mail",
+			"emailA11y": "E-mailadres",
+			"passwordPlaceholder": "Wachtwoord",
+			"passwordA11y": "Wachtwoord",
+			"minChars": "min. %{count} tekens",
+			"submit": "Account aanmaken",
+			"submitting": "Aanmaken…",
+			"haveAccount": "Heb je al een account?",
+			"signIn": "Inloggen"
+		},
+		"forgotPassword": {
+			"title": "Wachtwoord resetten",
+			"prompt": "Vul je e-mailadres in en we sturen je een resetlink.",
+			"sent": "Als dat e-mailadres geregistreerd is, is er een resetlink onderweg.",
+			"emailPlaceholder": "E-mail",
+			"emailA11y": "E-mailadres",
+			"submit": "Resetlink versturen",
+			"submitting": "Versturen…",
+			"backToSignIn": "Terug naar inloggen"
+		},
+		"resetPassword": {
+			"title": "Nieuw wachtwoord",
+			"passwordPlaceholder": "Nieuw wachtwoord (min. 8 tekens)",
+			"passwordA11y": "Nieuw wachtwoord",
+			"confirmPlaceholder": "Bevestig wachtwoord",
+			"confirmA11y": "Bevestig wachtwoord",
+			"mismatch": "Wachtwoorden komen niet overeen",
+			"submit": "Wachtwoord bijwerken",
+			"submitting": "Bijwerken…",
+			"successTitle": "Wachtwoord bijgewerkt",
+			"successBody": "Je kunt nu inloggen met je nieuwe wachtwoord.",
+			"invalidLink": "Deze resetlink is ongeldig of verlopen. Vraag een nieuwe aan via het inlogscherm."
+		},
+		"mfa": {
+			"title": "Tweestapsverificatie",
+			"prompt": "Voer de 6-cijferige code uit je authenticator-app in.",
+			"codeA11y": "Verificatiecode",
+			"verify": "Verifiëren",
+			"verifying": "Verifiëren…",
+			"verifyA11y": "Code verifiëren"
+		},
+		"onboarding": {
+			"skip": "Overslaan",
+			"skipA11y": "Onboarding overslaan",
+			"logoA11y": "Headpat-logo",
+			"slide1Title": "Jouw gezellige hoekje van de community",
+			"slide1Body": "Evenementen, galerijen en vrienden — alles op één warme plek.",
+			"slide2Title": "Maak het van jou",
+			"slide2Body": "Kies een thema en zie alles meteen van kleur veranderen.",
+			"slide3Title": "Klaar wanneer jij dat bent",
+			"slide3Body": "Spring erin en maak Headpat helemaal van jou.",
+			"continue": "Doorgaan",
+			"haveAccount": "Ik heb al een account"
+		},
+		"welcome": {
+			"title": "Welkom bij Headpat",
+			"subtitle": "Verken vrij — log in wanneer je er klaar voor bent.",
+			"logoA11y": "Headpat-logo",
+			"explore": "Verkennen",
+			"gallery": "Galerij",
+			"gallerySubtitle": "Kunst, foto's & posts",
+			"events": "Evenementen",
+			"eventsSubtitle": "Meetups & activiteiten",
+			"communities": "Communities",
+			"communitiesSubtitle": "Groepen & vrienden",
+			"marketplace": "Marktplaats",
+			"marketplaceSubtitle": "Kopen & verkopen",
+			"soon": "Binnenkort",
+			"signIn": "Inloggen",
+			"newHere": "Nieuw hier? Maak een account aan",
+			"createAccountA11y": "Account aanmaken"
+		},
+		"social": {
+			"orContinueWith": "of ga verder met",
+			"failedTitle": "Inloggen mislukt",
+			"googleA11y": "Verdergaan met Google",
+			"discordA11y": "Verdergaan met Discord"
+		}
+	},
+	"home": {
+		"welcome": "Welkom",
+		"welcomeBack": "Welkom terug",
+		"upcomingEvents": "Aankomende evenementen",
+		"couldntLoadEvents": "Evenementen konden niet worden geladen.",
+		"retryEventsA11y": "Evenementen opnieuw laden",
+		"noUpcomingEvents": "Geen aankomende evenementen.",
+		"createEventA11y": "Evenement aanmaken",
+		"nextUp": "Eerstvolgende",
+		"createTitle": "Aanmaken",
+		"galleryPost": "Galerijpost",
+		"community": "Community",
+		"event": "Evenement"
+	},
+	"notFound": {
+		"title": "Oeps!",
+		"message": "Dit scherm bestaat niet.",
+		"goHome": "Naar het startscherm!"
+	},
 	"gallery": {
 		"title": "Galerij",
 		"subtitle": "Vers uit de community",

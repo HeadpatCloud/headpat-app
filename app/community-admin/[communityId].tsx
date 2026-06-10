@@ -20,6 +20,7 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
@@ -35,9 +36,11 @@ export default function CommunityAdmin() {
 	const { t } = useI18n();
 	const { colors } = useTheme();
 
-	const myRole = useQuery(
-		orpc.community.myRoleIn.queryOptions({ input: { communityId } }),
-	);
+	const { data: session } = useSession();
+	const myRole = useQuery({
+		...orpc.community.myRoleIn.queryOptions({ input: { communityId } }),
+		enabled: !!session,
+	});
 	const community = useQuery(
 		orpc.community.byId.queryOptions({ input: { communityId } }),
 	);
@@ -116,7 +119,7 @@ export default function CommunityAdmin() {
 		}
 	};
 
-	if (myRole.isLoading || community.isLoading) {
+	if (session && (myRole.isLoading || community.isLoading)) {
 		return (
 			<View className="bg-background flex-1">
 				<Skeleton className="h-36 w-full rounded-none" />

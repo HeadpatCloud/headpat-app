@@ -15,6 +15,7 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { signIn } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { durations } from "@/lib/motion/springs";
@@ -23,6 +24,7 @@ import { humanizeError } from "@/lib/orpc-error";
 export default function Login() {
 	const insets = useSafeAreaInsets();
 	const reduced = useReducedMotion();
+	const { t } = useI18n();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
@@ -65,15 +67,17 @@ export default function Login() {
 				<AnimatedEntrance index={0} className="gap-2">
 					<View className="self-start">
 						<GlowBackdrop size={220} className="-top-12 -left-8" />
-						<GradientText className="text-4xl font-bold">Sign in</GradientText>
+						<GradientText className="text-4xl font-bold">
+							{t("auth.login.title")}
+						</GradientText>
 					</View>
-					<Text variant="muted">Welcome back to Headpat.</Text>
+					<Text variant="muted">{t("auth.login.subtitle")}</Text>
 				</AnimatedEntrance>
 
 				<Animated.View style={fieldsStyle} className="gap-3">
 					<AnimatedEntrance index={1}>
 						<Input
-							placeholder="Email"
+							placeholder={t("auth.login.emailPlaceholder")}
 							value={email}
 							onChangeText={setEmail}
 							autoCapitalize="none"
@@ -81,19 +85,19 @@ export default function Login() {
 							keyboardType="email-address"
 							textContentType="emailAddress"
 							editable={!busy}
-							accessibilityLabel="Email address"
+							accessibilityLabel={t("auth.login.emailA11y")}
 						/>
 					</AnimatedEntrance>
 					<AnimatedEntrance index={2}>
 						<Input
-							placeholder="Password"
+							placeholder={t("auth.login.passwordPlaceholder")}
 							value={password}
 							onChangeText={setPassword}
 							secureTextEntry
 							autoComplete="current-password"
 							textContentType="password"
 							editable={!busy}
-							accessibilityLabel="Password"
+							accessibilityLabel={t("auth.login.passwordA11y")}
 							onSubmitEditing={() => canSubmit && submit()}
 						/>
 					</AnimatedEntrance>
@@ -114,10 +118,12 @@ export default function Login() {
 						disabled={!canSubmit}
 						onPress={submit}
 						accessibilityRole="button"
-						accessibilityLabel="Sign in"
+						accessibilityLabel={t("auth.login.submit")}
 						accessibilityState={{ disabled: !canSubmit, busy }}
 					>
-						<Text>{busy ? "Signing in…" : "Sign in"}</Text>
+						<Text>
+							{busy ? t("auth.login.submitting") : t("auth.login.submit")}
+						</Text>
 					</Button>
 				</AnimatedEntrance>
 
@@ -128,14 +134,16 @@ export default function Login() {
 				<AnimatedEntrance index={5} className="items-center gap-3">
 					<Link href="/(auth)/forgot-password">
 						<View className="min-h-11 justify-center">
-							<Text className="text-muted-foreground">Forgot password?</Text>
+							<Text className="text-muted-foreground">
+								{t("auth.login.forgotPassword")}
+							</Text>
 						</View>
 					</Link>
 					<View className="min-h-11 flex-row items-center gap-1">
-						<Text variant="muted">New here?</Text>
+						<Text variant="muted">{t("auth.login.newHere")}</Text>
 						<Link href="/(auth)/register">
 							<Text className="text-primary font-medium">
-								Create an account
+								{t("auth.login.createAccount")}
 							</Text>
 						</Link>
 					</View>

@@ -11,8 +11,8 @@ export default function TicketsLayout() {
 				contentStyle: { backgroundColor: colors.background },
 			}}
 		>
-			<Stack.Screen name="index" options={{ title: t("titles.tickets") }} />
-			<Stack.Screen name="new" options={{ title: t("titles.ticketNew") }} />
+			<Stack.Screen name="index" options={{ title: "" }} />
+			<Stack.Screen name="new" options={{ title: "" }} />
 			<Stack.Screen name="[ticketId]" options={{ title: t("titles.ticket") }} />
 		</Stack>
 	);

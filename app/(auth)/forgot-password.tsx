@@ -11,6 +11,7 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { humanizeError } from "@/lib/orpc-error";
@@ -18,6 +19,7 @@ import { humanizeError } from "@/lib/orpc-error";
 export default function ForgotPassword() {
 	const insets = useSafeAreaInsets();
 	const reduced = useReducedMotion();
+	const { t } = useI18n();
 	const [email, setEmail] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
@@ -52,12 +54,12 @@ export default function ForgotPassword() {
 			>
 				<AnimatedEntrance index={0} className="gap-2">
 					<GradientText className="text-4xl font-bold">
-						Reset password
+						{t("auth.forgotPassword.title")}
 					</GradientText>
 					<Text variant="muted">
 						{sent
-							? "If that email is registered, a reset link is on its way."
-							: "Enter your email and we'll send a reset link."}
+							? t("auth.forgotPassword.sent")
+							: t("auth.forgotPassword.prompt")}
 					</Text>
 				</AnimatedEntrance>
 
@@ -72,7 +74,7 @@ export default function ForgotPassword() {
 					>
 						<AnimatedEntrance index={1}>
 							<Input
-								placeholder="Email"
+								placeholder={t("auth.forgotPassword.emailPlaceholder")}
 								value={email}
 								onChangeText={setEmail}
 								autoCapitalize="none"
@@ -80,7 +82,7 @@ export default function ForgotPassword() {
 								keyboardType="email-address"
 								textContentType="emailAddress"
 								editable={!busy}
-								accessibilityLabel="Email address"
+								accessibilityLabel={t("auth.forgotPassword.emailA11y")}
 							/>
 						</AnimatedEntrance>
 						{error ? (
@@ -97,9 +99,13 @@ export default function ForgotPassword() {
 								disabled={email.trim().length === 0 || busy}
 								onPress={submit}
 								accessibilityRole="button"
-								accessibilityLabel="Send reset link"
+								accessibilityLabel={t("auth.forgotPassword.submit")}
 							>
-								<Text>{busy ? "Sending…" : "Send reset link"}</Text>
+								<Text>
+									{busy
+										? t("auth.forgotPassword.submitting")
+										: t("auth.forgotPassword.submit")}
+								</Text>
 							</Button>
 						</AnimatedEntrance>
 					</Animated.View>
@@ -107,7 +113,9 @@ export default function ForgotPassword() {
 
 				<View className="flex-row justify-center gap-1">
 					<Link href="/(auth)/login" replace>
-						<Text className="text-primary font-medium">Back to sign in</Text>
+						<Text className="text-primary font-medium">
+							{t("auth.forgotPassword.backToSignIn")}
+						</Text>
 					</Link>
 				</View>
 			</View>

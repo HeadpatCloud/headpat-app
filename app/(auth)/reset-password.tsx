@@ -15,6 +15,7 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { durations } from "@/lib/motion/springs";
@@ -23,6 +24,7 @@ import { humanizeError } from "@/lib/orpc-error";
 export default function ResetPassword() {
 	const insets = useSafeAreaInsets();
 	const reduced = useReducedMotion();
+	const { t } = useI18n();
 	const { token } = useLocalSearchParams<{ token?: string }>();
 	const [password, setPassword] = useState("");
 	const [confirm, setConfirm] = useState("");
@@ -72,8 +74,8 @@ export default function ResetPassword() {
 			return;
 		}
 		Alert.alert(
-			"Password updated",
-			"You can now sign in with your new password.",
+			t("auth.resetPassword.successTitle"),
+			t("auth.resetPassword.successBody"),
 		);
 		router.replace("/(auth)/login");
 	};
@@ -91,7 +93,7 @@ export default function ResetPassword() {
 					<GlowBackdrop />
 					<AnimatedEntrance index={0}>
 						<GradientText className="text-4xl font-bold">
-							New password
+							{t("auth.resetPassword.title")}
 						</GradientText>
 					</AnimatedEntrance>
 				</View>
@@ -102,14 +104,14 @@ export default function ResetPassword() {
 							<AnimatedEntrance index={1}>
 								<View className="gap-2">
 									<Input
-										placeholder="New password (min 8 characters)"
+										placeholder={t("auth.resetPassword.passwordPlaceholder")}
 										value={password}
 										onChangeText={setPassword}
 										secureTextEntry
 										autoComplete="new-password"
 										textContentType="newPassword"
 										editable={!busy}
-										accessibilityLabel="New password"
+										accessibilityLabel={t("auth.resetPassword.passwordA11y")}
 									/>
 									<View className="bg-muted h-1.5 overflow-hidden rounded-full">
 										<Animated.View style={strengthStyle} className="h-full">
@@ -120,13 +122,15 @@ export default function ResetPassword() {
 							</AnimatedEntrance>
 							<AnimatedEntrance index={2}>
 								<Input
-									placeholder="Confirm password"
+									placeholder={t("auth.resetPassword.confirmPlaceholder")}
 									value={confirm}
 									onChangeText={setConfirm}
 									secureTextEntry
 									editable={!busy}
-									error={mismatch ? "Passwords do not match" : undefined}
-									accessibilityLabel="Confirm password"
+									error={
+										mismatch ? t("auth.resetPassword.mismatch") : undefined
+									}
+									accessibilityLabel={t("auth.resetPassword.confirmA11y")}
 								/>
 							</AnimatedEntrance>
 						</View>
@@ -144,18 +148,21 @@ export default function ResetPassword() {
 								disabled={!canSubmit}
 								onPress={submit}
 								accessibilityRole="button"
-								accessibilityLabel="Update password"
+								accessibilityLabel={t("auth.resetPassword.submit")}
 								accessibilityState={{ disabled: !canSubmit, busy }}
 							>
-								<Text>{busy ? "Updating…" : "Update password"}</Text>
+								<Text>
+									{busy
+										? t("auth.resetPassword.submitting")
+										: t("auth.resetPassword.submit")}
+								</Text>
 							</Button>
 						</AnimatedEntrance>
 					</Animated.View>
 				) : (
 					<AnimatedEntrance index={1}>
 						<Text className="text-muted-foreground">
-							This reset link is invalid or has expired. Request a new one from
-							the sign-in screen.
+							{t("auth.resetPassword.invalidLink")}
 						</Text>
 					</AnimatedEntrance>
 				)}

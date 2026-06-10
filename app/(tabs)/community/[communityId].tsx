@@ -34,12 +34,14 @@ export default function Community() {
 	const community = useQuery(
 		orpc.community.byId.queryOptions({ input: { communityId } }),
 	);
-	const myRole = useQuery(
-		orpc.community.myRoleIn.queryOptions({ input: { communityId } }),
-	);
-	const followStatus = useQuery(
-		orpc.community.followStatus.queryOptions({ input: { communityId } }),
-	);
+	const myRole = useQuery({
+		...orpc.community.myRoleIn.queryOptions({ input: { communityId } }),
+		enabled: !!session,
+	});
+	const followStatus = useQuery({
+		...orpc.community.followStatus.queryOptions({ input: { communityId } }),
+		enabled: !!session,
+	});
 	const events = useQuery(
 		orpc.event.listByCommunity.queryOptions({ input: { communityId } }),
 	);
@@ -193,7 +195,7 @@ export default function Community() {
 					<Button
 						variant={iFollow ? "outline" : "default"}
 						onPress={toggleFollow}
-						disabled={followStatus.isLoading}
+						disabled={!!session && followStatus.isLoading}
 						accessibilityRole="button"
 						accessibilityLabel={
 							iFollow

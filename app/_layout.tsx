@@ -93,14 +93,14 @@ function RootNav() {
 			<Stack.Screen name="announcements" />
 			<Stack.Screen
 				name="changelog"
-				options={{ headerShown: true, title: t("titles.changelog") }}
+				options={{ headerShown: true, title: "" }}
 			/>
 			<Stack.Screen
 				name="notifications"
-				options={{ headerShown: true, title: t("titles.notifications") }}
+				options={{ headerShown: true, title: "" }}
 			/>
 			<Stack.Screen
-				name="users"
+				name="users/index"
 				options={{ headerShown: true, title: t("titles.users") }}
 			/>
 			<Stack.Screen name="user" />

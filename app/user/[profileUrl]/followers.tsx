@@ -1,11 +1,14 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
+import { EmptyState } from "@/components/empty-state";
+import { Users } from "@/components/icons";
 import { PaginatedList } from "@/components/paginated-list";
 import { Avatar } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Text } from "@/components/ui/text";
+import { useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
@@ -13,6 +16,7 @@ import { orpc } from "@/lib/orpc";
 export default function Followers() {
 	const { t } = useI18n();
 	const { profileUrl } = useLocalSearchParams<{ profileUrl: string }>();
+	const { data: session, isPending } = useSession();
 	const profile = useQuery(
 		orpc.profile.byUrl.queryOptions({ input: { profileUrl } }),
 	);
@@ -25,8 +29,25 @@ export default function Followers() {
 			getNextPageParam: (last) =>
 				last.page * last.pageSize < last.total ? last.page + 1 : undefined,
 		}),
-		enabled: !!userId,
+		enabled: !!userId && !!session,
 	});
+
+	if (!session) {
+		if (isPending) return <View className="bg-background flex-1" />;
+		return (
+			<View className="bg-background flex-1 justify-center">
+				<EmptyState
+					icon={Users}
+					title={t("account.guest.title")}
+					subtitle={t("account.guest.subtitle")}
+					action={{
+						label: t("account.guest.signIn"),
+						onPress: () => router.push("/(auth)/login"),
+					}}
+				/>
+			</View>
+		);
+	}
 
 	return (
 		<PaginatedList

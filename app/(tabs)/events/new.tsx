@@ -77,6 +77,7 @@ export default function NewEvent() {
 					.filter(Boolean),
 			});
 			qc.invalidateQueries({ queryKey: orpc.event.list.key() });
+			qc.invalidateQueries({ queryKey: orpc.event.upcoming.key() });
 			router.replace(`/events/${created.id}`);
 		} catch (e) {
 			Alert.alert(t("events.form.createFailed"), humanizeError(e));

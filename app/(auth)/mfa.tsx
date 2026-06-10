@@ -25,6 +25,7 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { twoFactor } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n/provider";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { springs } from "@/lib/motion/springs";
 import { humanizeError } from "@/lib/orpc-error";
@@ -135,6 +136,7 @@ function OtpCells({
 export default function Mfa() {
 	const insets = useSafeAreaInsets();
 	const reduced = useReducedMotion();
+	const { t } = useI18n();
 	const [code, setCode] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
@@ -186,8 +188,8 @@ export default function Mfa() {
 	);
 
 	const onChangeText = useCallback(
-		(t: string) => {
-			const next = t.replace(/[^0-9]/g, "").slice(0, 6);
+		(value: string) => {
+			const next = value.replace(/[^0-9]/g, "").slice(0, 6);
 			if (next.length > code.length && Platform.OS !== "web") {
 				Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 			}
@@ -199,14 +201,12 @@ export default function Mfa() {
 	);
 
 	useEffect(() => {
-		const t = setTimeout(() => {
+		const timer = setTimeout(() => {
 			inputRef.current?.focus();
-			AccessibilityInfo.announceForAccessibility?.(
-				"Enter the 6-digit code from your authenticator app.",
-			);
+			AccessibilityInfo.announceForAccessibility?.(t("auth.mfa.prompt"));
 		}, 350);
-		return () => clearTimeout(t);
-	}, []);
+		return () => clearTimeout(timer);
+	}, [t]);
 
 	const hasError = error != null;
 
@@ -221,11 +221,9 @@ export default function Mfa() {
 			>
 				<View className="gap-2">
 					<GradientText className="text-4xl font-extrabold">
-						Two-factor
+						{t("auth.mfa.title")}
 					</GradientText>
-					<Text variant="muted">
-						Enter the 6-digit code from your authenticator app.
-					</Text>
+					<Text variant="muted">{t("auth.mfa.prompt")}</Text>
 				</View>
 
 				{done ? (
@@ -251,7 +249,7 @@ export default function Mfa() {
 					autoComplete="one-time-code"
 					editable={!busy && !done}
 					maxLength={6}
-					accessibilityLabel="Authentication code"
+					accessibilityLabel={t("auth.mfa.codeA11y")}
 					className="absolute h-px w-px opacity-0"
 					containerClassName="absolute"
 				/>
@@ -273,9 +271,9 @@ export default function Mfa() {
 					disabled={code.length !== 6 || busy || done}
 					onPress={() => submit(code)}
 					accessibilityRole="button"
-					accessibilityLabel="Verify code"
+					accessibilityLabel={t("auth.mfa.verifyA11y")}
 				>
-					<Text>{busy ? "Verifying…" : "Verify"}</Text>
+					<Text>{busy ? t("auth.mfa.verifying") : t("auth.mfa.verify")}</Text>
 				</Button>
 			</View>
 		</KeyboardAvoidingView>

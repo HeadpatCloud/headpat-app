@@ -16,6 +16,7 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { signUp } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { durations } from "@/lib/motion/springs";
@@ -26,6 +27,7 @@ const MIN_PASSWORD = 8;
 export default function Register() {
 	const insets = useSafeAreaInsets();
 	const reduced = useReducedMotion();
+	const { t } = useI18n();
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -89,26 +91,26 @@ export default function Register() {
 					<View className="relative">
 						<GlowBackdrop style={{ top: -24, left: -16 }} />
 						<GradientText className="text-4xl font-bold">
-							Create account
+							{t("auth.register.title")}
 						</GradientText>
 					</View>
-					<Text variant="muted">Join the Headpat community.</Text>
+					<Text variant="muted">{t("auth.register.subtitle")}</Text>
 				</AnimatedEntrance>
 
 				<Animated.View style={shakeStyle} className="gap-5">
 					<View className="gap-3">
 						<AnimatedEntrance index={1}>
 							<Input
-								placeholder="Display name"
+								placeholder={t("auth.register.namePlaceholder")}
 								value={name}
 								onChangeText={setName}
 								editable={!busy}
-								accessibilityLabel="Display name"
+								accessibilityLabel={t("auth.register.nameA11y")}
 							/>
 						</AnimatedEntrance>
 						<AnimatedEntrance index={2}>
 							<Input
-								placeholder="Email"
+								placeholder={t("auth.register.emailPlaceholder")}
 								value={email}
 								onChangeText={setEmail}
 								autoCapitalize="none"
@@ -116,19 +118,19 @@ export default function Register() {
 								keyboardType="email-address"
 								textContentType="emailAddress"
 								editable={!busy}
-								accessibilityLabel="Email address"
+								accessibilityLabel={t("auth.register.emailA11y")}
 							/>
 						</AnimatedEntrance>
 						<AnimatedEntrance index={3} className="gap-1.5">
 							<Input
-								placeholder="Password"
+								placeholder={t("auth.register.passwordPlaceholder")}
 								value={password}
 								onChangeText={setPassword}
 								secureTextEntry
 								autoComplete="new-password"
 								textContentType="newPassword"
 								editable={!busy}
-								accessibilityLabel="Password"
+								accessibilityLabel={t("auth.register.passwordA11y")}
 							/>
 							<View className="bg-muted h-1 overflow-hidden rounded-full">
 								<Animated.View style={fillStyle} className="h-full">
@@ -141,7 +143,7 @@ export default function Register() {
 								</Animated.View>
 							</View>
 							<Text variant="small" className="text-muted-foreground px-1">
-								min 8 characters
+								{t("auth.register.minChars", { count: MIN_PASSWORD })}
 							</Text>
 						</AnimatedEntrance>
 					</View>
@@ -160,10 +162,14 @@ export default function Register() {
 							disabled={!canSubmit}
 							onPress={submit}
 							accessibilityRole="button"
-							accessibilityLabel="Create account"
+							accessibilityLabel={t("auth.register.submit")}
 							accessibilityState={{ disabled: !canSubmit, busy }}
 						>
-							<Text>{busy ? "Creating…" : "Create account"}</Text>
+							<Text>
+								{busy
+									? t("auth.register.submitting")
+									: t("auth.register.submit")}
+							</Text>
 						</Button>
 					</AnimatedEntrance>
 				</Animated.View>
@@ -171,9 +177,11 @@ export default function Register() {
 				<AnimatedEntrance index={5} className="gap-5">
 					<SocialButtons />
 					<View className="flex-row justify-center gap-1">
-						<Text variant="muted">Already have an account?</Text>
+						<Text variant="muted">{t("auth.register.haveAccount")}</Text>
 						<Link href="/(auth)/login" replace>
-							<Text className="text-primary font-medium">Sign in</Text>
+							<Text className="text-primary font-medium">
+								{t("auth.register.signIn")}
+							</Text>
 						</Link>
 					</View>
 				</AnimatedEntrance>

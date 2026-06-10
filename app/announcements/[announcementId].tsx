@@ -54,11 +54,12 @@ export default function Announcement() {
 						pointerEvents="none"
 					/>
 					{data.title ? (
-						<View accessibilityRole="header">
-							<GradientText className="text-3xl font-extrabold leading-9 tracking-tight">
-								{data.title}
-							</GradientText>
-						</View>
+						<GradientText
+							heading
+							className="text-3xl font-extrabold leading-9 tracking-tight"
+						>
+							{data.title}
+						</GradientText>
 					) : null}
 					{data.sideText ? <Text variant="muted">{data.sideText}</Text> : null}
 				</View>

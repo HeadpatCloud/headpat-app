@@ -44,6 +44,123 @@
 		"search": "Suchen",
 		"loading": "Lädt…"
 	},
+	"auth": {
+		"login": {
+			"title": "Anmelden",
+			"subtitle": "Willkommen zurück bei Headpat.",
+			"emailPlaceholder": "E-Mail",
+			"emailA11y": "E-Mail-Adresse",
+			"passwordPlaceholder": "Passwort",
+			"passwordA11y": "Passwort",
+			"submit": "Anmelden",
+			"submitting": "Anmeldung läuft…",
+			"forgotPassword": "Passwort vergessen?",
+			"newHere": "Neu hier?",
+			"createAccount": "Konto erstellen"
+		},
+		"register": {
+			"title": "Konto erstellen",
+			"subtitle": "Werde Teil der Headpat-Community.",
+			"namePlaceholder": "Anzeigename",
+			"nameA11y": "Anzeigename",
+			"emailPlaceholder": "E-Mail",
+			"emailA11y": "E-Mail-Adresse",
+			"passwordPlaceholder": "Passwort",
+			"passwordA11y": "Passwort",
+			"minChars": "mind. %{count} Zeichen",
+			"submit": "Konto erstellen",
+			"submitting": "Wird erstellt…",
+			"haveAccount": "Schon ein Konto?",
+			"signIn": "Anmelden"
+		},
+		"forgotPassword": {
+			"title": "Passwort zurücksetzen",
+			"prompt": "Gib deine E-Mail ein und wir senden dir einen Reset-Link.",
+			"sent": "Wenn diese E-Mail registriert ist, ist ein Reset-Link unterwegs.",
+			"emailPlaceholder": "E-Mail",
+			"emailA11y": "E-Mail-Adresse",
+			"submit": "Reset-Link senden",
+			"submitting": "Wird gesendet…",
+			"backToSignIn": "Zurück zur Anmeldung"
+		},
+		"resetPassword": {
+			"title": "Neues Passwort",
+			"passwordPlaceholder": "Neues Passwort (mind. 8 Zeichen)",
+			"passwordA11y": "Neues Passwort",
+			"confirmPlaceholder": "Passwort bestätigen",
+			"confirmA11y": "Passwort bestätigen",
+			"mismatch": "Passwörter stimmen nicht überein",
+			"submit": "Passwort aktualisieren",
+			"submitting": "Wird aktualisiert…",
+			"successTitle": "Passwort aktualisiert",
+			"successBody": "Du kannst dich jetzt mit deinem neuen Passwort anmelden.",
+			"invalidLink": "Dieser Reset-Link ist ungültig oder abgelaufen. Fordere auf dem Anmeldebildschirm einen neuen an."
+		},
+		"mfa": {
+			"title": "Zwei-Faktor",
+			"prompt": "Gib den 6-stelligen Code aus deiner Authenticator-App ein.",
+			"codeA11y": "Authentifizierungscode",
+			"verify": "Verifizieren",
+			"verifying": "Wird geprüft…",
+			"verifyA11y": "Code prüfen"
+		},
+		"onboarding": {
+			"skip": "Überspringen",
+			"skipA11y": "Onboarding überspringen",
+			"logoA11y": "Headpat-Logo",
+			"slide1Title": "Deine gemütliche Ecke der Community",
+			"slide1Body": "Events, Galerien und Freunde — alles an einem warmen Ort.",
+			"slide2Title": "Mach es zu deinem",
+			"slide2Body": "Wähl ein Theme und sieh zu, wie sich alles sofort umfärbt.",
+			"slide3Title": "Bereit, wenn du es bist",
+			"slide3Body": "Leg los und mach Headpat zu deinem eigenen.",
+			"continue": "Weiter",
+			"haveAccount": "Ich habe schon ein Konto"
+		},
+		"welcome": {
+			"title": "Willkommen bei Headpat",
+			"subtitle": "Stöbere frei — melde dich an, wenn du bereit bist.",
+			"logoA11y": "Headpat-Logo",
+			"explore": "Entdecken",
+			"gallery": "Galerie",
+			"gallerySubtitle": "Kunst, Fotos & Beiträge",
+			"events": "Events",
+			"eventsSubtitle": "Meetups & Veranstaltungen",
+			"communities": "Communities",
+			"communitiesSubtitle": "Gruppen & Freunde",
+			"marketplace": "Marktplatz",
+			"marketplaceSubtitle": "Kaufen & Verkaufen",
+			"soon": "Bald",
+			"signIn": "Anmelden",
+			"newHere": "Neu hier? Erstelle ein Konto",
+			"createAccountA11y": "Konto erstellen"
+		},
+		"social": {
+			"orContinueWith": "oder weiter mit",
+			"failedTitle": "Anmeldung fehlgeschlagen",
+			"googleA11y": "Weiter mit Google",
+			"discordA11y": "Weiter mit Discord"
+		}
+	},
+	"home": {
+		"welcome": "Willkommen",
+		"welcomeBack": "Willkommen zurück",
+		"upcomingEvents": "Kommende Events",
+		"couldntLoadEvents": "Events konnten nicht geladen werden.",
+		"retryEventsA11y": "Events erneut laden",
+		"noUpcomingEvents": "Keine kommenden Events.",
+		"createEventA11y": "Event erstellen",
+		"nextUp": "Als Nächstes",
+		"createTitle": "Erstellen",
+		"galleryPost": "Galerie-Beitrag",
+		"community": "Community",
+		"event": "Event"
+	},
+	"notFound": {
+		"title": "Hoppla!",
+		"message": "Diesen Bildschirm gibt es nicht.",
+		"goHome": "Zum Startbildschirm!"
+	},
 	"gallery": {
 		"title": "Galerie",
 		"subtitle": "Frisch aus der Community",

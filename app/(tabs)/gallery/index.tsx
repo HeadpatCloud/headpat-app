@@ -29,7 +29,10 @@ function GalleryHeader() {
 	const { t } = useI18n();
 	return (
 		<AnimatedEntrance index={0} className="px-1.5 pb-3 pt-1">
-			<GradientText className="text-[34px] font-extrabold leading-10 tracking-tight">
+			<GradientText
+				heading
+				className="text-[34px] font-extrabold leading-10 tracking-tight"
+			>
 				{t("gallery.title")}
 			</GradientText>
 			<Text variant="muted" className="mt-0.5">

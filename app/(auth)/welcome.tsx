@@ -16,6 +16,7 @@ import { Gradient } from "@/components/ui/gradient";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 
@@ -32,6 +33,7 @@ function AreaCard({
 	onPress?: () => void;
 	soon?: boolean;
 }) {
+	const { t } = useI18n();
 	const inner = (
 		<Card className="flex-row items-center gap-3 rounded-2xl p-4">
 			<View className="h-11 w-11 items-center justify-center overflow-hidden rounded-full">
@@ -51,7 +53,7 @@ function AreaCard({
 					{soon ? (
 						<View className="bg-muted rounded-full px-2 py-0.5">
 							<Text variant="caption" className="text-muted-foreground">
-								Soon
+								{t("auth.welcome.soon")}
 							</Text>
 						</View>
 					) : null}
@@ -82,6 +84,7 @@ function AreaCard({
 
 export default function Welcome() {
 	const insets = useSafeAreaInsets();
+	const { t } = useI18n();
 	return (
 		<View className="bg-background flex-1">
 			<Aurora />
@@ -99,42 +102,42 @@ export default function Welcome() {
 						style={{ width: 84, height: 84 }}
 						resizeMode="contain"
 						accessibilityRole="image"
-						accessibilityLabel="Headpat logo"
+						accessibilityLabel={t("auth.welcome.logoA11y")}
 					/>
 					<GradientText className="text-center text-3xl font-extrabold tracking-tight">
-						Welcome to Headpat
+						{t("auth.welcome.title")}
 					</GradientText>
 					<Text variant="muted" className="text-center">
-						Explore freely — sign in when you're ready.
+						{t("auth.welcome.subtitle")}
 					</Text>
 				</AnimatedEntrance>
 
 				<AnimatedEntrance index={1} className="gap-2">
 					<Text variant="caption" className="text-muted-foreground">
-						Explore
+						{t("auth.welcome.explore")}
 					</Text>
 					<AreaCard
 						icon={Images}
-						title="Gallery"
-						subtitle="Art, photos & posts"
+						title={t("auth.welcome.gallery")}
+						subtitle={t("auth.welcome.gallerySubtitle")}
 						onPress={() => router.push("/(tabs)/gallery")}
 					/>
 					<AreaCard
 						icon={CalendarDays}
-						title="Events"
-						subtitle="Meetups & happenings"
+						title={t("auth.welcome.events")}
+						subtitle={t("auth.welcome.eventsSubtitle")}
 						onPress={() => router.push("/(tabs)/events")}
 					/>
 					<AreaCard
 						icon={UsersRound}
-						title="Communities"
-						subtitle="Groups & friends"
+						title={t("auth.welcome.communities")}
+						subtitle={t("auth.welcome.communitiesSubtitle")}
 						onPress={() => router.push("/(tabs)/community")}
 					/>
 					<AreaCard
 						icon={ShoppingBag}
-						title="Marketplace"
-						subtitle="Buy & sell"
+						title={t("auth.welcome.marketplace")}
+						subtitle={t("auth.welcome.marketplaceSubtitle")}
 						soon
 					/>
 				</AnimatedEntrance>
@@ -145,17 +148,17 @@ export default function Welcome() {
 						fullWidth
 						onPress={() => router.push("/(auth)/login")}
 						accessibilityRole="button"
-						accessibilityLabel="Sign in"
+						accessibilityLabel={t("auth.welcome.signIn")}
 					>
-						<Text>Sign in</Text>
+						<Text>{t("auth.welcome.signIn")}</Text>
 					</Button>
 					<Button
 						variant="link"
 						onPress={() => router.push("/(auth)/register")}
 						accessibilityRole="link"
-						accessibilityLabel="Create an account"
+						accessibilityLabel={t("auth.welcome.createAccountA11y")}
 					>
-						<Text>New here? Create an account</Text>
+						<Text>{t("auth.welcome.newHere")}</Text>
 					</Button>
 				</AnimatedEntrance>
 			</ScrollView>

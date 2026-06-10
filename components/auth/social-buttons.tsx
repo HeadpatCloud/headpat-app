@@ -5,18 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n/provider";
 import { humanizeError } from "@/lib/orpc-error";
 import { RADIUS } from "@/lib/theme/foundations";
 
-async function social(provider: "google" | "discord") {
+async function social(provider: "google" | "discord", failedTitle: string) {
 	try {
 		await authClient.signIn.social({ provider, callbackURL: "/" });
 	} catch (e) {
-		Alert.alert("Sign-in failed", humanizeError(e));
+		Alert.alert(failedTitle, humanizeError(e));
 	}
 }
 
-async function appleSignIn() {
+async function appleSignIn(failedTitle: string) {
 	try {
 		const credential = await AppleAuthentication.signInAsync({
 			requestedScopes: [
@@ -32,32 +33,33 @@ async function appleSignIn() {
 		}
 	} catch (e) {
 		if ((e as { code?: string }).code === "ERR_REQUEST_CANCELED") return;
-		Alert.alert("Sign-in failed", humanizeError(e));
+		Alert.alert(failedTitle, humanizeError(e));
 	}
 }
 
 export function SocialButtons() {
+	const { t } = useI18n();
 	return (
 		<View className="gap-3">
 			<View className="flex-row items-center gap-3">
 				<View className="bg-border h-px flex-1" />
 				<Text variant="muted" className="text-xs">
-					or continue with
+					{t("auth.social.orContinueWith")}
 				</Text>
 				<View className="bg-border h-px flex-1" />
 			</View>
 			<Button
 				variant="outline"
-				onPress={() => social("google")}
-				accessibilityLabel="Continue with Google"
+				onPress={() => social("google", t("auth.social.failedTitle"))}
+				accessibilityLabel={t("auth.social.googleA11y")}
 			>
 				<Icon as={Globe} />
 				<Text>Google</Text>
 			</Button>
 			<Button
 				variant="outline"
-				onPress={() => social("discord")}
-				accessibilityLabel="Continue with Discord"
+				onPress={() => social("discord", t("auth.social.failedTitle"))}
+				accessibilityLabel={t("auth.social.discordA11y")}
 			>
 				<Icon as={MessagesSquare} />
 				<Text>Discord</Text>
@@ -68,7 +70,7 @@ export function SocialButtons() {
 					buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
 					cornerRadius={RADIUS.sm}
 					style={{ height: 48 }}
-					onPress={appleSignIn}
+					onPress={() => appleSignIn(t("auth.social.failedTitle"))}
 				/>
 			) : null}
 		</View>

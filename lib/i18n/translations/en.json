@@ -44,6 +44,123 @@
 		"search": "Search",
 		"loading": "Loading…"
 	},
+	"auth": {
+		"login": {
+			"title": "Sign in",
+			"subtitle": "Welcome back to Headpat.",
+			"emailPlaceholder": "Email",
+			"emailA11y": "Email address",
+			"passwordPlaceholder": "Password",
+			"passwordA11y": "Password",
+			"submit": "Sign in",
+			"submitting": "Signing in…",
+			"forgotPassword": "Forgot password?",
+			"newHere": "New here?",
+			"createAccount": "Create an account"
+		},
+		"register": {
+			"title": "Create account",
+			"subtitle": "Join the Headpat community.",
+			"namePlaceholder": "Display name",
+			"nameA11y": "Display name",
+			"emailPlaceholder": "Email",
+			"emailA11y": "Email address",
+			"passwordPlaceholder": "Password",
+			"passwordA11y": "Password",
+			"minChars": "min %{count} characters",
+			"submit": "Create account",
+			"submitting": "Creating…",
+			"haveAccount": "Already have an account?",
+			"signIn": "Sign in"
+		},
+		"forgotPassword": {
+			"title": "Reset password",
+			"prompt": "Enter your email and we'll send a reset link.",
+			"sent": "If that email is registered, a reset link is on its way.",
+			"emailPlaceholder": "Email",
+			"emailA11y": "Email address",
+			"submit": "Send reset link",
+			"submitting": "Sending…",
+			"backToSignIn": "Back to sign in"
+		},
+		"resetPassword": {
+			"title": "New password",
+			"passwordPlaceholder": "New password (min 8 characters)",
+			"passwordA11y": "New password",
+			"confirmPlaceholder": "Confirm password",
+			"confirmA11y": "Confirm password",
+			"mismatch": "Passwords do not match",
+			"submit": "Update password",
+			"submitting": "Updating…",
+			"successTitle": "Password updated",
+			"successBody": "You can now sign in with your new password.",
+			"invalidLink": "This reset link is invalid or has expired. Request a new one from the sign-in screen."
+		},
+		"mfa": {
+			"title": "Two-factor",
+			"prompt": "Enter the 6-digit code from your authenticator app.",
+			"codeA11y": "Authentication code",
+			"verify": "Verify",
+			"verifying": "Verifying…",
+			"verifyA11y": "Verify code"
+		},
+		"onboarding": {
+			"skip": "Skip",
+			"skipA11y": "Skip onboarding",
+			"logoA11y": "Headpat logo",
+			"slide1Title": "Your cozy corner of the community",
+			"slide1Body": "Events, galleries, and friends — all in one warm place.",
+			"slide2Title": "Make it yours",
+			"slide2Body": "Pick a theme and watch everything recolor instantly.",
+			"slide3Title": "Ready when you are",
+			"slide3Body": "Jump in and make Headpat your own.",
+			"continue": "Continue",
+			"haveAccount": "I already have an account"
+		},
+		"welcome": {
+			"title": "Welcome to Headpat",
+			"subtitle": "Explore freely — sign in when you're ready.",
+			"logoA11y": "Headpat logo",
+			"explore": "Explore",
+			"gallery": "Gallery",
+			"gallerySubtitle": "Art, photos & posts",
+			"events": "Events",
+			"eventsSubtitle": "Meetups & happenings",
+			"communities": "Communities",
+			"communitiesSubtitle": "Groups & friends",
+			"marketplace": "Marketplace",
+			"marketplaceSubtitle": "Buy & sell",
+			"soon": "Soon",
+			"signIn": "Sign in",
+			"newHere": "New here? Create an account",
+			"createAccountA11y": "Create an account"
+		},
+		"social": {
+			"orContinueWith": "or continue with",
+			"failedTitle": "Sign-in failed",
+			"googleA11y": "Continue with Google",
+			"discordA11y": "Continue with Discord"
+		}
+	},
+	"home": {
+		"welcome": "Welcome",
+		"welcomeBack": "Welcome back",
+		"upcomingEvents": "Upcoming events",
+		"couldntLoadEvents": "Couldn't load events.",
+		"retryEventsA11y": "Retry loading events",
+		"noUpcomingEvents": "No upcoming events.",
+		"createEventA11y": "Create an event",
+		"nextUp": "Next up",
+		"createTitle": "Create",
+		"galleryPost": "Gallery post",
+		"community": "Community",
+		"event": "Event"
+	},
+	"notFound": {
+		"title": "Oops!",
+		"message": "This screen doesn't exist.",
+		"goHome": "Go to home screen!"
+	},
 	"gallery": {
 		"title": "Gallery",
 		"subtitle": "Fresh from the community",

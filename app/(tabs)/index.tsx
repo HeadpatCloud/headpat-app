@@ -99,6 +99,7 @@ function CreateRow({
 }
 
 function EventCard({ event, featured }: { event: Event; featured?: boolean }) {
+	const { t } = useI18n();
 	return (
 		<PressableScale
 			onPress={() => router.push(`/events/${event.id}`)}
@@ -140,7 +141,7 @@ function EventCard({ event, featured }: { event: Event; featured?: boolean }) {
 				<View className="flex-1 gap-0.5">
 					{featured ? (
 						<Text variant="caption" className="text-primary">
-							Next up
+							{t("home.nextUp")}
 						</Text>
 					) : null}
 					<Text variant="large" numberOfLines={1}>
@@ -195,7 +196,7 @@ export default function Home() {
 				<AnimatedEntrance index={0}>
 					<View className="gap-0.5">
 						<Text variant="caption" className="text-muted-foreground">
-							{session ? "Welcome back" : "Welcome"}
+							{session ? t("home.welcomeBack") : t("home.welcome")}
 						</Text>
 						<Text className="text-foreground text-4xl leading-[44px] font-extrabold tracking-tight">
 							{session?.user?.name ?? "Headpat"}
@@ -210,16 +211,16 @@ export default function Home() {
 						fullWidth
 						onPress={() => requireAuth(() => createRef.current?.present())}
 						accessibilityRole="button"
-						accessibilityLabel="Create"
+						accessibilityLabel={t("common.create")}
 					>
 						<Icon as={Plus} size={18} className="text-primary-foreground" />
-						<Text>Create</Text>
+						<Text>{t("common.create")}</Text>
 					</Button>
 				</AnimatedEntrance>
 
 				<AnimatedEntrance index={2} className="gap-2">
 					<Text variant="small" className="text-muted-foreground uppercase">
-						Upcoming events
+						{t("home.upcomingEvents")}
 					</Text>
 					{events.isLoading ? (
 						<View className="gap-2">
@@ -229,17 +230,17 @@ export default function Home() {
 					) : events.isError ? (
 						<Card className="flex-row items-center gap-3 rounded-2xl p-4">
 							<Text variant="muted" className="flex-1">
-								Couldn't load events.
+								{t("home.couldntLoadEvents")}
 							</Text>
 							<Button
 								variant="ghost"
 								size="sm"
 								onPress={() => events.refetch()}
 								accessibilityRole="button"
-								accessibilityLabel="Retry loading events"
+								accessibilityLabel={t("home.retryEventsA11y")}
 							>
 								<Icon as={RefreshCw} size={16} className="text-foreground" />
-								<Text>Retry</Text>
+								<Text>{t("common.retry")}</Text>
 							</Button>
 						</Card>
 					) : list.length > 0 ? (
@@ -252,16 +253,16 @@ export default function Home() {
 						<Card className="flex-row items-center gap-3 rounded-2xl p-4">
 							<GradientChip icon={CalendarPlus} />
 							<Text variant="muted" className="flex-1">
-								No upcoming events.
+								{t("home.noUpcomingEvents")}
 							</Text>
 							<Button
 								variant="ghost"
 								size="sm"
 								onPress={() => requireAuth(() => create("/events/new"))}
 								accessibilityRole="button"
-								accessibilityLabel="Create an event"
+								accessibilityLabel={t("home.createEventA11y")}
 							>
-								<Text>Create</Text>
+								<Text>{t("common.create")}</Text>
 							</Button>
 						</Card>
 					)}
@@ -275,28 +276,37 @@ export default function Home() {
 					/>
 					<QuickLink
 						icon={Megaphone}
-						label="Announcements"
+						label={t("titles.announcements")}
 						href="/announcements"
 					/>
-					<QuickLink icon={FileClock} label="What's new" href="/changelog" />
+					<QuickLink
+						icon={FileClock}
+						label={t("titles.changelog")}
+						href="/changelog"
+					/>
+					<QuickLink
+						icon={UsersRound}
+						label={t("titles.users")}
+						href="/users"
+					/>
 				</AnimatedEntrance>
 			</ScrollView>
 
-			<Sheet ref={createRef} title="Create" accent>
+			<Sheet ref={createRef} title={t("home.createTitle")} accent>
 				<View className="gap-1">
 					<CreateRow
 						icon={ImagePlus}
-						label="Gallery post"
+						label={t("home.galleryPost")}
 						onPress={() => create("/gallery/upload")}
 					/>
 					<CreateRow
 						icon={UsersRound}
-						label="Community"
+						label={t("home.community")}
 						onPress={() => create("/community/new")}
 					/>
 					<CreateRow
 						icon={CalendarPlus}
-						label="Event"
+						label={t("home.event")}
 						onPress={() => create("/events/new")}
 					/>
 				</View>

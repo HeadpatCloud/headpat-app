@@ -278,7 +278,10 @@ export default function GalleryItem() {
 
 				<AnimatedEntrance index={1}>
 					<View className="gap-1.5">
-						<GradientText className="text-3xl font-extrabold leading-9 tracking-tight">
+						<GradientText
+							heading
+							className="text-3xl font-extrabold leading-9 tracking-tight"
+						>
 							{item.data.name}
 						</GradientText>
 						<View className="flex-row items-center gap-2.5">

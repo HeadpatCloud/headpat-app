@@ -9,6 +9,7 @@ import { useTheme } from "@/lib/theme/provider";
 type GradientTextProps = {
 	children: string;
 	className?: string;
+	heading?: boolean;
 };
 
 // Push a stop toward the readable end for the active scheme so the masked fill
@@ -24,7 +25,11 @@ function readableStop(hex: string, scheme: "light" | "dark"): string {
 
 // Big display heading filled with the theme gradient. The real <Text> is both
 // the mask and the screen-reader label; a solid copy is the fallback.
-export function GradientText({ children, className }: GradientTextProps) {
+export function GradientText({
+	children,
+	className,
+	heading,
+}: GradientTextProps) {
 	const { gradient, scheme } = useTheme();
 	const [reduceTransparency, setReduceTransparency] = useState(false);
 	useEffect(() => {
@@ -39,7 +44,14 @@ export function GradientText({ children, className }: GradientTextProps) {
 	}, []);
 
 	if (reduceTransparency) {
-		return <Text className={className}>{children}</Text>;
+		return (
+			<Text
+				className={className}
+				accessibilityRole={heading ? "header" : undefined}
+			>
+				{children}
+			</Text>
+		);
 	}
 
 	const colors: [string, string] = [
@@ -49,6 +61,7 @@ export function GradientText({ children, className }: GradientTextProps) {
 
 	return (
 		<MaskedView
+			accessibilityRole={heading ? "header" : undefined}
 			maskElement={
 				<View style={{ backgroundColor: "transparent" }}>
 					<Text className={className}>{children}</Text>
@@ -56,7 +69,11 @@ export function GradientText({ children, className }: GradientTextProps) {
 			}
 		>
 			<Gradient colors={colors}>
-				<Text className={className} style={{ opacity: 0 }}>
+				<Text
+					className={className}
+					style={{ opacity: 0 }}
+					accessibilityElementsHidden={heading}
+				>
 					{children}
 				</Text>
 			</Gradient>

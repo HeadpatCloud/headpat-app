@@ -20,6 +20,7 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
@@ -35,8 +36,29 @@ const Separator = () => <View className="h-3" />;
 export default function Tickets() {
 	const { t } = useI18n();
 	const { colors } = useTheme();
-	const query = useQuery(orpc.ticket.myList.queryOptions({ input: {} }));
+	const { data: session, isPending } = useSession();
+	const query = useQuery({
+		...orpc.ticket.myList.queryOptions({ input: {} }),
+		enabled: !!session,
+	});
 	const animated = useRef(new Set<number>());
+
+	if (!session) {
+		if (isPending) return <View className="bg-background flex-1" />;
+		return (
+			<View className="bg-background flex-1 justify-center">
+				<EmptyState
+					icon={Inbox}
+					title={t("account.guest.title")}
+					subtitle={t("account.guest.subtitle")}
+					action={{
+						label: t("account.guest.signIn"),
+						onPress: () => router.push("/(auth)/login"),
+					}}
+				/>
+			</View>
+		);
+	}
 
 	if (query.isLoading) {
 		return (

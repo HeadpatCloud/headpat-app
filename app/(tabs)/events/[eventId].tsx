@@ -28,7 +28,10 @@ export default function Event() {
 	const { data, isLoading } = useQuery(
 		orpc.event.byId.queryOptions({ input: { eventId } }),
 	);
-	const myAttending = useQuery(orpc.event.myAttending.queryOptions());
+	const myAttending = useQuery({
+		...orpc.event.myAttending.queryOptions(),
+		enabled: !!session,
+	});
 
 	const attending =
 		myAttending.data?.some((row) => row.eventId === eventId) ?? false;
@@ -241,7 +244,7 @@ export default function Event() {
 					variant={attending ? "outline" : "default"}
 					fullWidth
 					onPress={toggleAttend}
-					disabled={pending || myAttending.isLoading}
+					disabled={pending || (!!session && myAttending.isLoading)}
 					accessibilityRole="button"
 					accessibilityLabel={
 						attending ? t("events.leaveHint") : t("events.attendHint")

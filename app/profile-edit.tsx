@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
+import { useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
@@ -43,9 +44,11 @@ export default function ProfileEdit() {
 	const { t } = useI18n();
 	const { colors } = useTheme();
 	const qc = useQueryClient();
-	const { data: me, isLoading } = useQuery(
-		orpc.profile.me.queryOptions({ input: {} }),
-	);
+	const { data: session } = useSession();
+	const { data: me, isLoading } = useQuery({
+		...orpc.profile.me.queryOptions({ input: {} }),
+		enabled: !!session,
+	});
 
 	const [form, setForm] = useState<Record<string, string>>({});
 	const [avatarFileId, setAvatarFileId] = useState<string | null>(null);
@@ -115,6 +118,8 @@ export default function ProfileEdit() {
 				nsfwEnabled: nsfw,
 			});
 			qc.invalidateQueries({ queryKey: orpc.profile.me.key() });
+			qc.invalidateQueries({ queryKey: orpc.profile.byUrl.key() });
+			qc.invalidateQueries({ queryKey: orpc.profile.list.key() });
 			router.back();
 		} catch (e) {
 			Alert.alert(t("account.edit.saveErrorTitle"), humanizeError(e));

@@ -411,7 +411,10 @@ export default function UserProfile() {
 					<View className="gap-1">
 						<View className="flex-row flex-wrap items-center gap-2">
 							<View className="shrink">
-								<GradientText className="text-4xl font-extrabold leading-[44px] tracking-tight">
+								<GradientText
+									heading
+									className="text-4xl font-extrabold leading-[44px] tracking-tight"
+								>
 									{p.displayName ?? p.profileUrl}
 								</GradientText>
 							</View>

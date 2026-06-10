@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { useI18n } from "@/lib/i18n/provider";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { tripletToHex } from "@/lib/theme/color";
 import { PRESET_LIST, PRESETS } from "@/lib/theme/presets";
@@ -78,6 +79,7 @@ function SwatchChip({
 	name: string;
 }) {
 	const { scheme, activeTheme, setActiveTheme } = useTheme();
+	const { t } = useI18n();
 	const tokens = PRESETS[slug][scheme];
 	const selected = activeTheme === slug;
 	return (
@@ -85,7 +87,7 @@ function SwatchChip({
 			onPress={() => setActiveTheme(slug)}
 			accessibilityRole="button"
 			accessibilityState={{ selected }}
-			accessibilityLabel={`${name} theme`}
+			accessibilityLabel={t("appearance.themeA11y", { name })}
 			hitSlop={8}
 			className={`min-h-12 flex-row items-center gap-3 rounded-xl border px-4 py-3 ${selected ? "border-primary bg-primary/10" : "border-border bg-card"}`}
 		>
@@ -166,6 +168,7 @@ export default function Onboarding() {
 	const insets = useSafeAreaInsets();
 	const { width } = useWindowDimensions();
 	const reduced = useReducedMotion();
+	const { t } = useI18n();
 	const { scheme, setMode, colors } = useTheme();
 	const scrollX = useSharedValue(0);
 	const scrollRef = useRef<Animated.ScrollView>(null);
@@ -224,7 +227,7 @@ export default function Onboarding() {
 					size="icon"
 					onPress={toggleMode}
 					accessibilityRole="button"
-					accessibilityLabel="Toggle light or dark mode"
+					accessibilityLabel={t("header.toggleMode")}
 				>
 					<Icon
 						as={scheme === "dark" ? Sun : Moon}
@@ -237,9 +240,9 @@ export default function Onboarding() {
 					size="sm"
 					onPress={finishOnboarding}
 					accessibilityRole="button"
-					accessibilityLabel="Skip onboarding"
+					accessibilityLabel={t("auth.onboarding.skipA11y")}
 				>
-					<Text>Skip</Text>
+					<Text>{t("auth.onboarding.skip")}</Text>
 				</Button>
 			</View>
 
@@ -260,24 +263,26 @@ export default function Onboarding() {
 							style={{ width: 112, height: 112 }}
 							resizeMode="contain"
 							accessibilityRole="image"
-							accessibilityLabel="Headpat logo"
+							accessibilityLabel={t("auth.onboarding.logoA11y")}
 						/>
 					</Animated.View>
 					<View className="items-center gap-3">
 						<GradientText className="text-center">
-							Your cozy corner of the community
+							{t("auth.onboarding.slide1Title")}
 						</GradientText>
 						<Text variant="muted" className="text-center">
-							Events, galleries, and friends — all in one warm place.
+							{t("auth.onboarding.slide1Body")}
 						</Text>
 					</View>
 				</Panel>
 
 				<Panel width={width}>
 					<View className="items-center gap-3">
-						<GradientText className="text-center">Make it yours</GradientText>
+						<GradientText className="text-center">
+							{t("auth.onboarding.slide2Title")}
+						</GradientText>
 						<Text variant="muted" className="text-center">
-							Pick a theme and watch everything recolor instantly.
+							{t("auth.onboarding.slide2Body")}
 						</Text>
 					</View>
 					<View className="w-full gap-3">
@@ -290,10 +295,10 @@ export default function Onboarding() {
 				<Panel width={width}>
 					<View className="items-center gap-3">
 						<GradientText className="text-center">
-							Ready when you are
+							{t("auth.onboarding.slide3Title")}
 						</GradientText>
 						<Text variant="muted" className="text-center">
-							Jump in and make Headpat your own.
+							{t("auth.onboarding.slide3Body")}
 						</Text>
 					</View>
 					<View className="w-full gap-3">
@@ -303,9 +308,9 @@ export default function Onboarding() {
 							fullWidth
 							onPress={finishOnboarding}
 							accessibilityRole="button"
-							accessibilityLabel="Continue"
+							accessibilityLabel={t("auth.onboarding.continue")}
 						>
-							<Text>Continue</Text>
+							<Text>{t("auth.onboarding.continue")}</Text>
 						</Button>
 						<Link href="/(auth)/login" asChild>
 							<Button
@@ -314,9 +319,9 @@ export default function Onboarding() {
 									AsyncStorage.setItem(ONBOARDED_KEY, "1").catch(() => {});
 								}}
 								accessibilityRole="link"
-								accessibilityLabel="I already have an account"
+								accessibilityLabel={t("auth.onboarding.haveAccount")}
 							>
-								<Text>I already have an account</Text>
+								<Text>{t("auth.onboarding.haveAccount")}</Text>
 							</Button>
 						</Link>
 					</View>

@@ -20,6 +20,7 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
@@ -33,9 +34,11 @@ export default function Ticket() {
 	const insets = useSafeAreaInsets();
 	const qc = useQueryClient();
 	const reduced = useReducedMotion();
-	const { data, isLoading } = useQuery(
-		orpc.ticket.get.queryOptions({ input: { ticketId } }),
-	);
+	const { data: session } = useSession();
+	const { data, isLoading } = useQuery({
+		...orpc.ticket.get.queryOptions({ input: { ticketId } }),
+		enabled: !!session,
+	});
 
 	const [reply, setReply] = useState("");
 	const [sending, setSending] = useState(false);
