@@ -2,23 +2,33 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns/format";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { EmptyState } from "@/components/empty-state";
+import { GlowAvatar } from "@/components/glow-avatar";
 import { CalendarDays, MapPin, Users } from "@/components/icons";
 import { StorageImage } from "@/components/storage-image";
-import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
+import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { useSession } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n/provider";
+import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
+import { useTheme } from "@/lib/theme/provider";
 
 export default function Community() {
 	const { communityId } = useLocalSearchParams<{ communityId: string }>();
 	const queryClient = useQueryClient();
+	const { t } = useI18n();
+	const { colors } = useTheme();
+	const { data: session } = useSession();
 	const [busy, setBusy] = useState(false);
 
 	const community = useQuery(
@@ -37,6 +47,10 @@ export default function Community() {
 	// Optimistic: flip iFollow + followersCount in the cache immediately, roll
 	// back on error — the tap must not wait on the network.
 	async function toggleFollow() {
+		if (!session) {
+			router.push("/(auth)/login");
+			return;
+		}
 		if (busy) return;
 		setBusy(true);
 		const statusKey = orpc.community.followStatus.queryOptions({
@@ -76,7 +90,7 @@ export default function Community() {
 		} catch (e) {
 			queryClient.setQueryData(statusKey, prevStatus);
 			queryClient.setQueryData(byIdKey, prevById);
-			Alert.alert("Couldn't update follow", humanizeError(e));
+			Alert.alert(t("community.detail.followErrorTitle"), humanizeError(e));
 		} finally {
 			queryClient.invalidateQueries({
 				queryKey: orpc.community.followStatus.key({ input: { communityId } }),
@@ -90,18 +104,24 @@ export default function Community() {
 
 	if (community.isLoading) {
 		return (
-			<View className="bg-background flex-1 gap-3 p-4">
-				<Skeleton className="h-40 w-full" />
-				<Skeleton className="h-8 w-2/3" />
-				<Skeleton className="h-20 w-full" />
+			<View className="bg-background flex-1">
+				<Skeleton className="h-40 w-full rounded-none" />
+				<View className="gap-3 p-4">
+					<Skeleton className="h-8 w-2/3" />
+					<Skeleton className="h-20 w-full" />
+				</View>
 			</View>
 		);
 	}
 
 	if (!community.data) {
 		return (
-			<View className="bg-background flex-1 p-4">
-				<Text variant="muted">This community is no longer available.</Text>
+			<View className="bg-background flex-1 justify-center">
+				<EmptyState
+					icon={Users}
+					title={t("community.detail.goneTitle")}
+					subtitle={t("community.detail.goneSubtitle")}
+				/>
 			</View>
 		);
 	}
@@ -117,80 +137,109 @@ export default function Community() {
 			className="bg-background flex-1"
 			contentContainerStyle={{ paddingBottom: 32 }}
 		>
-			{c.bannerFileId ? (
-				<StorageImage
-					kind="community-banner"
-					fileId={c.bannerFileId}
-					variant="1600"
-					style={{ width: "100%", height: 160 }}
-					accessibilityLabel={`${c.name} banner`}
-				/>
-			) : (
-				<View className="bg-muted h-40 w-full" />
-			)}
+			<AnimatedEntrance index={0} preset="fade">
+				{/* Gradient banner hero: every community gets a vivid header even
+				    without an uploaded image; the scrim fades it into the page. */}
+				<View style={{ height: 160 }}>
+					{c.bannerFileId ? (
+						<StorageImage
+							kind="community-banner"
+							fileId={c.bannerFileId}
+							variant="1600"
+							style={StyleSheet.absoluteFill}
+							accessibilityLabel={t("community.detail.banner", {
+								name: c.name,
+							})}
+						/>
+					) : (
+						<Gradient style={StyleSheet.absoluteFill} />
+					)}
+					<Gradient
+						colors={["transparent", colors.background]}
+						start={{ x: 0, y: 0 }}
+						end={{ x: 0, y: 1 }}
+						locations={[0.55, 1]}
+						style={StyleSheet.absoluteFill}
+						pointerEvents="none"
+					/>
+				</View>
+			</AnimatedEntrance>
 
 			<View className="gap-4 p-4">
-				<View className="flex-row items-center gap-3">
-					<Avatar
-						fileId={c.avatarFileId}
-						name={c.name}
-						kind="community-avatar"
-						size={64}
-						className="border-background -mt-12 border-4"
-					/>
-					<View className="flex-1 gap-0.5">
-						<Text variant="h3">{c.name}</Text>
-						<View className="flex-row items-center gap-1.5">
-							<Icon as={Users} size={14} className="text-muted-foreground" />
-							<Text variant="small" className="text-muted-foreground">
-								{c.followersCount}{" "}
-								{c.followersCount === 1 ? "follower" : "followers"}
-							</Text>
+				<AnimatedEntrance index={1}>
+					<View className="flex-row items-center gap-3">
+						<GlowAvatar
+							fileId={c.avatarFileId}
+							name={c.name}
+							kind="community-avatar"
+							size={64}
+							className="-mt-12"
+						/>
+						<View className="flex-1 gap-0.5">
+							<Text variant="h2">{c.name}</Text>
+							<View className="flex-row items-center gap-1.5">
+								<Icon as={Users} size={14} className="text-muted-foreground" />
+								<Text variant="small" className="text-muted-foreground">
+									{t("community.detail.followersCount", {
+										count: c.followersCount,
+									})}
+								</Text>
+							</View>
 						</View>
 					</View>
-				</View>
+				</AnimatedEntrance>
 
-				<Button
-					variant={iFollow ? "outline" : "default"}
-					onPress={toggleFollow}
-					disabled={followStatus.isLoading}
-					accessibilityRole="button"
-					accessibilityLabel={
-						iFollow ? "Unfollow community" : "Follow community"
-					}
-				>
-					<Text>{iFollow ? "Following" : "Follow"}</Text>
-				</Button>
-
-				{canManage ? (
+				<AnimatedEntrance index={2} className="gap-3">
 					<Button
-						variant="outline"
-						onPress={() => router.push(`/community-admin/${communityId}`)}
+						variant={iFollow ? "outline" : "default"}
+						onPress={toggleFollow}
+						disabled={followStatus.isLoading}
 						accessibilityRole="button"
-						accessibilityLabel="Manage community"
+						accessibilityLabel={
+							iFollow
+								? t("community.detail.unfollowCommunity")
+								: t("community.detail.followCommunity")
+						}
 					>
-						<Text>Manage</Text>
+						<Text>
+							{iFollow
+								? t("community.detail.following")
+								: t("community.detail.follow")}
+						</Text>
 					</Button>
+
+					{canManage ? (
+						<Button
+							variant="outline"
+							onPress={() => router.push(`/community-admin/${communityId}`)}
+							accessibilityRole="button"
+							accessibilityLabel={t("community.detail.manageCommunity")}
+						>
+							<Text>{t("community.detail.manage")}</Text>
+						</Button>
+					) : null}
+				</AnimatedEntrance>
+
+				{c.description || c.tags.length > 0 ? (
+					<AnimatedEntrance index={3} className="gap-4">
+						{c.description ? (
+							<Text className="text-foreground leading-6">{c.description}</Text>
+						) : null}
+
+						{c.tags.length > 0 ? (
+							<View className="flex-row flex-wrap gap-1.5">
+								{c.tags.map((tag) => (
+									<Badge key={tag} variant="secondary">
+										{tag}
+									</Badge>
+								))}
+							</View>
+						) : null}
+					</AnimatedEntrance>
 				) : null}
 
-				{c.description ? (
-					<Text className="text-foreground leading-6">{c.description}</Text>
-				) : null}
-
-				{c.tags.length > 0 ? (
-					<View className="flex-row flex-wrap gap-1.5">
-						{c.tags.map((tag) => (
-							<Badge key={tag} variant="secondary">
-								{tag}
-							</Badge>
-						))}
-					</View>
-				) : null}
-
-				<View className="gap-2 pt-2">
-					<Text variant="small" className="text-muted-foreground uppercase">
-						Events
-					</Text>
+				<AnimatedEntrance index={4} className="gap-2 pt-2">
+					<SectionHeader title={t("community.detail.events")} accent />
 					{events.isLoading ? (
 						<Skeleton className="h-20 w-full" />
 					) : events.data && events.data.length > 0 ? (
@@ -239,16 +288,18 @@ export default function Community() {
 											className="text-muted-foreground"
 										/>
 										<Text variant="small" className="text-muted-foreground">
-											{e.attendeesCount} going
+											{t("community.detail.going", {
+												count: e.attendeesCount,
+											})}
 										</Text>
 									</View>
 								</Card>
 							</PressableScale>
 						))
 					) : (
-						<Text variant="muted">No events yet.</Text>
+						<Text variant="muted">{t("community.detail.noEvents")}</Text>
 					)}
-				</View>
+				</AnimatedEntrance>
 			</View>
 		</ScrollView>
 	);

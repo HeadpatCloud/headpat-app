@@ -7,15 +7,22 @@ import { PaginatedList } from "@/components/paginated-list";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Fab } from "@/components/ui/fab";
+import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n/provider";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
+import { RADIUS } from "@/lib/theme/foundations";
+import { useTheme } from "@/lib/theme/provider";
 
 export default function Communities() {
 	const { data: session } = useSession();
+	const { t } = useI18n();
+	const { colors } = useTheme();
 	const [text, setText] = useState("");
 	const [search, setSearch] = useState("");
 
@@ -40,35 +47,53 @@ export default function Communities() {
 			<PaginatedList
 				query={query}
 				keyExtractor={(c) => c.id}
-				emptyTitle={search ? "No communities found" : "No communities yet"}
-				emptySubtitle={search ? "Try a different search." : undefined}
+				emptyTitle={
+					search
+						? t("community.index.emptySearchTitle")
+						: t("community.index.emptyTitle")
+				}
+				emptySubtitle={
+					search ? t("community.index.emptySearchSubtitle") : undefined
+				}
 				ListHeaderComponent={
-					<View className="flex-row items-center gap-2 pb-3">
-						<View className="flex-1 flex-row items-center">
+					<View className="gap-4 pb-3">
+						<View className="gap-1">
+							<Text variant="h1">{t("community.index.title")}</Text>
+							<Text variant="muted">{t("community.index.subtitle")}</Text>
+						</View>
+						<View className="flex-row items-center gap-2">
 							<Input
 								value={text}
 								onChangeText={setText}
 								onSubmitEditing={() => setSearch(text.trim())}
 								returnKeyType="search"
-								placeholder="Search communities"
+								placeholder={t("community.index.searchPlaceholder")}
 								containerClassName="flex-1"
-								accessibilityLabel="Search communities"
+								accessibilityLabel={t("community.index.searchPlaceholder")}
 							/>
+							<PressableScale
+								onPress={() => setSearch(text.trim())}
+								haptic="selection"
+								accessibilityRole="button"
+								accessibilityLabel={t("common.search")}
+							>
+								<Gradient
+									borderRadius={RADIUS.sm}
+									style={{
+										height: 48,
+										width: 48,
+										alignItems: "center",
+										justifyContent: "center",
+									}}
+								>
+									<Icon
+										as={Search}
+										size={20}
+										color={colors["primary-foreground"]}
+									/>
+								</Gradient>
+							</PressableScale>
 						</View>
-						<PressableScale
-							onPress={() => setSearch(text.trim())}
-							haptic="selection"
-							accessibilityRole="button"
-							accessibilityLabel="Search"
-						>
-							<View className="bg-primary h-11 w-11 items-center justify-center rounded-md">
-								<Icon
-									as={Search}
-									size={20}
-									className="text-primary-foreground"
-								/>
-							</View>
-						</PressableScale>
 					</View>
 				}
 				renderItem={(c) => (
@@ -106,8 +131,11 @@ export default function Communities() {
 								</View>
 								{c.tags.length > 0 ? (
 									<View className="flex-row flex-wrap gap-1.5 pt-1">
-										{c.tags.slice(0, 3).map((tag) => (
-											<Badge key={tag} variant="secondary">
+										{c.tags.slice(0, 3).map((tag, i) => (
+											<Badge
+												key={tag}
+												variant={i === 0 ? "tonal" : "secondary"}
+											>
 												{tag}
 											</Badge>
 										))}
@@ -119,20 +147,11 @@ export default function Communities() {
 				)}
 			/>
 			{session ? (
-				<PressableScale
+				<Fab
+					icon={Plus}
 					onPress={() => router.push("/community/new")}
-					haptic="selection"
-					accessibilityRole="button"
-					accessibilityLabel="New community"
-					className="absolute bottom-6 right-6"
-				>
-					<View
-						className="bg-primary h-14 w-14 items-center justify-center rounded-full"
-						style={{ boxShadow: "0 4 12 rgba(0, 0, 0, 0.25)" }}
-					>
-						<Icon as={Plus} size={26} className="text-primary-foreground" />
-					</View>
-				</PressableScale>
+					accessibilityLabel={t("community.index.new")}
+				/>
 			) : null}
 		</View>
 	);

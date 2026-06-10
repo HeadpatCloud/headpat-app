@@ -4,26 +4,36 @@ import { useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
-	Pressable,
 	ScrollView,
+	StyleSheet,
 	View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Camera, Hash, Trash2 } from "@/components/icons";
+import { EmptyState } from "@/components/empty-state";
+import { GlowAvatar } from "@/components/glow-avatar";
+import { Camera, Hash, ShieldCheck, Trash2 } from "@/components/icons";
 import { StorageImage } from "@/components/storage-image";
-import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { useI18n } from "@/lib/i18n/provider";
+import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
+import { useTheme } from "@/lib/theme/provider";
 import { pickImage, uploadImage } from "@/lib/upload";
 
 export default function CommunityAdmin() {
 	const { communityId } = useLocalSearchParams<{ communityId: string }>();
 	const insets = useSafeAreaInsets();
 	const qc = useQueryClient();
+	const { t } = useI18n();
+	const { colors } = useTheme();
 
 	const myRole = useQuery(
 		orpc.community.myRoleIn.queryOptions({ input: { communityId } }),
@@ -70,7 +80,7 @@ export default function CommunityAdmin() {
 			if (kind === "avatar") setAvatarFileId(fileId);
 			else setBannerFileId(fileId);
 		} catch (e) {
-			Alert.alert("Upload failed", humanizeError(e));
+			Alert.alert(t("community.admin.uploadErrorTitle"), humanizeError(e));
 		} finally {
 			setUploading(null);
 		}
@@ -95,9 +105,12 @@ export default function CommunityAdmin() {
 				queryKey: orpc.community.byId.key({ input: { communityId } }),
 			});
 			qc.invalidateQueries({ queryKey: orpc.community.list.key() });
-			Alert.alert("Saved", "Community settings updated.");
+			Alert.alert(
+				t("community.admin.savedTitle"),
+				t("community.admin.savedBody"),
+			);
 		} catch (e) {
-			Alert.alert("Couldn't save", humanizeError(e));
+			Alert.alert(t("community.admin.saveErrorTitle"), humanizeError(e));
 		} finally {
 			setSavingSettings(false);
 		}
@@ -105,18 +118,25 @@ export default function CommunityAdmin() {
 
 	if (myRole.isLoading || community.isLoading) {
 		return (
-			<View className="bg-background flex-1 p-4">
-				<Text variant="muted">Loading…</Text>
+			<View className="bg-background flex-1">
+				<Skeleton className="h-36 w-full rounded-none" />
+				<View className="gap-3 p-4">
+					<Skeleton className="h-12 w-full" />
+					<Skeleton className="h-24 w-full" />
+					<Skeleton className="h-12 w-full" />
+				</View>
 			</View>
 		);
 	}
 
 	if (!canManage) {
 		return (
-			<View className="bg-background flex-1 items-center justify-center p-6">
-				<Text variant="muted" className="text-center">
-					You don't have permission to manage this community.
-				</Text>
+			<View className="bg-background flex-1 justify-center">
+				<EmptyState
+					icon={ShieldCheck}
+					title={t("community.admin.noPermissionTitle")}
+					subtitle={t("community.admin.noPermission")}
+				/>
 			</View>
 		);
 	}
@@ -131,36 +151,43 @@ export default function CommunityAdmin() {
 		>
 			{canEditSettings ? (
 				<>
-					<Pressable
+					<PressableScale
 						onPress={() => changeImage("banner")}
 						accessibilityRole="button"
-						accessibilityLabel="Change banner"
-						className="bg-muted h-36 w-full items-center justify-center"
+						accessibilityLabel={t("community.admin.changeBanner")}
 					>
-						{bannerFileId ? (
-							<StorageImage
-								kind="community-banner"
-								fileId={bannerFileId}
-								style={{ width: "100%", height: "100%" }}
-							/>
-						) : null}
-						<View className="absolute inset-0 items-center justify-center">
-							{uploading === "banner" ? (
-								<ActivityIndicator />
+						<View className="h-36 w-full">
+							{bannerFileId ? (
+								<StorageImage
+									kind="community-banner"
+									fileId={bannerFileId}
+									variant="1600"
+									style={{ width: "100%", height: "100%" }}
+								/>
 							) : (
-								<Icon as={Camera} size={24} className="text-foreground/70" />
+								// Empty banner previews the gradient the live page will show.
+								<Gradient style={StyleSheet.absoluteFill} />
 							)}
+							<View className="absolute inset-0 items-center justify-center">
+								<View className="bg-background/70 h-12 w-12 items-center justify-center rounded-full">
+									{uploading === "banner" ? (
+										<ActivityIndicator color={colors.foreground} />
+									) : (
+										<Icon as={Camera} size={22} className="text-foreground" />
+									)}
+								</View>
+							</View>
 						</View>
-					</Pressable>
+					</PressableScale>
 
 					<View className="-mt-10 px-4">
-						<Pressable
+						<PressableScale
 							onPress={() => changeImage("avatar")}
 							accessibilityRole="button"
-							accessibilityLabel="Change avatar"
-							className="border-background self-start rounded-full border-4"
+							accessibilityLabel={t("community.admin.changeAvatar")}
+							style={{ alignSelf: "flex-start" }}
 						>
-							<Avatar
+							<GlowAvatar
 								fileId={avatarFileId}
 								name={name}
 								kind="community-avatar"
@@ -168,7 +195,10 @@ export default function CommunityAdmin() {
 							/>
 							<View className="bg-primary absolute bottom-0 right-0 h-7 w-7 items-center justify-center rounded-full">
 								{uploading === "avatar" ? (
-									<ActivityIndicator size="small" color="#fff" />
+									<ActivityIndicator
+										size="small"
+										color={colors["primary-foreground"]}
+									/>
 								) : (
 									<Icon
 										as={Camera}
@@ -177,54 +207,58 @@ export default function CommunityAdmin() {
 									/>
 								)}
 							</View>
-						</Pressable>
+						</PressableScale>
 					</View>
 
 					<View className="gap-4 p-4">
 						<Text variant="small" className="text-muted-foreground uppercase">
-							Settings
+							{t("community.admin.settings")}
 						</Text>
 						<View className="gap-1.5">
 							<Text variant="small" className="text-muted-foreground">
-								Name
+								{t("community.admin.name")}
 							</Text>
 							<Input
 								value={name}
 								onChangeText={setName}
-								accessibilityLabel="Community name"
+								accessibilityLabel={t("community.admin.name")}
 							/>
 						</View>
 						<View className="gap-1.5">
 							<Text variant="small" className="text-muted-foreground">
-								Description
+								{t("community.admin.description")}
 							</Text>
 							<Input
 								value={description}
 								onChangeText={setDescription}
 								multiline
 								className="h-24"
-								accessibilityLabel="Description"
+								accessibilityLabel={t("community.admin.description")}
 							/>
 						</View>
 						<View className="gap-1.5">
 							<Text variant="small" className="text-muted-foreground">
-								Tags
+								{t("community.admin.tags")}
 							</Text>
 							<Input
 								value={tags}
 								onChangeText={setTags}
 								autoCapitalize="none"
-								placeholder="Tags, comma separated"
-								accessibilityLabel="Tags"
+								placeholder={t("community.admin.tagsPlaceholder")}
+								accessibilityLabel={t("community.admin.tags")}
 							/>
 						</View>
 						<Button
 							disabled={name.trim().length === 0 || savingSettings}
 							onPress={saveSettings}
 							accessibilityRole="button"
-							accessibilityLabel="Save settings"
+							accessibilityLabel={t("community.admin.save")}
 						>
-							<Text>{savingSettings ? "Saving…" : "Save settings"}</Text>
+							<Text>
+								{savingSettings
+									? t("community.admin.saving")
+									: t("community.admin.save")}
+							</Text>
 						</Button>
 					</View>
 				</>
@@ -237,6 +271,7 @@ export default function CommunityAdmin() {
 
 function Channels({ communityId }: { communityId: string }) {
 	const qc = useQueryClient();
+	const { t } = useI18n();
 	const channels = useQuery(
 		orpc.channel.listByCommunity.queryOptions({ input: { communityId } }),
 	);
@@ -262,101 +297,116 @@ function Channels({ communityId }: { communityId: string }) {
 			setNewName("");
 			setNewTopic("");
 		} catch (e) {
-			Alert.alert("Couldn't create channel", humanizeError(e));
+			Alert.alert(
+				t("community.admin.createChannelErrorTitle"),
+				humanizeError(e),
+			);
 		} finally {
 			setCreating(false);
 		}
 	};
 
 	const deleteChannel = async (channelId: string, channelName: string) => {
-		Alert.alert("Delete channel", `Delete #${channelName}?`, [
-			{ text: "Cancel", style: "cancel" },
-			{
-				text: "Delete",
-				style: "destructive",
-				onPress: async () => {
-					setDeletingId(channelId);
-					try {
-						await client.channel.delete({ channelId });
-						refresh();
-					} catch (e) {
-						Alert.alert("Couldn't delete channel", humanizeError(e));
-					} finally {
-						setDeletingId(null);
-					}
+		Alert.alert(
+			t("community.admin.deleteChannelTitle"),
+			t("community.admin.deleteChannelConfirm", { name: channelName }),
+			[
+				{ text: t("common.cancel"), style: "cancel" },
+				{
+					text: t("common.delete"),
+					style: "destructive",
+					onPress: async () => {
+						setDeletingId(channelId);
+						try {
+							await client.channel.delete({ channelId });
+							refresh();
+						} catch (e) {
+							Alert.alert(
+								t("community.admin.deleteChannelErrorTitle"),
+								humanizeError(e),
+							);
+						} finally {
+							setDeletingId(null);
+						}
+					},
 				},
-			},
-		]);
+			],
+		);
 	};
 
 	return (
 		<View className="gap-3 p-4">
 			<Text variant="small" className="text-muted-foreground uppercase">
-				Channels
+				{t("community.admin.channels")}
 			</Text>
 
 			{channels.isLoading ? (
-				<Text variant="muted">Loading channels…</Text>
+				<Text variant="muted">{t("community.admin.loadingChannels")}</Text>
 			) : channels.data && channels.data.length > 0 ? (
-				channels.data.map((ch) => (
-					<View
-						key={ch.id}
-						className="border-border bg-card flex-row items-center gap-3 rounded-lg border p-3"
-					>
-						<Icon as={Hash} size={18} className="text-muted-foreground" />
-						<View className="flex-1">
-							<Text className="text-foreground font-medium">{ch.name}</Text>
-							{ch.topic ? (
-								<Text variant="small" className="text-muted-foreground">
-									{ch.topic}
-								</Text>
-							) : null}
-						</View>
-						<Pressable
-							onPress={() => deleteChannel(ch.id, ch.name)}
-							disabled={deletingId === ch.id}
-							accessibilityRole="button"
-							accessibilityLabel={`Delete channel ${ch.name}`}
-							hitSlop={8}
-						>
-							{deletingId === ch.id ? (
-								<ActivityIndicator size="small" />
-							) : (
-								<Icon as={Trash2} size={18} className="text-destructive" />
-							)}
-						</Pressable>
-					</View>
+				channels.data.map((ch, i) => (
+					<AnimatedEntrance key={ch.id} index={i}>
+						<Card className="flex-row items-center gap-3 p-3">
+							<Icon as={Hash} size={18} className="text-muted-foreground" />
+							<View className="flex-1">
+								<Text className="text-foreground font-medium">{ch.name}</Text>
+								{ch.topic ? (
+									<Text variant="small" className="text-muted-foreground">
+										{ch.topic}
+									</Text>
+								) : null}
+							</View>
+							<PressableScale
+								onPress={() => deleteChannel(ch.id, ch.name)}
+								disabled={deletingId === ch.id}
+								accessibilityRole="button"
+								accessibilityLabel={t("community.admin.deleteChannel", {
+									name: ch.name,
+								})}
+								hitSlop={8}
+							>
+								{deletingId === ch.id ? (
+									<ActivityIndicator size="small" />
+								) : (
+									<Icon as={Trash2} size={18} className="text-destructive" />
+								)}
+							</PressableScale>
+						</Card>
+					</AnimatedEntrance>
 				))
 			) : (
-				<Text variant="muted">No channels yet.</Text>
+				<Text variant="muted">{t("community.admin.noChannels")}</Text>
 			)}
 
-			<View className="border-border bg-card mt-1 gap-2 rounded-lg border p-3">
+			<Card className="mt-1 gap-2 p-3">
 				<Text variant="small" className="text-muted-foreground">
-					New channel
+					{t("community.admin.newChannel")}
 				</Text>
 				<Input
 					value={newName}
 					onChangeText={setNewName}
-					placeholder="Channel name"
+					placeholder={t("community.admin.channelNamePlaceholder")}
 					autoCapitalize="none"
-					accessibilityLabel="New channel name"
+					accessibilityLabel={t("community.admin.channelNamePlaceholder")}
 				/>
 				<Input
 					value={newTopic}
 					onChangeText={setNewTopic}
-					placeholder="Topic (optional)"
-					accessibilityLabel="New channel topic"
+					placeholder={t("community.admin.channelTopicPlaceholder")}
+					accessibilityLabel={t("community.admin.channelTopicPlaceholder")}
 				/>
 				<Button
 					disabled={newName.trim().length === 0 || creating}
 					onPress={createChannel}
 					accessibilityRole="button"
-					accessibilityLabel="Create channel"
+					accessibilityLabel={t("community.admin.createChannel")}
 				>
-					<Text>{creating ? "Creating…" : "Create channel"}</Text>
+					<Text>
+						{creating
+							? t("community.admin.creatingChannel")
+							: t("community.admin.createChannel")}
+					</Text>
 				</Button>
-			</View>
+			</Card>
 		</View>
 	);
 }
