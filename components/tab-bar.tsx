@@ -130,7 +130,7 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 				style={[{ top: 8 }, pillStyle]}
 			>
 				<Gradient
-					opacity={0.9}
+					opacity={0.6}
 					borderRadius={999}
 					style={{ height: 32, paddingHorizontal: 20 }}
 					className="rounded-full"

@@ -21,9 +21,9 @@ import { humanizeError } from "@/lib/orpc-error";
 
 function SocialRow({ icon, label }: { icon: LucideIcon; label: string }) {
 	return (
-		<View className="flex-row items-center gap-2">
-			<Icon as={icon} size={16} className="text-muted-foreground" />
-			<Text className="text-foreground">{label}</Text>
+		<View className="flex-row items-start gap-2">
+			<Icon as={icon} size={16} className="text-muted-foreground mt-0.5" />
+			<Text className="text-foreground flex-1">{label}</Text>
 		</View>
 	);
 }

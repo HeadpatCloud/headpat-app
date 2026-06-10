@@ -98,11 +98,11 @@ export default function Event() {
 			</View>
 
 			<Card className="gap-3 p-4">
-				<View className="flex-row items-center gap-2.5">
+				<View className="flex-row items-start gap-2.5">
 					<Icon
 						as={CalendarClock}
 						size={18}
-						className="text-muted-foreground"
+						className="text-muted-foreground mt-0.5"
 					/>
 					<Text className="text-foreground flex-1">
 						{format(new Date(data.startsAt), "PPp")}
@@ -110,13 +110,17 @@ export default function Event() {
 					</Text>
 				</View>
 				{data.locationText ? (
-					<View className="flex-row items-center gap-2.5">
-						<Icon as={MapPin} size={18} className="text-muted-foreground" />
+					<View className="flex-row items-start gap-2.5">
+						<Icon
+							as={MapPin}
+							size={18}
+							className="text-muted-foreground mt-0.5"
+						/>
 						<Text className="text-foreground flex-1">{data.locationText}</Text>
 					</View>
 				) : null}
-				<View className="flex-row items-center gap-2.5">
-					<Icon as={Users} size={18} className="text-muted-foreground" />
+				<View className="flex-row items-start gap-2.5">
+					<Icon as={Users} size={18} className="text-muted-foreground mt-0.5" />
 					<Text className="text-foreground flex-1">
 						{data.attendeesCount}{" "}
 						{data.attendeesCount === 1 ? "attendee" : "attendees"}
