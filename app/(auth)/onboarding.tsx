@@ -1,11 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Haptics from "expo-haptics";
 import { Link, router } from "expo-router";
+import { Moon, Sun } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
 import {
 	Image,
 	type NativeScrollEvent,
 	type NativeSyntheticEvent,
+	Platform,
 	Pressable,
+	StyleSheet,
 	useWindowDimensions,
 	View,
 } from "react-native";
@@ -17,11 +21,13 @@ import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
 	withSpring,
+	withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlowBackdrop } from "@/components/brand/glow-backdrop";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { springs } from "@/lib/motion/springs";
@@ -34,6 +40,15 @@ const SWATCH_KEYS = ["primary", "accent", "background"] as const;
 const PANELS = 3;
 
 const AnimatedScrollView = Animated.ScrollView;
+
+// The theme exposes space-syntax hsl; RN parses comma-syntax everywhere, so
+// normalize before handing a color to a raw (non-className) style.
+function commaHsl(hsl: string): string {
+	return hsl.replace(
+		/hsl\(([\d.]+)\s+([\d.]+%)\s+([\d.]+%)\)/,
+		"hsl($1, $2, $3)",
+	);
+}
 
 async function finishOnboarding() {
 	await AsyncStorage.setItem(ONBOARDED_KEY, "1");
@@ -52,15 +67,13 @@ function Panel({
 			style={{ width }}
 			className="flex-1 items-center justify-center gap-6 px-6"
 		>
-			<GlowBackdrop
-				size={300}
-				style={{
-					position: "absolute",
-					top: "50%",
-					left: "50%",
-					transform: [{ translateX: -150 }, { translateY: -150 }],
-				}}
-			/>
+			<View
+				pointerEvents="none"
+				style={StyleSheet.absoluteFill}
+				className="items-center justify-center"
+			>
+				<GlowBackdrop size={300} />
+			</View>
 			{children}
 		</View>
 	);
@@ -106,7 +119,13 @@ function SwatchChip({
 	);
 }
 
-function Dots({ scrollX, width }: { scrollX: SharedValue<number>; width: number }) {
+function Dots({
+	scrollX,
+	width,
+}: {
+	scrollX: SharedValue<number>;
+	width: number;
+}) {
 	const { colors } = useTheme();
 	return (
 		<View className="flex-row items-center justify-center gap-2">
@@ -148,9 +167,26 @@ export default function Onboarding() {
 	const insets = useSafeAreaInsets();
 	const { width } = useWindowDimensions();
 	const reduced = useReducedMotion();
+	const { scheme, setMode, colors } = useTheme();
 	const scrollX = useSharedValue(0);
 	const scrollRef = useRef<Animated.ScrollView>(null);
 	const [, setPage] = useState(0);
+	const [veilColor, setVeilColor] = useState<string | null>(null);
+	const veil = useSharedValue(0);
+
+	const toggleMode = () => {
+		if (Platform.OS !== "web") Haptics.selectionAsync();
+		// Cross-fade: cover the screen in the OLD background, then fade it out to
+		// reveal the new mode underneath.
+		if (!reduced) {
+			setVeilColor(commaHsl(colors.background));
+			veil.value = 1;
+			veil.value = withTiming(0, { duration: 420 });
+		}
+		setMode(scheme === "dark" ? "light" : "dark");
+	};
+
+	const veilStyle = useAnimatedStyle(() => ({ opacity: veil.value }));
 
 	const scrollHandler = useAnimatedScrollHandler({
 		onScroll: (e) => {
@@ -179,7 +215,20 @@ export default function Onboarding() {
 			className="bg-background flex-1"
 			style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
 		>
-			<View className="flex-row items-center justify-end px-6 pt-2">
+			<View className="flex-row items-center justify-between px-6 pt-2">
+				<Button
+					variant="ghost"
+					size="icon"
+					onPress={toggleMode}
+					accessibilityRole="button"
+					accessibilityLabel="Toggle light or dark mode"
+				>
+					<Icon
+						as={scheme === "dark" ? Sun : Moon}
+						size={20}
+						className="text-foreground"
+					/>
+				</Button>
 				<Button
 					variant="ghost"
 					size="sm"
@@ -212,7 +261,7 @@ export default function Onboarding() {
 						/>
 					</Animated.View>
 					<View className="items-center gap-3">
-						<GradientText className="text-center" >
+						<GradientText className="text-center">
 							Your cozy corner of the community
 						</GradientText>
 						<Text variant="muted" className="text-center">
@@ -277,6 +326,17 @@ export default function Onboarding() {
 			>
 				<Dots scrollX={scrollX} width={width} />
 			</View>
+
+			{veilColor ? (
+				<Animated.View
+					pointerEvents="none"
+					style={[
+						StyleSheet.absoluteFill,
+						{ backgroundColor: veilColor },
+						veilStyle,
+					]}
+				/>
+			) : null}
 		</View>
 	);
 }
