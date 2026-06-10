@@ -1,5 +1,6 @@
 import {
 	contrastRatio,
+	ensureContrast,
 	glowColor,
 	gradientStops,
 	hexToTriplet,
@@ -91,6 +92,33 @@ describe("gradientStops", () => {
 		// 96 + 6 = 102 -> clamped to 100
 		const stops = gradientStops("160 100% 96%", "160 100% 96%", "dark");
 		expect(stops[1]).toBe(tripletToHex("174 100% 100%"));
+	});
+});
+
+describe("ensureContrast", () => {
+	it("returns the foreground unchanged when the pair already passes", () =>
+		expect(ensureContrast("#000000", "#ffffff", 4.5)).toBe("#000000"));
+	it("repairs the headpat light muted pair to 4.5", () => {
+		const fg = tripletToHex(PRESETS.headpat.light["muted-foreground"]);
+		const bg = tripletToHex(PRESETS.headpat.light.muted);
+		const fixed = ensureContrast(fg, bg, 4.5);
+		expect(
+			contrastRatio(hexToTriplet(fixed), hexToTriplet(bg)),
+		).toBeGreaterThanOrEqual(4.5);
+		expect(fixed).not.toBe(tripletToHex(readableForeground(hexToTriplet(bg))));
+	});
+	it("repairs the headpat dark accent pair to 3", () => {
+		const fg = tripletToHex(PRESETS.headpat.dark["accent-foreground"]);
+		const bg = tripletToHex(PRESETS.headpat.dark.accent);
+		const fixed = ensureContrast(fg, bg, 3);
+		expect(
+			contrastRatio(hexToTriplet(fixed), hexToTriplet(bg)),
+		).toBeGreaterThanOrEqual(3);
+	});
+	it("falls back to black/white when the hue cannot reach the ratio", () => {
+		// mid-gray bg, asking for an impossible ratio forces the fallback
+		const fixed = ensureContrast("#808080", "#808080", 21);
+		expect(["#ffffff", "#000000"]).toContain(fixed);
 	});
 });
 

@@ -146,6 +146,28 @@ export function readableForeground(bg: string): string {
 	return contrastRatio(bg, WHITE) >= contrastRatio(bg, BLACK) ? WHITE : BLACK;
 }
 
+// Nudge a foreground's lightness (hue/sat preserved) until it reaches `min`
+// contrast on `bg`; plain black/white only when the hue can't get there.
+// Hex in/out — used to repair seeded theme drafts.
+export function ensureContrast(
+	fgHex: string,
+	bgHex: string,
+	min: number,
+): string {
+	const bg = hexToTriplet(bgHex);
+	const fg = hexToTriplet(fgHex);
+	if (contrastRatio(fg, bg) >= min) return fgHex;
+	const parsed = parseTriplet(fg);
+	if (!parsed) return fgHex;
+	const [h, s, l] = parsed;
+	const darken = relativeLuminance(bg) > 0.18;
+	for (let nl = l; nl >= 0 && nl <= 100; nl += darken ? -2 : 2) {
+		const cand = `${h} ${s}% ${nl}%`;
+		if (contrastRatio(cand, bg) >= min) return tripletToHex(cand);
+	}
+	return tripletToHex(readableForeground(bg));
+}
+
 function hueDistance(a: number, b: number): number {
 	const d = Math.abs(a - b) % 360;
 	return d > 180 ? 360 - d : d;

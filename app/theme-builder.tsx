@@ -41,6 +41,7 @@ import { client } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 import {
 	contrastRatio,
+	ensureContrast,
 	glowColor,
 	hexToTriplet,
 	readableForeground,
@@ -90,6 +91,16 @@ function buildHexMap(
 			v && HEX_RE.test(v) ? v : tripletToHex(PRESETS.headpat[variant][k]);
 	}
 	return out;
+}
+
+// New drafts start a11y-clean: the headpat preset misses WCAG on a few pairs,
+// so repair the seeded foregrounds. Editing never rewrites saved colors.
+function accessibleSeed(variant: "light" | "dark"): HexMap {
+	const map = buildHexMap(undefined, variant);
+	for (const p of TOKEN_PAIRS) {
+		map[p.fg] = ensureContrast(map[p.fg], map[p.bg], p.threshold);
+	}
+	return map;
 }
 
 function hexToHsl(hex: string): Hsl {
@@ -346,10 +357,10 @@ export default function ThemeBuilder() {
 	);
 	const [variant, setVariant] = useState<"light" | "dark">("light");
 	const [light, setLight] = useState<HexMap>(() =>
-		buildHexMap(editing?.light, "light"),
+		editing ? buildHexMap(editing.light, "light") : accessibleSeed("light"),
 	);
 	const [dark, setDark] = useState<HexMap>(() =>
-		buildHexMap(editing?.dark, "dark"),
+		editing ? buildHexMap(editing.dark, "dark") : accessibleSeed("dark"),
 	);
 	const [busy, setBusy] = useState(false);
 
