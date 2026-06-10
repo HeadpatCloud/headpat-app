@@ -19,17 +19,20 @@ type PressableScaleProps = Omit<PressableProps, "style" | "children"> & {
 	scaleTo?: number;
 	haptic?: "light" | "selection" | false;
 	style?: StyleProp<ViewStyle>;
+	className?: string;
 	children: ReactNode;
 };
 
 // Standard tappable: presses scale to 0.96 (snappy spring) with a light haptic.
-// The visual scale lives on an inner Animated.View; the Pressable owns presses.
+// The visual scale + className live on the inner Animated.View (so a caller's
+// layout/size/padding wraps the children); the Pressable owns the touch target.
 export function PressableScale({
 	scaleTo = 0.96,
 	haptic = "light",
 	onPressIn,
 	onPressOut,
 	style,
+	className,
 	children,
 	...rest
 }: PressableScaleProps) {
@@ -58,7 +61,10 @@ export function PressableScale({
 			}}
 			{...rest}
 		>
-			<Animated.View style={[!reduced && animatedStyle, style]}>
+			<Animated.View
+				className={className}
+				style={[!reduced && animatedStyle, style]}
+			>
 				{children}
 			</Animated.View>
 		</Pressable>
