@@ -52,6 +52,15 @@ function Panel({
 			style={{ width }}
 			className="flex-1 items-center justify-center gap-6 px-6"
 		>
+			<GlowBackdrop
+				size={300}
+				style={{
+					position: "absolute",
+					top: "50%",
+					left: "50%",
+					transform: [{ translateX: -150 }, { translateY: -150 }],
+				}}
+			/>
 			{children}
 		</View>
 	);
@@ -193,18 +202,15 @@ export default function Onboarding() {
 				className="flex-1"
 			>
 				<Panel width={width}>
-					<View className="items-center justify-center">
-						<GlowBackdrop size={320} />
-						<Animated.View style={logoStyle} className="items-center">
-							<Image
-								source={require("../../assets/images/headpat_logo.png")}
-								style={{ width: 112, height: 112 }}
-								resizeMode="contain"
-								accessibilityRole="image"
-								accessibilityLabel="Headpat logo"
-							/>
-						</Animated.View>
-					</View>
+					<Animated.View style={logoStyle} className="items-center">
+						<Image
+							source={require("../../assets/images/headpat_logo.png")}
+							style={{ width: 112, height: 112 }}
+							resizeMode="contain"
+							accessibilityRole="image"
+							accessibilityLabel="Headpat logo"
+						/>
+					</Animated.View>
 					<View className="items-center gap-3">
 						<GradientText className="text-center" >
 							Your cozy corner of the community
@@ -216,7 +222,6 @@ export default function Onboarding() {
 				</Panel>
 
 				<Panel width={width}>
-					<GlowBackdrop size={300} />
 					<View className="items-center gap-3">
 						<GradientText className="text-center">Make it yours</GradientText>
 						<Text variant="muted" className="text-center">
@@ -231,7 +236,6 @@ export default function Onboarding() {
 				</Panel>
 
 				<Panel width={width}>
-					<GlowBackdrop size={320} />
 					<View className="items-center gap-3">
 						<GradientText className="text-center">
 							Ready when you are
