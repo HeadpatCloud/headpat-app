@@ -5,7 +5,7 @@ import {
 	useQueryClient,
 } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
-import { router } from "expo-router";
+import { type Href, router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Pressable, StyleSheet, View } from "react-native";
 import Animated, {
@@ -363,7 +363,9 @@ function NotificationsInbox() {
 	function openRow(item: NotificationItem) {
 		if (!item.read) markRead(item.id);
 		const route = appRoute(item.link);
-		if (route) router.push(route);
+		// server links are prefix-validated in appRoute but built at runtime,
+		// so they can't satisfy the static Href union
+		if (route) router.push(route as Href);
 	}
 
 	return (

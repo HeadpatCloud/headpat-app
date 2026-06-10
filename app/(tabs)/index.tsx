@@ -169,7 +169,7 @@ export default function Home() {
 		orpc.event.upcoming.queryOptions({ input: { limit: 5 } }),
 	);
 
-	const create = (path: string) => {
+	const create = (path: Href) => {
 		createRef.current?.dismiss();
 		router.push(path);
 	};

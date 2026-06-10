@@ -45,9 +45,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		eas: { projectId: "904378a3-321c-4abe-9c08-48274d5f6267" },
 	},
 	owner: "expo-headpat",
-	// Re-enable once the route set is stable; typed-route .d.ts can't be
-	// regenerated headlessly, so it's off during the build-out.
-	experiments: { typedRoutes: false },
+	experiments: { typedRoutes: true },
 	plugins: [
 		"expo-router",
 		[
