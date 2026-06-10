@@ -216,6 +216,8 @@
 		"linkFailed": "Link konnte nicht geöffnet werden",
 		"unavailable": "Dieses Event ist nicht mehr verfügbar.",
 		"form": {
+			"community": "Community",
+			"noCommunities": "Du brauchst eine Moderatorenrolle in einer Community, um Events zu erstellen.",
 			"title": "Titel",
 			"titlePlaceholder": "Event-Titel",
 			"description": "Beschreibung",

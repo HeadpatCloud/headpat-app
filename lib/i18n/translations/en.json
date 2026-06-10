@@ -216,6 +216,8 @@
 		"linkFailed": "Couldn't open link",
 		"unavailable": "This event is no longer available.",
 		"form": {
+			"community": "Community",
+			"noCommunities": "You need a moderator role in a community to host events.",
 			"title": "Title",
 			"titlePlaceholder": "Event title",
 			"description": "Description",

@@ -216,6 +216,8 @@
 		"linkFailed": "Link kon niet worden geopend",
 		"unavailable": "Dit evenement is niet meer beschikbaar.",
 		"form": {
+			"community": "Community",
+			"noCommunities": "Je hebt een moderatorrol in een community nodig om evenementen te organiseren.",
 			"title": "Titel",
 			"titlePlaceholder": "Titel van het evenement",
 			"description": "Beschrijving",
