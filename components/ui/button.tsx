@@ -149,6 +149,66 @@ function Button({
 	const isGradient = resolvedVariant === "default";
 	const radius = RADIUS_BY_SIZE[resolvedSize];
 
+	const content = (
+		<>
+			{loading ? (
+				<View
+					style={StyleSheet.absoluteFill}
+					className="items-center justify-center"
+				>
+					<ActivityIndicator color={colors[SPINNER_TOKEN[resolvedVariant]]} />
+				</View>
+			) : null}
+			{loading ? (
+				<View
+					style={{ opacity: 0 }}
+					className="flex-row items-center justify-center gap-2"
+				>
+					{children}
+				</View>
+			) : (
+				children
+			)}
+		</>
+	);
+
+	// The gradient variant renders the fill in an outer box BEHIND the pressable
+	// (which stays transparent) so the gradient covers the whole button while the
+	// Pressable keeps its full-size touch target.
+	if (isGradient) {
+		return (
+			<TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
+				<View
+					className={cn(
+						isDisabled && "opacity-50",
+						fullWidth && "self-stretch",
+						"overflow-hidden",
+						className,
+					)}
+					style={{ borderRadius: radius }}
+				>
+					<Gradient
+						glow={!isDisabled}
+						borderRadius={radius}
+						style={StyleSheet.absoluteFill}
+						pointerEvents="none"
+						accessibilityElementsHidden
+						importantForAccessibility="no-hide-descendants"
+					/>
+					<PressableScale
+						className={buttonVariants({ variant, size })}
+						role="button"
+						disabled={isDisabled}
+						accessibilityState={{ disabled: !!isDisabled, busy: loading }}
+						{...props}
+					>
+						{content}
+					</PressableScale>
+				</View>
+			</TextClassContext.Provider>
+		);
+	}
+
 	return (
 		<TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
 			<PressableScale
@@ -163,34 +223,7 @@ function Button({
 				accessibilityState={{ disabled: !!isDisabled, busy: loading }}
 				{...props}
 			>
-				{isGradient ? (
-					<Gradient
-						glow={!isDisabled}
-						borderRadius={radius}
-						style={StyleSheet.absoluteFill}
-						pointerEvents="none"
-						accessibilityElementsHidden
-						importantForAccessibility="no-hide-descendants"
-					/>
-				) : null}
-				{loading ? (
-					<View
-						style={StyleSheet.absoluteFill}
-						className="items-center justify-center"
-					>
-						<ActivityIndicator color={colors[SPINNER_TOKEN[resolvedVariant]]} />
-					</View>
-				) : null}
-				{loading ? (
-					<View
-						style={{ opacity: 0 }}
-						className="flex-row items-center justify-center gap-2"
-					>
-						{children}
-					</View>
-				) : (
-					children
-				)}
+				{content}
 			</PressableScale>
 		</TextClassContext.Provider>
 	);
