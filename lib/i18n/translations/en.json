@@ -26,7 +26,8 @@
 		"ticket": "Ticket",
 		"communityAdmin": "Manage community",
 		"followers": "Followers",
-		"following": "Following"
+		"following": "Following",
+		"notifications": "Notifications"
 	},
 	"header": {
 		"language": "Language",
@@ -232,5 +233,227 @@
 			"deleteChannel": "Delete channel %{name}",
 			"deleteChannelErrorTitle": "Couldn't delete channel"
 		}
+	},
+	"announcements": {
+		"heading": "Announcements",
+		"subtitle": "News from the Headpat team",
+		"empty": "No announcements yet",
+		"goneTitle": "Not available",
+		"goneSubtitle": "This announcement is no longer available."
+	},
+	"changelog": {
+		"heading": "What's new",
+		"subtitle": "The latest Headpat updates",
+		"empty": "No changelog entries",
+		"new": "New",
+		"improved": "Improved",
+		"fixed": "Fixed"
+	},
+	"tickets": {
+		"heading": "Support",
+		"subtitle": "Questions or trouble? We've got you.",
+		"open": "Open",
+		"closed": "Closed",
+		"emptyTitle": "No tickets yet",
+		"emptySubtitle": "Open a ticket and our team will get back to you.",
+		"newTicket": "New ticket",
+		"goneTitle": "Not available",
+		"goneSubtitle": "This ticket is no longer available.",
+		"category": {
+			"general": "General",
+			"account": "Account",
+			"technical": "Technical",
+			"report": "Report",
+			"other": "Other"
+		},
+		"priority": {
+			"low": "Low",
+			"normal": "Normal",
+			"high": "High"
+		},
+		"new": {
+			"heading": "New ticket",
+			"subject": "Subject",
+			"subjectPlaceholder": "Brief summary",
+			"message": "Message",
+			"messagePlaceholder": "Describe your issue",
+			"category": "Category",
+			"priority": "Priority",
+			"categoryA11y": "%{label} category",
+			"priorityA11y": "%{label} priority",
+			"submit": "Submit ticket",
+			"createError": "Couldn't create ticket"
+		},
+		"detail": {
+			"meta": "%{category} · %{priority} priority",
+			"support": "Support",
+			"you": "You",
+			"close": "Close ticket",
+			"reopen": "Reopen ticket",
+			"replyPlaceholder": "Write a reply",
+			"reply": "Reply",
+			"sendReply": "Send reply",
+			"sendError": "Couldn't send",
+			"statusError": "Couldn't update ticket"
+		}
+	},
+	"notifications": {
+		"title": "Notifications",
+		"unreadSummary": {
+			"one": "1 unread",
+			"other": "%{count} unread"
+		},
+		"allCaughtUp": "All caught up",
+		"markAllRead": "Mark all read",
+		"markAllReadError": "Couldn't mark all read",
+		"markRead": "Mark as read",
+		"markReadError": "Couldn't update notification",
+		"deleteError": "Couldn't delete notification",
+		"notification": "Notification",
+		"holdForOptions": "Hold for options",
+		"emptyTitle": "You're all caught up",
+		"emptySubtitle": "New activity will show up here.",
+		"signInTitle": "Sign in to see notifications",
+		"signInSubtitle": "Follows, comments and replies land here.",
+		"signIn": "Sign in",
+		"bellUnread": {
+			"one": "Notifications, 1 unread",
+			"other": "Notifications, %{count} unread"
+		}
+	},
+	"account": {
+		"guest": {
+			"title": "You're browsing as a guest",
+			"subtitle": "Sign in to post, join communities, and sync your profile.",
+			"signIn": "Sign in",
+			"createAccount": "Create account"
+		},
+		"hub": {
+			"yourAccount": "Your account",
+			"rowA11y": "%{label} settings"
+		},
+		"signOut": {
+			"action": "Sign out",
+			"confirmTitle": "Sign out?",
+			"confirmBody": "You'll need to sign in again next time.",
+			"confirm": "Confirm sign out"
+		},
+		"security": {
+			"title": "Two-factor authentication",
+			"on": "On",
+			"off": "Off",
+			"enabledSubtitle": "2FA is on. Disable it with your password below.",
+			"disabledSubtitle": "Add a TOTP authenticator app for an extra layer of security.",
+			"scanQr": "Scan this with your authenticator app, then enter the 6-digit code.",
+			"backupCodes": "Backup codes",
+			"codeA11y": "Authentication code",
+			"confirm": "Confirm",
+			"verifying": "Verifying…",
+			"confirmA11y": "Confirm 2FA",
+			"passwordPlaceholder": "Current password",
+			"enable": "Enable 2FA",
+			"enabling": "Enabling…",
+			"enableA11y": "Enable two-factor",
+			"disable": "Disable 2FA",
+			"disabling": "Disabling…",
+			"disableA11y": "Disable two-factor",
+			"enableErrorTitle": "Couldn't enable",
+			"invalidCodeTitle": "Invalid code",
+			"disableErrorTitle": "Couldn't disable",
+			"enabledTitle": "Two-factor enabled",
+			"enabledBody": "Your account is now protected with 2FA.",
+			"disabledTitle": "Two-factor disabled"
+		},
+		"connections": {
+			"intro": "Sign-in methods connected to your account.",
+			"credential": "Email & password",
+			"disconnect": "Disconnect",
+			"disconnectA11y": "Disconnect %{provider}",
+			"confirmTitle": "Disconnect",
+			"confirmBody": "Disconnect %{provider}?",
+			"errorTitle": "Couldn't disconnect",
+			"emptyTitle": "No connections",
+			"emptySubtitle": "Sign-in methods you link will appear here."
+		},
+		"edit": {
+			"changeBanner": "Change banner",
+			"changeAvatar": "Change avatar",
+			"displayName": "Display name",
+			"bio": "Bio",
+			"pronouns": "Pronouns",
+			"location": "Location",
+			"socialHandles": "Social handles",
+			"preferences": "Preferences",
+			"showInSearch": "Show my profile in search",
+			"showNsfw": "Show NSFW content",
+			"saving": "Saving…",
+			"saveA11y": "Save profile",
+			"uploadErrorTitle": "Upload failed",
+			"saveErrorTitle": "Couldn't save"
+		}
+	},
+	"appearance": {
+		"heroSubtitle": "Pick a look — the whole app follows.",
+		"mode": "Mode",
+		"modeSystem": "System",
+		"modeLight": "Light",
+		"modeDark": "Dark",
+		"presets": "Themes",
+		"yourThemes": "Your themes",
+		"themeA11y": "%{name} theme",
+		"editTheme": "Edit %{name}",
+		"deleteTheme": "Delete %{name}",
+		"deleteTitle": "Delete theme",
+		"deleteConfirm": "Delete \"%{name}\"?",
+		"deleteError": "Couldn't delete",
+		"createTheme": "Create custom theme",
+		"emptyTitle": "Make it yours",
+		"emptySubtitle": "Build a custom theme and watch the whole app recolor."
+	},
+	"themeBuilder": {
+		"name": "Name",
+		"nameA11y": "Theme name",
+		"defaultName": "My theme",
+		"preview": "Preview",
+		"previewCard": "Card surface",
+		"previewMuted": "Muted caption text",
+		"previewPrimary": "Primary",
+		"previewAccent": "Accent",
+		"light": "Light",
+		"dark": "Dark",
+		"groups": {
+			"base": "Base",
+			"surfaces": "Surfaces",
+			"brand": "Brand",
+			"semantic": "Semantic",
+			"sidebar": "Sidebar"
+		},
+		"brandHint": "primary and accent drive the app's signature gradient",
+		"invalidHex": "Invalid hex",
+		"hexA11y": "%{token} hex color",
+		"pickColor": "Pick a color for %{token}",
+		"hue": "Hue",
+		"saturation": "Saturation",
+		"lightness": "Lightness",
+		"done": "Done",
+		"contrastPass": "PASS",
+		"contrastAa": "AA",
+		"contrastFail": "FAIL",
+		"contrastBadgeA11y": "Contrast %{ratio}:1 — %{verdict}",
+		"contrastWarning": "Text on %{token} is %{ratio}:1 — below AA (needs %{needs}:1)",
+		"useReadable": "Use readable",
+		"useReadableA11y": "Set %{token} to a readable color",
+		"contrastSummary": {
+			"one": "1 contrast warning — your theme may be hard to read.",
+			"other": "%{count} contrast warnings — your theme may be hard to read."
+		},
+		"save": "Save theme",
+		"saving": "Saving…",
+		"saved": "Theme saved",
+		"saveError": "Couldn't save theme",
+		"deleteTitle": "Delete theme",
+		"deleteConfirm": "Delete \"%{name}\"?",
+		"deleteError": "Couldn't delete",
+		"deleteA11y": "Delete theme"
 	}
 }

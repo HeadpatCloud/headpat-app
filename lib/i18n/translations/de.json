@@ -26,7 +26,8 @@
 		"ticket": "Ticket",
 		"communityAdmin": "Community verwalten",
 		"followers": "Follower",
-		"following": "Folgt"
+		"following": "Folgt",
+		"notifications": "Benachrichtigungen"
 	},
 	"header": {
 		"language": "Sprache",
@@ -232,5 +233,227 @@
 			"deleteChannel": "Kanal %{name} löschen",
 			"deleteChannelErrorTitle": "Kanal konnte nicht gelöscht werden"
 		}
+	},
+	"announcements": {
+		"heading": "Ankündigungen",
+		"subtitle": "Neuigkeiten vom Headpat-Team",
+		"empty": "Noch keine Ankündigungen",
+		"goneTitle": "Nicht verfügbar",
+		"goneSubtitle": "Diese Ankündigung ist nicht mehr verfügbar."
+	},
+	"changelog": {
+		"heading": "Was ist neu",
+		"subtitle": "Die neuesten Headpat-Updates",
+		"empty": "Noch keine Changelog-Einträge",
+		"new": "Neu",
+		"improved": "Verbessert",
+		"fixed": "Behoben"
+	},
+	"tickets": {
+		"heading": "Support",
+		"subtitle": "Fragen oder Probleme? Wir helfen dir.",
+		"open": "Offen",
+		"closed": "Geschlossen",
+		"emptyTitle": "Noch keine Tickets",
+		"emptySubtitle": "Erstelle ein Ticket und unser Team meldet sich bei dir.",
+		"newTicket": "Neues Ticket",
+		"goneTitle": "Nicht verfügbar",
+		"goneSubtitle": "Dieses Ticket ist nicht mehr verfügbar.",
+		"category": {
+			"general": "Allgemein",
+			"account": "Konto",
+			"technical": "Technisch",
+			"report": "Meldung",
+			"other": "Sonstiges"
+		},
+		"priority": {
+			"low": "Niedrig",
+			"normal": "Normal",
+			"high": "Hoch"
+		},
+		"new": {
+			"heading": "Neues Ticket",
+			"subject": "Betreff",
+			"subjectPlaceholder": "Kurze Zusammenfassung",
+			"message": "Nachricht",
+			"messagePlaceholder": "Beschreibe dein Problem",
+			"category": "Kategorie",
+			"priority": "Priorität",
+			"categoryA11y": "Kategorie %{label}",
+			"priorityA11y": "Priorität %{label}",
+			"submit": "Ticket absenden",
+			"createError": "Ticket konnte nicht erstellt werden"
+		},
+		"detail": {
+			"meta": "%{category} · Priorität: %{priority}",
+			"support": "Support",
+			"you": "Du",
+			"close": "Ticket schließen",
+			"reopen": "Ticket wieder öffnen",
+			"replyPlaceholder": "Antwort schreiben",
+			"reply": "Antwort",
+			"sendReply": "Antwort senden",
+			"sendError": "Senden fehlgeschlagen",
+			"statusError": "Ticket konnte nicht aktualisiert werden"
+		}
+	},
+	"notifications": {
+		"title": "Benachrichtigungen",
+		"unreadSummary": {
+			"one": "1 ungelesen",
+			"other": "%{count} ungelesen"
+		},
+		"allCaughtUp": "Alles gelesen",
+		"markAllRead": "Alle als gelesen markieren",
+		"markAllReadError": "Konnte nicht alle als gelesen markieren",
+		"markRead": "Als gelesen markieren",
+		"markReadError": "Benachrichtigung konnte nicht aktualisiert werden",
+		"deleteError": "Benachrichtigung konnte nicht gelöscht werden",
+		"notification": "Benachrichtigung",
+		"holdForOptions": "Für Optionen gedrückt halten",
+		"emptyTitle": "Du bist auf dem neuesten Stand",
+		"emptySubtitle": "Neue Aktivität erscheint hier.",
+		"signInTitle": "Melde dich an, um Benachrichtigungen zu sehen",
+		"signInSubtitle": "Follows, Kommentare und Antworten landen hier.",
+		"signIn": "Anmelden",
+		"bellUnread": {
+			"one": "Benachrichtigungen, 1 ungelesen",
+			"other": "Benachrichtigungen, %{count} ungelesen"
+		}
+	},
+	"account": {
+		"guest": {
+			"title": "Du stöberst als Gast",
+			"subtitle": "Melde dich an, um zu posten, Communities beizutreten und dein Profil zu synchronisieren.",
+			"signIn": "Anmelden",
+			"createAccount": "Konto erstellen"
+		},
+		"hub": {
+			"yourAccount": "Dein Konto",
+			"rowA11y": "Einstellungen: %{label}"
+		},
+		"signOut": {
+			"action": "Abmelden",
+			"confirmTitle": "Abmelden?",
+			"confirmBody": "Du musst dich nächstes Mal erneut anmelden.",
+			"confirm": "Abmeldung bestätigen"
+		},
+		"security": {
+			"title": "Zwei-Faktor-Authentifizierung",
+			"on": "An",
+			"off": "Aus",
+			"enabledSubtitle": "2FA ist aktiv. Deaktiviere sie unten mit deinem Passwort.",
+			"disabledSubtitle": "Füge eine TOTP-Authenticator-App als zusätzliche Sicherheitsebene hinzu.",
+			"scanQr": "Scanne das mit deiner Authenticator-App und gib dann den 6-stelligen Code ein.",
+			"backupCodes": "Backup-Codes",
+			"codeA11y": "Authentifizierungscode",
+			"confirm": "Bestätigen",
+			"verifying": "Wird geprüft…",
+			"confirmA11y": "2FA bestätigen",
+			"passwordPlaceholder": "Aktuelles Passwort",
+			"enable": "2FA aktivieren",
+			"enabling": "Wird aktiviert…",
+			"enableA11y": "Zwei-Faktor aktivieren",
+			"disable": "2FA deaktivieren",
+			"disabling": "Wird deaktiviert…",
+			"disableA11y": "Zwei-Faktor deaktivieren",
+			"enableErrorTitle": "Konnte nicht aktiviert werden",
+			"invalidCodeTitle": "Ungültiger Code",
+			"disableErrorTitle": "Konnte nicht deaktiviert werden",
+			"enabledTitle": "Zwei-Faktor aktiviert",
+			"enabledBody": "Dein Konto ist jetzt mit 2FA geschützt.",
+			"disabledTitle": "Zwei-Faktor deaktiviert"
+		},
+		"connections": {
+			"intro": "Anmeldemethoden, die mit deinem Konto verknüpft sind.",
+			"credential": "E-Mail & Passwort",
+			"disconnect": "Trennen",
+			"disconnectA11y": "%{provider} trennen",
+			"confirmTitle": "Trennen",
+			"confirmBody": "%{provider} trennen?",
+			"errorTitle": "Konnte nicht getrennt werden",
+			"emptyTitle": "Keine Verknüpfungen",
+			"emptySubtitle": "Verknüpfte Anmeldemethoden erscheinen hier."
+		},
+		"edit": {
+			"changeBanner": "Banner ändern",
+			"changeAvatar": "Avatar ändern",
+			"displayName": "Anzeigename",
+			"bio": "Bio",
+			"pronouns": "Pronomen",
+			"location": "Ort",
+			"socialHandles": "Soziale Profile",
+			"preferences": "Einstellungen",
+			"showInSearch": "Mein Profil in der Suche anzeigen",
+			"showNsfw": "NSFW-Inhalte anzeigen",
+			"saving": "Wird gespeichert…",
+			"saveA11y": "Profil speichern",
+			"uploadErrorTitle": "Upload fehlgeschlagen",
+			"saveErrorTitle": "Konnte nicht gespeichert werden"
+		}
+	},
+	"appearance": {
+		"heroSubtitle": "Wähl einen Look — die ganze App zieht mit.",
+		"mode": "Modus",
+		"modeSystem": "System",
+		"modeLight": "Hell",
+		"modeDark": "Dunkel",
+		"presets": "Themes",
+		"yourThemes": "Deine Themes",
+		"themeA11y": "Theme %{name}",
+		"editTheme": "%{name} bearbeiten",
+		"deleteTheme": "%{name} löschen",
+		"deleteTitle": "Theme löschen",
+		"deleteConfirm": "\"%{name}\" löschen?",
+		"deleteError": "Konnte nicht gelöscht werden",
+		"createTheme": "Eigenes Theme erstellen",
+		"emptyTitle": "Mach es zu deinem",
+		"emptySubtitle": "Erstelle ein eigenes Theme und sieh zu, wie die ganze App neue Farben bekommt."
+	},
+	"themeBuilder": {
+		"name": "Name",
+		"nameA11y": "Theme-Name",
+		"defaultName": "Mein Theme",
+		"preview": "Vorschau",
+		"previewCard": "Kartenfläche",
+		"previewMuted": "Gedämpfter Hinweistext",
+		"previewPrimary": "Primär",
+		"previewAccent": "Akzent",
+		"light": "Hell",
+		"dark": "Dunkel",
+		"groups": {
+			"base": "Basis",
+			"surfaces": "Flächen",
+			"brand": "Marke",
+			"semantic": "Semantik",
+			"sidebar": "Seitenleiste"
+		},
+		"brandHint": "primary und accent bestimmen den Farbverlauf der App",
+		"invalidHex": "Ungültiger Hex-Wert",
+		"hexA11y": "Hex-Farbe für %{token}",
+		"pickColor": "Farbe für %{token} wählen",
+		"hue": "Farbton",
+		"saturation": "Sättigung",
+		"lightness": "Helligkeit",
+		"done": "Fertig",
+		"contrastPass": "PASS",
+		"contrastAa": "AA",
+		"contrastFail": "FAIL",
+		"contrastBadgeA11y": "Kontrast %{ratio}:1 — %{verdict}",
+		"contrastWarning": "Text auf %{token} hat %{ratio}:1 — unter AA (braucht %{needs}:1)",
+		"useReadable": "Lesbar machen",
+		"useReadableA11y": "%{token} auf eine lesbare Farbe setzen",
+		"contrastSummary": {
+			"one": "1 Kontrast-Warnung — dein Theme könnte schwer lesbar sein.",
+			"other": "%{count} Kontrast-Warnungen — dein Theme könnte schwer lesbar sein."
+		},
+		"save": "Theme speichern",
+		"saving": "Wird gespeichert…",
+		"saved": "Theme gespeichert",
+		"saveError": "Theme konnte nicht gespeichert werden",
+		"deleteTitle": "Theme löschen",
+		"deleteConfirm": "\"%{name}\" löschen?",
+		"deleteError": "Konnte nicht gelöscht werden",
+		"deleteA11y": "Theme löschen"
 	}
 }

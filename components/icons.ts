@@ -3,13 +3,17 @@
 
 export type { LucideIcon, LucideProps } from "lucide-react-native";
 export { default as AtSign } from "lucide-react-native/dist/esm/icons/at-sign.js";
+export { default as Bell } from "lucide-react-native/dist/esm/icons/bell.js";
+export { default as BellOff } from "lucide-react-native/dist/esm/icons/bell-off.js";
 export { default as CalendarClock } from "lucide-react-native/dist/esm/icons/calendar-clock.js";
 export { default as CalendarDays } from "lucide-react-native/dist/esm/icons/calendar-days.js";
 export { default as CalendarPlus } from "lucide-react-native/dist/esm/icons/calendar-plus.js";
 export { default as Camera } from "lucide-react-native/dist/esm/icons/camera.js";
 export { default as Check } from "lucide-react-native/dist/esm/icons/check.js";
+export { default as CheckCheck } from "lucide-react-native/dist/esm/icons/check-check.js";
 export { default as ChevronRight } from "lucide-react-native/dist/esm/icons/chevron-right.js";
 export { default as FileClock } from "lucide-react-native/dist/esm/icons/file-clock.js";
+export { default as Github } from "lucide-react-native/dist/esm/icons/github.js";
 export { default as Globe } from "lucide-react-native/dist/esm/icons/globe.js";
 export { default as Hash } from "lucide-react-native/dist/esm/icons/hash.js";
 export { default as Heart } from "lucide-react-native/dist/esm/icons/heart.js";
@@ -18,12 +22,14 @@ export { default as ImageOff } from "lucide-react-native/dist/esm/icons/image-of
 export { default as ImagePlus } from "lucide-react-native/dist/esm/icons/image-plus.js";
 export { default as Images } from "lucide-react-native/dist/esm/icons/images.js";
 export { default as Inbox } from "lucide-react-native/dist/esm/icons/inbox.js";
+export { default as KeyRound } from "lucide-react-native/dist/esm/icons/key-round.js";
 export { default as Languages } from "lucide-react-native/dist/esm/icons/languages.js";
 export { default as LifeBuoy } from "lucide-react-native/dist/esm/icons/life-buoy.js";
 export { default as Link2 } from "lucide-react-native/dist/esm/icons/link-2.js";
 export { default as MapPin } from "lucide-react-native/dist/esm/icons/map-pin.js";
 export { default as Megaphone } from "lucide-react-native/dist/esm/icons/megaphone.js";
 export { default as MessageCircle } from "lucide-react-native/dist/esm/icons/message-circle.js";
+export { default as MessageSquare } from "lucide-react-native/dist/esm/icons/message-square.js";
 export { default as MessagesSquare } from "lucide-react-native/dist/esm/icons/messages-square.js";
 export { default as Moon } from "lucide-react-native/dist/esm/icons/moon.js";
 export { default as Palette } from "lucide-react-native/dist/esm/icons/palette.js";
@@ -36,9 +42,11 @@ export { default as ShieldCheck } from "lucide-react-native/dist/esm/icons/shiel
 export { default as ShoppingBag } from "lucide-react-native/dist/esm/icons/shopping-bag.js";
 export { default as Sun } from "lucide-react-native/dist/esm/icons/sun.js";
 export { default as Trash2 } from "lucide-react-native/dist/esm/icons/trash-2.js";
+export { default as TriangleAlert } from "lucide-react-native/dist/esm/icons/triangle-alert.js";
 export { default as Twitch } from "lucide-react-native/dist/esm/icons/twitch.js";
 export { default as User } from "lucide-react-native/dist/esm/icons/user.js";
 export { default as UserPen } from "lucide-react-native/dist/esm/icons/user-pen.js";
+export { default as UserPlus } from "lucide-react-native/dist/esm/icons/user-plus.js";
 export { default as UserRound } from "lucide-react-native/dist/esm/icons/user-round.js";
 export { default as Users } from "lucide-react-native/dist/esm/icons/users.js";
 export { default as UsersRound } from "lucide-react-native/dist/esm/icons/users-round.js";

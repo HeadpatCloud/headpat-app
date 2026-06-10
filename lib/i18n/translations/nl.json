@@ -26,7 +26,8 @@
 		"ticket": "Ticket",
 		"communityAdmin": "Community beheren",
 		"followers": "Volgers",
-		"following": "Volgend"
+		"following": "Volgend",
+		"notifications": "Meldingen"
 	},
 	"header": {
 		"language": "Taal",
@@ -232,5 +233,227 @@
 			"deleteChannel": "Kanaal %{name} verwijderen",
 			"deleteChannelErrorTitle": "Kanaal kon niet worden verwijderd"
 		}
+	},
+	"announcements": {
+		"heading": "Aankondigingen",
+		"subtitle": "Nieuws van het Headpat-team",
+		"empty": "Nog geen aankondigingen",
+		"goneTitle": "Niet beschikbaar",
+		"goneSubtitle": "Deze aankondiging is niet meer beschikbaar."
+	},
+	"changelog": {
+		"heading": "Wat is nieuw",
+		"subtitle": "De nieuwste Headpat-updates",
+		"empty": "Nog geen changelog-items",
+		"new": "Nieuw",
+		"improved": "Verbeterd",
+		"fixed": "Opgelost"
+	},
+	"tickets": {
+		"heading": "Support",
+		"subtitle": "Vragen of problemen? Wij helpen je.",
+		"open": "Open",
+		"closed": "Gesloten",
+		"emptyTitle": "Nog geen tickets",
+		"emptySubtitle": "Open een ticket en ons team neemt contact met je op.",
+		"newTicket": "Nieuw ticket",
+		"goneTitle": "Niet beschikbaar",
+		"goneSubtitle": "Dit ticket is niet meer beschikbaar.",
+		"category": {
+			"general": "Algemeen",
+			"account": "Account",
+			"technical": "Technisch",
+			"report": "Melding",
+			"other": "Overig"
+		},
+		"priority": {
+			"low": "Laag",
+			"normal": "Normaal",
+			"high": "Hoog"
+		},
+		"new": {
+			"heading": "Nieuw ticket",
+			"subject": "Onderwerp",
+			"subjectPlaceholder": "Korte samenvatting",
+			"message": "Bericht",
+			"messagePlaceholder": "Beschrijf je probleem",
+			"category": "Categorie",
+			"priority": "Prioriteit",
+			"categoryA11y": "Categorie %{label}",
+			"priorityA11y": "Prioriteit %{label}",
+			"submit": "Ticket versturen",
+			"createError": "Ticket aanmaken mislukt"
+		},
+		"detail": {
+			"meta": "%{category} · prioriteit: %{priority}",
+			"support": "Support",
+			"you": "Jij",
+			"close": "Ticket sluiten",
+			"reopen": "Ticket heropenen",
+			"replyPlaceholder": "Schrijf een antwoord",
+			"reply": "Antwoord",
+			"sendReply": "Antwoord versturen",
+			"sendError": "Versturen mislukt",
+			"statusError": "Ticket bijwerken mislukt"
+		}
+	},
+	"notifications": {
+		"title": "Meldingen",
+		"unreadSummary": {
+			"one": "1 ongelezen",
+			"other": "%{count} ongelezen"
+		},
+		"allCaughtUp": "Helemaal bij",
+		"markAllRead": "Alles als gelezen markeren",
+		"markAllReadError": "Kon niet alles als gelezen markeren",
+		"markRead": "Markeer als gelezen",
+		"markReadError": "Kon melding niet bijwerken",
+		"deleteError": "Kon melding niet verwijderen",
+		"notification": "Melding",
+		"holdForOptions": "Houd vast voor opties",
+		"emptyTitle": "Je bent helemaal bij",
+		"emptySubtitle": "Nieuwe activiteit verschijnt hier.",
+		"signInTitle": "Log in om meldingen te zien",
+		"signInSubtitle": "Volgers, reacties en antwoorden komen hier terecht.",
+		"signIn": "Inloggen",
+		"bellUnread": {
+			"one": "Meldingen, 1 ongelezen",
+			"other": "Meldingen, %{count} ongelezen"
+		}
+	},
+	"account": {
+		"guest": {
+			"title": "Je browst als gast",
+			"subtitle": "Log in om te posten, lid te worden van communities en je profiel te synchroniseren.",
+			"signIn": "Inloggen",
+			"createAccount": "Account aanmaken"
+		},
+		"hub": {
+			"yourAccount": "Je account",
+			"rowA11y": "Instellingen voor %{label}"
+		},
+		"signOut": {
+			"action": "Uitloggen",
+			"confirmTitle": "Uitloggen?",
+			"confirmBody": "Je moet de volgende keer opnieuw inloggen.",
+			"confirm": "Uitloggen bevestigen"
+		},
+		"security": {
+			"title": "Tweestapsverificatie",
+			"on": "Aan",
+			"off": "Uit",
+			"enabledSubtitle": "2FA staat aan. Schakel het hieronder uit met je wachtwoord.",
+			"disabledSubtitle": "Voeg een TOTP-authenticator-app toe voor een extra beveiligingslaag.",
+			"scanQr": "Scan dit met je authenticator-app en voer daarna de 6-cijferige code in.",
+			"backupCodes": "Back-upcodes",
+			"codeA11y": "Verificatiecode",
+			"confirm": "Bevestigen",
+			"verifying": "Verifiëren…",
+			"confirmA11y": "2FA bevestigen",
+			"passwordPlaceholder": "Huidig wachtwoord",
+			"enable": "2FA inschakelen",
+			"enabling": "Inschakelen…",
+			"enableA11y": "Tweestapsverificatie inschakelen",
+			"disable": "2FA uitschakelen",
+			"disabling": "Uitschakelen…",
+			"disableA11y": "Tweestapsverificatie uitschakelen",
+			"enableErrorTitle": "Inschakelen mislukt",
+			"invalidCodeTitle": "Ongeldige code",
+			"disableErrorTitle": "Uitschakelen mislukt",
+			"enabledTitle": "Tweestapsverificatie ingeschakeld",
+			"enabledBody": "Je account is nu beschermd met 2FA.",
+			"disabledTitle": "Tweestapsverificatie uitgeschakeld"
+		},
+		"connections": {
+			"intro": "Inlogmethoden die aan je account gekoppeld zijn.",
+			"credential": "E-mail & wachtwoord",
+			"disconnect": "Ontkoppelen",
+			"disconnectA11y": "%{provider} ontkoppelen",
+			"confirmTitle": "Ontkoppelen",
+			"confirmBody": "%{provider} ontkoppelen?",
+			"errorTitle": "Ontkoppelen mislukt",
+			"emptyTitle": "Geen koppelingen",
+			"emptySubtitle": "Gekoppelde inlogmethoden verschijnen hier."
+		},
+		"edit": {
+			"changeBanner": "Banner wijzigen",
+			"changeAvatar": "Avatar wijzigen",
+			"displayName": "Weergavenaam",
+			"bio": "Bio",
+			"pronouns": "Voornaamwoorden",
+			"location": "Locatie",
+			"socialHandles": "Sociale profielen",
+			"preferences": "Voorkeuren",
+			"showInSearch": "Mijn profiel tonen in zoekresultaten",
+			"showNsfw": "NSFW-inhoud tonen",
+			"saving": "Opslaan…",
+			"saveA11y": "Profiel opslaan",
+			"uploadErrorTitle": "Upload mislukt",
+			"saveErrorTitle": "Opslaan mislukt"
+		}
+	},
+	"appearance": {
+		"heroSubtitle": "Kies een look — de hele app doet mee.",
+		"mode": "Modus",
+		"modeSystem": "Systeem",
+		"modeLight": "Licht",
+		"modeDark": "Donker",
+		"presets": "Thema's",
+		"yourThemes": "Jouw thema's",
+		"themeA11y": "Thema %{name}",
+		"editTheme": "%{name} bewerken",
+		"deleteTheme": "%{name} verwijderen",
+		"deleteTitle": "Thema verwijderen",
+		"deleteConfirm": "\"%{name}\" verwijderen?",
+		"deleteError": "Verwijderen mislukt",
+		"createTheme": "Eigen thema maken",
+		"emptyTitle": "Maak het van jou",
+		"emptySubtitle": "Bouw een eigen thema en zie de hele app van kleur veranderen."
+	},
+	"themeBuilder": {
+		"name": "Naam",
+		"nameA11y": "Themanaam",
+		"defaultName": "Mijn thema",
+		"preview": "Voorbeeld",
+		"previewCard": "Kaartoppervlak",
+		"previewMuted": "Gedempte bijschrifttekst",
+		"previewPrimary": "Primair",
+		"previewAccent": "Accent",
+		"light": "Licht",
+		"dark": "Donker",
+		"groups": {
+			"base": "Basis",
+			"surfaces": "Oppervlakken",
+			"brand": "Merk",
+			"semantic": "Semantiek",
+			"sidebar": "Zijbalk"
+		},
+		"brandHint": "primary en accent bepalen het kenmerkende kleurverloop van de app",
+		"invalidHex": "Ongeldige hex-waarde",
+		"hexA11y": "Hex-kleur voor %{token}",
+		"pickColor": "Kies een kleur voor %{token}",
+		"hue": "Tint",
+		"saturation": "Verzadiging",
+		"lightness": "Lichtheid",
+		"done": "Klaar",
+		"contrastPass": "PASS",
+		"contrastAa": "AA",
+		"contrastFail": "FAIL",
+		"contrastBadgeA11y": "Contrast %{ratio}:1 — %{verdict}",
+		"contrastWarning": "Tekst op %{token} is %{ratio}:1 — onder AA (vereist %{needs}:1)",
+		"useReadable": "Maak leesbaar",
+		"useReadableA11y": "Zet %{token} op een leesbare kleur",
+		"contrastSummary": {
+			"one": "1 contrastwaarschuwing — je thema kan slecht leesbaar zijn.",
+			"other": "%{count} contrastwaarschuwingen — je thema kan slecht leesbaar zijn."
+		},
+		"save": "Thema opslaan",
+		"saving": "Opslaan…",
+		"saved": "Thema opgeslagen",
+		"saveError": "Thema opslaan mislukt",
+		"deleteTitle": "Thema verwijderen",
+		"deleteConfirm": "\"%{name}\" verwijderen?",
+		"deleteError": "Verwijderen mislukt",
+		"deleteA11y": "Thema verwijderen"
 	}
 }
