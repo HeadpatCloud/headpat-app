@@ -64,7 +64,9 @@ export default function Followers() {
 			ListHeaderComponent={
 				<View className="gap-0.5 pb-4">
 					<GradientText className="text-2xl font-bold tracking-tight">
-						{`@${profileUrl}`}
+						{profile.data?.displayName ??
+							profile.data?.name ??
+							`@${profileUrl}`}
 					</GradientText>
 					<Text variant="muted">{t("profile.followersSubtitle")}</Text>
 				</View>
