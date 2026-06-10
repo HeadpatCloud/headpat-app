@@ -127,12 +127,12 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 			<Animated.View
 				pointerEvents="none"
 				className="absolute left-0 items-center"
-				style={[{ top: 8 }, pillStyle]}
+				style={[{ top: 12 }, pillStyle]}
 			>
 				<Gradient
 					opacity={0.6}
 					borderRadius={999}
-					style={{ height: 32, paddingHorizontal: 20 }}
+					style={{ height: 30, paddingHorizontal: 20 }}
 					className="rounded-full"
 				/>
 			</Animated.View>
