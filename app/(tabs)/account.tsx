@@ -6,6 +6,7 @@ import { View } from "react-native";
 import { CountBadge } from "@/components/count-badge";
 import {
 	Bell,
+	ChevronRight,
 	LifeBuoy,
 	Link2,
 	type LucideIcon,
@@ -18,12 +19,14 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { GlowCard } from "@/components/ui/card";
 import { GradientText } from "@/components/ui/gradient-text";
+import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { signOut, useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
 
 const ROWS: { href: Href; icon: LucideIcon; titleKey: string }[] = [
@@ -99,26 +102,40 @@ export default function Account() {
 	return (
 		<View className="bg-background flex-1 gap-6 p-6">
 			<AnimatedEntrance index={0}>
-				<GlowCard className="flex-row items-center gap-4 p-5">
-					<Avatar
-						fileId={me.data?.avatarFileId}
-						name={displayName}
-						size={64}
-						ring
-					/>
-					<View className="flex-1 gap-0.5">
-						{me.isLoading ? (
-							<Skeleton className="h-7 w-40 rounded-lg" />
-						) : (
-							<GradientText className="text-2xl font-extrabold tracking-tight">
-								{displayName}
-							</GradientText>
-						)}
-						<Text variant="muted" numberOfLines={1}>
-							{data.user?.email ?? "…"}
-						</Text>
-					</View>
-				</GlowCard>
+				<PressableScale
+					onPress={() => {
+						if (me.data?.profileUrl) router.push(`/user/${me.data.profileUrl}`);
+					}}
+					haptic="selection"
+					accessibilityRole="button"
+					accessibilityLabel={t("account.hub.viewProfile")}
+				>
+					<GlowCard className="flex-row items-center gap-4 p-5">
+						<Avatar
+							fileId={me.data?.avatarFileId}
+							name={displayName}
+							size={64}
+							ring
+						/>
+						<View className="flex-1 gap-0.5">
+							{me.isLoading ? (
+								<Skeleton className="h-7 w-40 rounded-lg" />
+							) : (
+								<GradientText className="text-2xl font-extrabold tracking-tight">
+									{displayName}
+								</GradientText>
+							)}
+							<Text variant="muted" numberOfLines={1}>
+								{data.user?.email ?? "…"}
+							</Text>
+						</View>
+						<Icon
+							as={ChevronRight}
+							size={20}
+							className="text-muted-foreground"
+						/>
+					</GlowCard>
+				</PressableScale>
 			</AnimatedEntrance>
 
 			<View className="gap-3">

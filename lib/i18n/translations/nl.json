@@ -447,7 +447,8 @@
 		},
 		"hub": {
 			"yourAccount": "Je account",
-			"rowA11y": "Instellingen voor %{label}"
+			"rowA11y": "Instellingen voor %{label}",
+			"viewProfile": "Je profiel bekijken"
 		},
 		"signOut": {
 			"action": "Uitloggen",

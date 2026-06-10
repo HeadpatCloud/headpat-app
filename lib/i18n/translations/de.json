@@ -447,7 +447,8 @@
 		},
 		"hub": {
 			"yourAccount": "Dein Konto",
-			"rowA11y": "Einstellungen: %{label}"
+			"rowA11y": "Einstellungen: %{label}",
+			"viewProfile": "Dein Profil ansehen"
 		},
 		"signOut": {
 			"action": "Abmelden",

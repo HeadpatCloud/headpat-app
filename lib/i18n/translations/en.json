@@ -447,7 +447,8 @@
 		},
 		"hub": {
 			"yourAccount": "Your account",
-			"rowA11y": "%{label} settings"
+			"rowA11y": "%{label} settings",
+			"viewProfile": "View your profile"
 		},
 		"signOut": {
 			"action": "Sign out",
