@@ -5,7 +5,7 @@ import {
 	House,
 	Images,
 	type LucideIcon,
-	User,
+	Menu,
 	UsersRound,
 } from "@/components/icons";
 import { TabBar } from "@/components/tab-bar";
@@ -65,8 +65,8 @@ export default function TabsLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name="account"
-				options={{ title: t("tabs.account"), tabBarIcon: iconFor(User) }}
+				name="menu"
+				options={{ title: t("tabs.menu"), tabBarIcon: iconFor(Menu) }}
 			/>
 		</Tabs>
 	);

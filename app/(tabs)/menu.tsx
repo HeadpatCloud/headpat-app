@@ -2,15 +2,19 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import { type Href, router } from "expo-router";
 import { useRef } from "react";
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { CountBadge } from "@/components/count-badge";
 import {
 	Bell,
 	ChevronRight,
+	FileClock,
 	LifeBuoy,
 	Link2,
 	type LucideIcon,
+	Megaphone,
+	MessageCircle,
 	Palette,
+	Scale,
 	ShieldCheck,
 	UserPen,
 } from "@/components/icons";
@@ -28,17 +32,73 @@ import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
+import { unregisterPushToken } from "@/lib/push";
 
-const ROWS: { href: Href; icon: LucideIcon; titleKey: string }[] = [
+type Row = { href: Href; icon: LucideIcon; titleKey: string };
+type T = ReturnType<typeof useI18n>["t"];
+
+const SETTINGS_ROWS: Row[] = [
 	{ href: "/notifications", icon: Bell, titleKey: "titles.notifications" },
 	{ href: "/profile-edit", icon: UserPen, titleKey: "titles.profileEdit" },
 	{ href: "/appearance", icon: Palette, titleKey: "titles.appearance" },
 	{ href: "/security", icon: ShieldCheck, titleKey: "titles.security" },
 	{ href: "/connections", icon: Link2, titleKey: "titles.connections" },
-	{ href: "/tickets", icon: LifeBuoy, titleKey: "titles.tickets" },
 ];
 
-export default function Account() {
+const SUPPORT_ROWS: Row[] = [
+	{ href: "/tickets", icon: LifeBuoy, titleKey: "titles.tickets" },
+	{ href: "/support", icon: MessageCircle, titleKey: "titles.support" },
+	{ href: "/announcements", icon: Megaphone, titleKey: "titles.announcements" },
+	{ href: "/changelog", icon: FileClock, titleKey: "titles.changelog" },
+	{ href: "/legal", icon: Scale, titleKey: "titles.legal" },
+];
+
+// Tickets needs a session; everything else in the group is public.
+const GUEST_SUPPORT_ROWS = SUPPORT_ROWS.filter((r) => r.href !== "/tickets");
+
+function GroupLabel({ children }: { children: string }) {
+	return (
+		<Text variant="caption" className="px-1 uppercase tracking-wider">
+			{children}
+		</Text>
+	);
+}
+
+function RowGroup({
+	rows,
+	startIndex,
+	unreadCount,
+	t,
+}: {
+	rows: Row[];
+	startIndex: number;
+	unreadCount: number;
+	t: T;
+}) {
+	return (
+		<View className="gap-3">
+			{rows.map((row, i) => (
+				<SettingsRow
+					key={row.titleKey}
+					icon={row.icon}
+					label={t(row.titleKey)}
+					badge={
+						row.href === "/notifications" ? (
+							<CountBadge count={unreadCount} />
+						) : undefined
+					}
+					index={startIndex + i}
+					onPress={() => router.push(row.href)}
+					accessibilityLabel={t("account.hub.rowA11y", {
+						label: t(row.titleKey),
+					})}
+				/>
+			))}
+		</View>
+	);
+}
+
+export default function Menu() {
 	const { t } = useI18n();
 	const { data } = useSession();
 	const sheetRef = useRef<BottomSheetModal>(null);
@@ -54,7 +114,10 @@ export default function Account() {
 
 	if (!data) {
 		return (
-			<View className="bg-background flex-1 gap-6 p-6">
+			<ScrollView
+				className="bg-background flex-1"
+				contentContainerClassName="gap-5 p-6"
+			>
 				<AnimatedEntrance index={0}>
 					<GlowCard className="gap-1 p-5">
 						<GradientText className="text-2xl font-extrabold tracking-tight">
@@ -83,6 +146,7 @@ export default function Account() {
 						<Text>{t("account.guest.createAccount")}</Text>
 					</Button>
 				</AnimatedEntrance>
+				<GroupLabel>{t("menu.groups.settings")}</GroupLabel>
 				<SettingsRow
 					icon={Palette}
 					label={t("titles.appearance")}
@@ -92,7 +156,14 @@ export default function Account() {
 						label: t("titles.appearance"),
 					})}
 				/>
-			</View>
+				<GroupLabel>{t("menu.groups.support")}</GroupLabel>
+				<RowGroup
+					rows={GUEST_SUPPORT_ROWS}
+					startIndex={3}
+					unreadCount={0}
+					t={t}
+				/>
+			</ScrollView>
 		);
 	}
 
@@ -100,7 +171,10 @@ export default function Account() {
 		me.data?.displayName || data.user?.name || t("account.hub.yourAccount");
 
 	return (
-		<View className="bg-background flex-1 gap-6 p-6">
+		<ScrollView
+			className="bg-background flex-1"
+			contentContainerClassName="gap-5 p-6 pb-10"
+		>
 			<AnimatedEntrance index={0}>
 				<PressableScale
 					onPress={() => {
@@ -138,27 +212,26 @@ export default function Account() {
 				</PressableScale>
 			</AnimatedEntrance>
 
-			<View className="gap-3">
-				{ROWS.map((row, i) => (
-					<SettingsRow
-						key={row.titleKey}
-						icon={row.icon}
-						label={t(row.titleKey)}
-						badge={
-							row.href === "/notifications" ? (
-								<CountBadge count={unreadCount} />
-							) : undefined
-						}
-						index={i + 1}
-						onPress={() => router.push(row.href)}
-						accessibilityLabel={t("account.hub.rowA11y", {
-							label: t(row.titleKey),
-						})}
-					/>
-				))}
-			</View>
+			<GroupLabel>{t("menu.groups.settings")}</GroupLabel>
+			<RowGroup
+				rows={SETTINGS_ROWS}
+				startIndex={1}
+				unreadCount={unreadCount}
+				t={t}
+			/>
 
-			<AnimatedEntrance index={ROWS.length + 1} className="mt-auto">
+			<GroupLabel>{t("menu.groups.support")}</GroupLabel>
+			<RowGroup
+				rows={SUPPORT_ROWS}
+				startIndex={SETTINGS_ROWS.length + 1}
+				unreadCount={unreadCount}
+				t={t}
+			/>
+
+			<AnimatedEntrance
+				index={SETTINGS_ROWS.length + SUPPORT_ROWS.length + 1}
+				className="pt-2"
+			>
 				<Button
 					variant="destructive"
 					fullWidth
@@ -176,8 +249,11 @@ export default function Account() {
 					<View className="gap-3 pt-1">
 						<Button
 							variant="destructive"
-							onPress={() => {
+							onPress={async () => {
 								sheetRef.current?.dismiss();
+								// Drop this device's push token while the session is still
+								// alive — unregister is an authed call.
+								await unregisterPushToken();
 								signOut();
 							}}
 							accessibilityRole="button"
@@ -196,6 +272,6 @@ export default function Account() {
 					</View>
 				</View>
 			</Sheet>
-		</View>
+		</ScrollView>
 	);
 }
