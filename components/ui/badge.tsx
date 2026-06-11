@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import type { LucideIcon } from "@/components/icons";
 import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
@@ -54,10 +54,13 @@ export function Badge({
 		"flex-row items-center gap-1 self-start rounded-full px-2.5 py-0.5";
 
 	if (variant === "gradient") {
+		// layout classes live on a View — LinearGradient ignores className, so
+		// the gradient paints behind as an absolute fill instead.
 		return (
-			<Gradient borderRadius={999} className={cn(layout, className)}>
+			<View className={cn(layout, "overflow-hidden", className)}>
+				<Gradient style={StyleSheet.absoluteFill} pointerEvents="none" />
 				{inner}
-			</Gradient>
+			</View>
 		);
 	}
 
