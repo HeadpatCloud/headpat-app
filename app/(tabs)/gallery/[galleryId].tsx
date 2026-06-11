@@ -13,11 +13,14 @@ import Animated, {
 import { EmptyState } from "@/components/empty-state";
 import {
 	ChevronRight,
+	Flag,
 	Heart,
 	ImageOff,
 	type LucideIcon,
 	MessageCircle,
+	Pencil,
 	Send,
+	Shield,
 	Trash2,
 	UserRound,
 } from "@/components/icons";
@@ -33,7 +36,6 @@ import { Input } from "@/components/ui/input";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StatPill } from "@/components/ui/stat-pill";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
@@ -112,6 +114,36 @@ export default function GalleryItem() {
 		NonNullable<typeof comments.data>[number] | null
 	>(null);
 	const [deleting, setDeleting] = useState(false);
+
+	const actionsRef = useRef<BottomSheetModal>(null);
+	const [reporting, setReporting] = useState(false);
+	const [reportText, setReportText] = useState("");
+	const [sendingReport, setSendingReport] = useState(false);
+
+	function openActions() {
+		setReporting(false);
+		actionsRef.current?.present();
+	}
+
+	async function submitReport() {
+		const reason = reportText.trim();
+		if (!reason || sendingReport) return;
+		setSendingReport(true);
+		try {
+			await client.moderation.report({
+				targetType: "gallery",
+				targetId: galleryId,
+				reason,
+			});
+			actionsRef.current?.dismiss();
+			setReportText("");
+			Alert.alert(t("gallery.reportSent"), t("gallery.reportSentBody"));
+		} catch (e) {
+			Alert.alert(t("gallery.reportFailed"), humanizeError(e));
+		} finally {
+			setSendingReport(false);
+		}
+	}
 
 	const liked = item.data?.likedByMe ?? false;
 	const heartScale = useSharedValue(1);
@@ -386,21 +418,31 @@ export default function GalleryItem() {
 							</Animated.View>
 							<Text>{item.data.likesCount}</Text>
 						</Button>
-						<StatPill
-							icon={MessageCircle}
-							value={item.data.commentsCount}
-							label={t("gallery.comments")}
-						/>
-						{isOwnPost || canModerate ? (
+						<View
+							className="border-border bg-background h-11 flex-row items-center gap-1.5 rounded-xl border px-4"
+							accessibilityLabel={`${item.data.commentsCount} ${t("gallery.comments")}`}
+						>
+							<Icon
+								as={MessageCircle}
+								size={18}
+								className="text-muted-foreground"
+							/>
+							<Text>{item.data.commentsCount}</Text>
+						</View>
+						{session ? (
 							<View className="ml-auto">
 								<Button
 									variant="ghost"
 									size="sm"
-									onPress={deletePost}
+									onPress={openActions}
 									accessibilityRole="button"
-									accessibilityLabel={t("gallery.deletePost")}
+									accessibilityLabel={t("gallery.actions")}
 								>
-									<Icon as={Trash2} size={18} className="text-destructive" />
+									<Icon
+										as={Shield}
+										size={18}
+										className="text-muted-foreground"
+									/>
 								</Button>
 							</View>
 						) : null}
@@ -496,6 +538,61 @@ export default function GalleryItem() {
 						/>
 					) : null}
 				</View>
+			</Sheet>
+
+			<Sheet ref={actionsRef} title={t("gallery.actions")} accent>
+				{reporting ? (
+					<View className="gap-3">
+						<Input
+							multiline
+							className="h-24"
+							placeholder={t("gallery.reportPlaceholder")}
+							value={reportText}
+							onChangeText={setReportText}
+							accessibilityLabel={t("gallery.report")}
+						/>
+						<Button
+							loading={sendingReport}
+							disabled={reportText.trim().length === 0}
+							onPress={submitReport}
+							accessibilityRole="button"
+							accessibilityLabel={t("gallery.reportSend")}
+						>
+							<Text>{t("gallery.reportSend")}</Text>
+						</Button>
+					</View>
+				) : (
+					<View className="gap-1">
+						{isOwnPost ? (
+							<CommentAction
+								icon={Pencil}
+								label={t("gallery.editPost")}
+								onPress={() => {
+									actionsRef.current?.dismiss();
+									router.push(`/gallery/edit/${galleryId}`);
+								}}
+							/>
+						) : null}
+						{!isOwnPost ? (
+							<CommentAction
+								icon={Flag}
+								label={t("gallery.report")}
+								onPress={() => setReporting(true)}
+							/>
+						) : null}
+						{isOwnPost || canModerate ? (
+							<CommentAction
+								icon={Trash2}
+								label={t("gallery.deletePost")}
+								destructive
+								onPress={() => {
+									actionsRef.current?.dismiss();
+									deletePost();
+								}}
+							/>
+						) : null}
+					</View>
+				)}
 			</Sheet>
 		</>
 	);

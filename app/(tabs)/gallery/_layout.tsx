@@ -22,6 +22,10 @@ export default function GalleryLayout() {
 			/>
 			<Stack.Screen name="[galleryId]" options={{ title: "" }} />
 			<Stack.Screen
+				name="edit/[galleryId]"
+				options={{ title: t("gallery.editPost") }}
+			/>
+			<Stack.Screen
 				name="upload"
 				options={{ title: t("titles.galleryUpload"), presentation: "modal" }}
 			/>
