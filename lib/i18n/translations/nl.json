@@ -13,6 +13,7 @@
 		"communityNew": "Nieuwe community",
 		"events": "Evenementen",
 		"eventNew": "Nieuw evenement",
+		"eventEdit": "Evenement bewerken",
 		"appearance": "Weergave",
 		"themeBuilder": "Theme builder",
 		"security": "Beveiliging",
@@ -243,7 +244,8 @@
 			"creating": "Aanmaken…",
 			"invalidDates": "Ongeldige tijden",
 			"invalidDatesBody": "De eindtijd moet na de starttijd liggen.",
-			"createFailed": "Evenement kon niet worden aangemaakt"
+			"createFailed": "Evenement kon niet worden aangemaakt",
+			"updateFailed": "Evenement kon niet worden bijgewerkt"
 		}
 	},
 	"profile": {

@@ -9,6 +9,7 @@ import {
 	Check,
 	Globe,
 	MapPin,
+	Pencil,
 	Trash2,
 	Users,
 } from "@/components/icons";
@@ -45,9 +46,9 @@ export default function Event() {
 		myAttending.data?.some((row) => row.eventId === eventId) ?? false;
 
 	const { can } = usePlatformPermissions();
-	const canDelete =
-		!!session &&
-		(data?.creatorUserId === session.user.id || can("events:delete"));
+	const isCreator = !!session && data?.creatorUserId === session.user.id;
+	const canEdit = isCreator || can("events:edit");
+	const canDelete = !!session && (isCreator || can("events:delete"));
 
 	function deleteEvent() {
 		Alert.alert(t("events.deleteEvent"), t("events.deleteConfirm"), [
@@ -292,18 +293,40 @@ export default function Event() {
 				</Button>
 			</AnimatedEntrance>
 
-			{canDelete ? (
+			{canEdit || canDelete ? (
 				<AnimatedEntrance index={6} preset="fadeUp">
-					<Button
-						variant="ghost"
-						fullWidth
-						onPress={deleteEvent}
-						accessibilityRole="button"
-						accessibilityLabel={t("events.deleteEvent")}
-					>
-						<Icon as={Trash2} size={18} className="text-destructive" />
-						<Text className="text-destructive">{t("events.deleteEvent")}</Text>
-					</Button>
+					<View className="flex-row gap-3">
+						{canEdit ? (
+							<View className="flex-1">
+								<Button
+									variant="outline"
+									fullWidth
+									onPress={() => router.push(`/events/edit/${eventId}`)}
+									accessibilityRole="button"
+									accessibilityLabel={t("titles.eventEdit")}
+								>
+									<Icon as={Pencil} size={18} className="text-foreground" />
+									<Text>{t("titles.eventEdit")}</Text>
+								</Button>
+							</View>
+						) : null}
+						{canDelete ? (
+							<View className="flex-1">
+								<Button
+									variant="ghost"
+									fullWidth
+									onPress={deleteEvent}
+									accessibilityRole="button"
+									accessibilityLabel={t("events.deleteEvent")}
+								>
+									<Icon as={Trash2} size={18} className="text-destructive" />
+									<Text className="text-destructive">
+										{t("events.deleteEvent")}
+									</Text>
+								</Button>
+							</View>
+						) : null}
+					</View>
 				</AnimatedEntrance>
 			) : null}
 		</ScrollView>

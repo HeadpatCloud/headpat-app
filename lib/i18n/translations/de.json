@@ -13,6 +13,7 @@
 		"communityNew": "Neue Community",
 		"events": "Events",
 		"eventNew": "Neues Event",
+		"eventEdit": "Event bearbeiten",
 		"appearance": "Erscheinungsbild",
 		"themeBuilder": "Theme-Builder",
 		"security": "Sicherheit",
@@ -243,7 +244,8 @@
 			"creating": "Wird erstellt…",
 			"invalidDates": "Ungültiger Zeitraum",
 			"invalidDatesBody": "Die Endzeit muss nach der Startzeit liegen.",
-			"createFailed": "Event konnte nicht erstellt werden"
+			"createFailed": "Event konnte nicht erstellt werden",
+			"updateFailed": "Event konnte nicht aktualisiert werden"
 		}
 	},
 	"profile": {
