@@ -52,7 +52,7 @@ export default function Changelog() {
 	const { t } = useI18n();
 	const query = useInfiniteQuery(
 		orpc.changelog.list.infiniteOptions({
-			input: (page: number) => ({ page, pageSize: 24 }),
+			input: (page: number) => ({ type: "app" as const, page, pageSize: 24 }),
 			initialPageParam: 1,
 			getNextPageParam: (last) =>
 				last.page * last.pageSize < last.total ? last.page + 1 : undefined,
