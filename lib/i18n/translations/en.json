@@ -4,7 +4,8 @@
 		"gallery": "Gallery",
 		"community": "Community",
 		"events": "Events",
-		"account": "Account"
+		"account": "Account",
+		"menu": "Menu"
 	},
 	"titles": {
 		"gallery": "Gallery",
@@ -28,7 +29,9 @@
 		"communityAdmin": "Manage community",
 		"followers": "Followers",
 		"following": "Following",
-		"notifications": "Notifications"
+		"notifications": "Notifications",
+		"legal": "Legal",
+		"support": "Support"
 	},
 	"header": {
 		"language": "Language",
@@ -43,7 +46,8 @@
 		"save": "Save",
 		"delete": "Delete",
 		"search": "Search",
-		"loading": "Loading…"
+		"loading": "Loading…",
+		"linkFailed": "Couldn't open link"
 	},
 	"auth": {
 		"login": {
@@ -528,6 +532,24 @@
 			"uploadErrorTitle": "Upload failed",
 			"saveErrorTitle": "Couldn't save"
 		}
+	},
+	"menu": {
+		"groups": {
+			"settings": "Settings",
+			"support": "Support & info"
+		}
+	},
+	"legal": {
+		"subtitle": "The fine print, hosted on headpat.place",
+		"eula": "EULA",
+		"terms": "Terms of Service",
+		"privacy": "Privacy Policy"
+	},
+	"support": {
+		"subtitle": "Need help? Reach us here",
+		"discord": "Discord server",
+		"email": "Email",
+		"website": "Website"
 	},
 	"appearance": {
 		"heroSubtitle": "Pick a look — the whole app follows.",

@@ -4,7 +4,8 @@
 		"gallery": "Galerij",
 		"community": "Community",
 		"events": "Evenementen",
-		"account": "Account"
+		"account": "Account",
+		"menu": "Menu"
 	},
 	"titles": {
 		"gallery": "Galerij",
@@ -28,7 +29,9 @@
 		"communityAdmin": "Community beheren",
 		"followers": "Volgers",
 		"following": "Volgend",
-		"notifications": "Meldingen"
+		"notifications": "Meldingen",
+		"legal": "Juridisch",
+		"support": "Support"
 	},
 	"header": {
 		"language": "Taal",
@@ -43,7 +46,8 @@
 		"save": "Opslaan",
 		"delete": "Verwijderen",
 		"search": "Zoeken",
-		"loading": "Laden…"
+		"loading": "Laden…",
+		"linkFailed": "Link kon niet worden geopend"
 	},
 	"auth": {
 		"login": {
@@ -528,6 +532,24 @@
 			"uploadErrorTitle": "Upload mislukt",
 			"saveErrorTitle": "Opslaan mislukt"
 		}
+	},
+	"menu": {
+		"groups": {
+			"settings": "Instellingen",
+			"support": "Support & info"
+		}
+	},
+	"legal": {
+		"subtitle": "De kleine lettertjes, gehost op headpat.place",
+		"eula": "EULA",
+		"terms": "Servicevoorwaarden",
+		"privacy": "Privacybeleid"
+	},
+	"support": {
+		"subtitle": "Hulp nodig? Bereik ons hier",
+		"discord": "Discord-server",
+		"email": "E-mail",
+		"website": "Website"
 	},
 	"appearance": {
 		"heroSubtitle": "Kies een look — de hele app doet mee.",

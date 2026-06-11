@@ -4,7 +4,8 @@
 		"gallery": "Galerie",
 		"community": "Community",
 		"events": "Events",
-		"account": "Konto"
+		"account": "Konto",
+		"menu": "Menü"
 	},
 	"titles": {
 		"gallery": "Galerie",
@@ -28,7 +29,9 @@
 		"communityAdmin": "Community verwalten",
 		"followers": "Follower",
 		"following": "Folgt",
-		"notifications": "Benachrichtigungen"
+		"notifications": "Benachrichtigungen",
+		"legal": "Rechtliches",
+		"support": "Support"
 	},
 	"header": {
 		"language": "Sprache",
@@ -43,7 +46,8 @@
 		"save": "Speichern",
 		"delete": "Löschen",
 		"search": "Suchen",
-		"loading": "Lädt…"
+		"loading": "Lädt…",
+		"linkFailed": "Link konnte nicht geöffnet werden"
 	},
 	"auth": {
 		"login": {
@@ -528,6 +532,24 @@
 			"uploadErrorTitle": "Upload fehlgeschlagen",
 			"saveErrorTitle": "Konnte nicht gespeichert werden"
 		}
+	},
+	"menu": {
+		"groups": {
+			"settings": "Einstellungen",
+			"support": "Support & Infos"
+		}
+	},
+	"legal": {
+		"subtitle": "Das Kleingedruckte, gehostet auf headpat.place",
+		"eula": "EULA",
+		"terms": "Nutzungsbedingungen",
+		"privacy": "Datenschutzerklärung"
+	},
+	"support": {
+		"subtitle": "Brauchst du Hilfe? Hier erreichst du uns",
+		"discord": "Discord-Server",
+		"email": "E-Mail",
+		"website": "Webseite"
 	},
 	"appearance": {
 		"heroSubtitle": "Wähl einen Look — die ganze App zieht mit.",
