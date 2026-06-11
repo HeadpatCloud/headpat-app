@@ -13,7 +13,9 @@ export { default as Camera } from "lucide-react-native/dist/esm/icons/camera.js"
 export { default as Check } from "lucide-react-native/dist/esm/icons/check.js";
 export { default as CheckCheck } from "lucide-react-native/dist/esm/icons/check-check.js";
 export { default as ChevronRight } from "lucide-react-native/dist/esm/icons/chevron-right.js";
+export { default as ExternalLink } from "lucide-react-native/dist/esm/icons/external-link.js";
 export { default as FileClock } from "lucide-react-native/dist/esm/icons/file-clock.js";
+export { default as FileText } from "lucide-react-native/dist/esm/icons/file-text.js";
 export { default as Flag } from "lucide-react-native/dist/esm/icons/flag.js";
 export { default as Github } from "lucide-react-native/dist/esm/icons/github.js";
 export { default as Globe } from "lucide-react-native/dist/esm/icons/globe.js";
@@ -28,8 +30,10 @@ export { default as KeyRound } from "lucide-react-native/dist/esm/icons/key-roun
 export { default as Languages } from "lucide-react-native/dist/esm/icons/languages.js";
 export { default as LifeBuoy } from "lucide-react-native/dist/esm/icons/life-buoy.js";
 export { default as Link2 } from "lucide-react-native/dist/esm/icons/link-2.js";
+export { default as Mail } from "lucide-react-native/dist/esm/icons/mail.js";
 export { default as MapPin } from "lucide-react-native/dist/esm/icons/map-pin.js";
 export { default as Megaphone } from "lucide-react-native/dist/esm/icons/megaphone.js";
+export { default as Menu } from "lucide-react-native/dist/esm/icons/menu.js";
 export { default as MessageCircle } from "lucide-react-native/dist/esm/icons/message-circle.js";
 export { default as MessageSquare } from "lucide-react-native/dist/esm/icons/message-square.js";
 export { default as MessagesSquare } from "lucide-react-native/dist/esm/icons/messages-square.js";
@@ -38,6 +42,7 @@ export { default as Palette } from "lucide-react-native/dist/esm/icons/palette.j
 export { default as Pencil } from "lucide-react-native/dist/esm/icons/pencil.js";
 export { default as Plus } from "lucide-react-native/dist/esm/icons/plus.js";
 export { default as RefreshCw } from "lucide-react-native/dist/esm/icons/refresh-cw.js";
+export { default as Scale } from "lucide-react-native/dist/esm/icons/scale.js";
 export { default as Search } from "lucide-react-native/dist/esm/icons/search.js";
 export { default as Send } from "lucide-react-native/dist/esm/icons/send.js";
 export { default as Shield } from "lucide-react-native/dist/esm/icons/shield.js";

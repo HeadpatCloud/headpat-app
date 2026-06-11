@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
 import { View } from "react-native";
-import { ChevronRight, type LucideIcon } from "@/components/icons";
+import {
+	ChevronRight,
+	ExternalLink,
+	type LucideIcon,
+} from "@/components/icons";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -13,6 +17,7 @@ type SettingsRowProps = {
 	value?: string;
 	badge?: ReactNode;
 	index?: number;
+	external?: boolean;
 	onPress: () => void;
 	accessibilityLabel?: string;
 };
@@ -23,6 +28,7 @@ export function SettingsRow({
 	value,
 	badge,
 	index = 0,
+	external,
 	onPress,
 	accessibilityLabel,
 }: SettingsRowProps) {
@@ -50,7 +56,11 @@ export function SettingsRow({
 						</Text>
 					) : null}
 					{badge}
-					<Icon as={ChevronRight} size={20} className="text-muted-foreground" />
+					<Icon
+						as={external ? ExternalLink : ChevronRight}
+						size={external ? 18 : 20}
+						className="text-muted-foreground"
+					/>
 				</Card>
 			</PressableScale>
 		</AnimatedEntrance>
