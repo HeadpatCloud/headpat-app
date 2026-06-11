@@ -55,11 +55,13 @@ const SUPPORT_ROWS: Row[] = [
 // Tickets needs a session; everything else in the group is public.
 const GUEST_SUPPORT_ROWS = SUPPORT_ROWS.filter((r) => r.href !== "/tickets");
 
-function GroupLabel({ children }: { children: string }) {
+function GroupLabel({ index, children }: { index: number; children: string }) {
 	return (
-		<Text variant="caption" className="px-1 uppercase tracking-wider">
-			{children}
-		</Text>
+		<AnimatedEntrance index={index}>
+			<Text variant="caption" className="px-1 uppercase tracking-wider">
+				{children}
+			</Text>
+		</AnimatedEntrance>
 	);
 }
 
@@ -145,20 +147,20 @@ export default function Menu() {
 						<Text>{t("account.guest.createAccount")}</Text>
 					</Button>
 				</AnimatedEntrance>
-				<GroupLabel>{t("menu.groups.settings")}</GroupLabel>
+				<GroupLabel index={2}>{t("menu.groups.settings")}</GroupLabel>
 				<SettingsRow
 					icon={Palette}
 					label={t("titles.appearance")}
-					index={2}
+					index={3}
 					onPress={() => router.push("/appearance")}
 					accessibilityLabel={t("account.hub.rowA11y", {
 						label: t("titles.appearance"),
 					})}
 				/>
-				<GroupLabel>{t("menu.groups.support")}</GroupLabel>
+				<GroupLabel index={4}>{t("menu.groups.support")}</GroupLabel>
 				<RowGroup
 					rows={GUEST_SUPPORT_ROWS}
-					startIndex={3}
+					startIndex={5}
 					unreadCount={0}
 					t={t}
 				/>
@@ -211,24 +213,26 @@ export default function Menu() {
 				</PressableScale>
 			</AnimatedEntrance>
 
-			<GroupLabel>{t("menu.groups.settings")}</GroupLabel>
+			<GroupLabel index={1}>{t("menu.groups.settings")}</GroupLabel>
 			<RowGroup
 				rows={SETTINGS_ROWS}
-				startIndex={1}
+				startIndex={2}
 				unreadCount={unreadCount}
 				t={t}
 			/>
 
-			<GroupLabel>{t("menu.groups.support")}</GroupLabel>
+			<GroupLabel index={SETTINGS_ROWS.length + 2}>
+				{t("menu.groups.support")}
+			</GroupLabel>
 			<RowGroup
 				rows={SUPPORT_ROWS}
-				startIndex={SETTINGS_ROWS.length + 1}
+				startIndex={SETTINGS_ROWS.length + 3}
 				unreadCount={unreadCount}
 				t={t}
 			/>
 
 			<AnimatedEntrance
-				index={SETTINGS_ROWS.length + SUPPORT_ROWS.length + 1}
+				index={SETTINGS_ROWS.length + SUPPORT_ROWS.length + 3}
 				className="pt-2"
 			>
 				<Button

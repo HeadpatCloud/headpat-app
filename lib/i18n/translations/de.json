@@ -469,7 +469,7 @@
 		},
 		"hub": {
 			"yourAccount": "Dein Konto",
-			"rowA11y": "Einstellungen: %{label}",
+			"rowA11y": "%{label} öffnen",
 			"viewProfile": "Dein Profil ansehen"
 		},
 		"signOut": {

@@ -469,7 +469,7 @@
 		},
 		"hub": {
 			"yourAccount": "Your account",
-			"rowA11y": "%{label} settings",
+			"rowA11y": "Open %{label}",
 			"viewProfile": "View your profile"
 		},
 		"signOut": {
