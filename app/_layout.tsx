@@ -13,6 +13,7 @@ import { I18nProvider, useI18n } from "@/lib/i18n/provider";
 import { MotionProvider, useReducedMotion } from "@/lib/motion/reduced-motion";
 import { AppProviders } from "@/lib/providers";
 import { ThemeProvider, useTheme } from "@/lib/theme/provider";
+import { usePushNotifications } from "@/lib/use-push-notifications";
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -51,6 +52,7 @@ function useProtectedRoute() {
 
 function RootNav() {
 	useProtectedRoute();
+	usePushNotifications();
 	const reduced = useReducedMotion();
 	const { colors } = useTheme();
 	const { t } = useI18n();

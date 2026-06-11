@@ -67,5 +67,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 					"Headpat uses your photos so you can share them in the gallery and set your avatar.",
 			},
 		],
+		"expo-notifications",
 	],
 });

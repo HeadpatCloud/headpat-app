@@ -32,6 +32,7 @@ import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
+import { unregisterPushToken } from "@/lib/push";
 
 type Row = { href: Href; icon: LucideIcon; titleKey: string };
 type T = ReturnType<typeof useI18n>["t"];
@@ -252,8 +253,11 @@ export default function Menu() {
 					<View className="gap-3 pt-1">
 						<Button
 							variant="destructive"
-							onPress={() => {
+							onPress={async () => {
 								sheetRef.current?.dismiss();
+								// Drop this device's push token while the session is still
+								// alive — unregister is an authed call.
+								await unregisterPushToken();
 								signOut();
 							}}
 							accessibilityRole="button"

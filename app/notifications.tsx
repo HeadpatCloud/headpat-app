@@ -37,6 +37,7 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
+import { appRoute } from "@/lib/app-route";
 import { useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { PressableScale } from "@/lib/motion/pressable-scale";
@@ -59,16 +60,6 @@ const TYPE_ICONS: Record<string, LucideIcon> = {
 	eventReminder: CalendarClock,
 	galleryComment: MessageSquare,
 };
-
-// Backend links are web-style paths; map onto app routes and drop the ones
-// that have no screen yet (e.g. /messages).
-function appRoute(link: string | null): string | null {
-	if (!link) return null;
-	if (link === "/account/tickets") return "/tickets";
-	if (/^\/(user|gallery|events|community|announcements)\//.test(link))
-		return link;
-	return null;
-}
 
 function NotificationRow({
 	item,
