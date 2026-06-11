@@ -191,6 +191,7 @@ export default function Gallery() {
 			{session ? (
 				<Fab
 					icon={Plus}
+					bottom={24}
 					onPress={() => router.push("/gallery/upload")}
 					accessibilityLabel={t("gallery.newPost")}
 				/>

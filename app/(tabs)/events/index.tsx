@@ -7,7 +7,7 @@ import { MapPin, Plus, Users } from "@/components/icons";
 import { PaginatedList } from "@/components/paginated-list";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Gradient } from "@/components/ui/gradient";
+import { Fab } from "@/components/ui/fab";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
@@ -98,27 +98,12 @@ export default function Events() {
 				)}
 			/>
 			{session ? (
-				<PressableScale
+				<Fab
+					icon={Plus}
+					bottom={24}
 					onPress={() => router.push("/events/new")}
-					scaleTo={0.92}
-					haptic="selection"
-					accessibilityRole="button"
 					accessibilityLabel={t("events.newEvent")}
-					className="absolute bottom-6 right-6"
-				>
-					<Gradient
-						glow
-						borderRadius={28}
-						style={{
-							height: 56,
-							width: 56,
-							alignItems: "center",
-							justifyContent: "center",
-						}}
-					>
-						<Icon as={Plus} size={26} className="text-accent-foreground" />
-					</Gradient>
-				</PressableScale>
+				/>
 			) : null}
 		</View>
 	);

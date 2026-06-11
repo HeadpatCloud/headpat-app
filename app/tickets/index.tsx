@@ -2,32 +2,22 @@ import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { router } from "expo-router";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { RefreshControl, View } from "react-native";
-import Animated, {
-	useAnimatedStyle,
-	useSharedValue,
-	withSpring,
-} from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/empty-state";
 import { Inbox, Plus } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { GlowCard } from "@/components/ui/card";
-import { Gradient } from "@/components/ui/gradient";
+import { Fab } from "@/components/ui/fab";
 import { GradientText } from "@/components/ui/gradient-text";
-import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
-import { useReducedMotion } from "@/lib/motion/reduced-motion";
-import { springs } from "@/lib/motion/springs";
 import { orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
-import { RADIUS } from "@/lib/theme/foundations";
 import { useTheme } from "@/lib/theme/provider";
 
 const Separator = () => <View className="h-3" />;
@@ -148,69 +138,11 @@ export default function Tickets() {
 					/>
 				}
 			/>
-			<ComposeFab
+			<Fab
+				icon={Plus}
 				onPress={() => router.push("/tickets/new")}
 				accessibilityLabel={t("tickets.newTicket")}
 			/>
 		</View>
-	);
-}
-
-// Local FAB: the shared Fab anchors above the tab bar, but this is a
-// root-stack screen without one, so it sits at bottom-6 right-6 instead.
-function ComposeFab({
-	onPress,
-	accessibilityLabel,
-}: {
-	onPress: () => void;
-	accessibilityLabel: string;
-}) {
-	const { colors } = useTheme();
-	const insets = useSafeAreaInsets();
-	const reduced = useReducedMotion();
-	const mount = useSharedValue(reduced ? 1 : 0);
-
-	useEffect(() => {
-		if (reduced) {
-			mount.value = 1;
-			return;
-		}
-		mount.value = withSpring(1, springs.gentle);
-	}, [reduced, mount]);
-
-	const mountStyle = useAnimatedStyle(() => ({
-		transform: [{ scale: mount.value }],
-	}));
-
-	return (
-		<Animated.View
-			pointerEvents="box-none"
-			style={[
-				{ position: "absolute", right: 24, bottom: insets.bottom + 24 },
-				mountStyle,
-			]}
-		>
-			<PressableScale
-				scaleTo={0.96}
-				haptic="selection"
-				onPress={onPress}
-				accessibilityRole="button"
-				accessibilityLabel={accessibilityLabel}
-			>
-				<Gradient
-					glow
-					borderRadius={RADIUS.pill}
-					style={{
-						height: 56,
-						width: 56,
-						borderRadius: RADIUS.pill,
-						alignItems: "center",
-						justifyContent: "center",
-					}}
-				>
-					<Icon as={Plus} size={24} color={colors["primary-foreground"]} />
-				</Gradient>
-			</PressableScale>
-		</Animated.View>
 	);
 }

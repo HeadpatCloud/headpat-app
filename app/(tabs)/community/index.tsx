@@ -7,6 +7,7 @@ import { PaginatedList } from "@/components/paginated-list";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Fab } from "@/components/ui/fab";
 import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
@@ -142,20 +143,12 @@ export default function Communities() {
 				)}
 			/>
 			{session ? (
-				<PressableScale
+				<Fab
+					icon={Plus}
+					bottom={24}
 					onPress={() => router.push("/community/new")}
-					haptic="selection"
-					accessibilityRole="button"
 					accessibilityLabel={t("community.index.new")}
-					className="absolute bottom-6 right-6"
-				>
-					<View
-						className="bg-primary h-14 w-14 items-center justify-center rounded-full"
-						style={{ boxShadow: "0 4 12 rgba(0, 0, 0, 0.25)" }}
-					>
-						<Icon as={Plus} size={26} className="text-primary-foreground" />
-					</View>
-				</PressableScale>
+				/>
 			) : null}
 		</View>
 	);

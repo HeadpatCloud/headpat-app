@@ -22,6 +22,9 @@ type FabProps = {
 	label?: string;
 	accessibilityLabel: string;
 	position?: "bottom-right" | "bottom-center";
+	/** Distance from the screen bottom. Tab screens (which already end above
+	 * the tab bar) pass 24; root-stack screens get the safe-area default. */
+	bottom?: number;
 };
 
 export function Fab({
@@ -30,6 +33,7 @@ export function Fab({
 	label,
 	accessibilityLabel,
 	position = "bottom-right",
+	bottom,
 }: FabProps) {
 	const { colors } = useTheme();
 	const insets = useSafeAreaInsets();
@@ -61,7 +65,7 @@ export function Fab({
 		<Animated.View
 			pointerEvents="box-none"
 			style={[
-				{ position: "absolute", bottom: insets.bottom + 72 },
+				{ position: "absolute", bottom: bottom ?? insets.bottom + 24 },
 				placement,
 				mountStyle,
 			]}
