@@ -95,6 +95,7 @@ function RootNav() {
 				name="changelog"
 				options={{ headerShown: true, title: "" }}
 			/>
+			<Stack.Screen name="legal" options={{ headerShown: true, title: "" }} />
 			<Stack.Screen
 				name="notifications"
 				options={{ headerShown: true, title: "" }}
