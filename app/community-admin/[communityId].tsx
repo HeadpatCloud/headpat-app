@@ -28,6 +28,7 @@ import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 import { useTheme } from "@/lib/theme/provider";
 import { pickImage, uploadImage } from "@/lib/upload";
+import { usePlatformPermissions } from "@/lib/use-permissions";
 
 export default function CommunityAdmin() {
 	const { communityId } = useLocalSearchParams<{ communityId: string }>();
@@ -46,9 +47,14 @@ export default function CommunityAdmin() {
 	);
 
 	const role = myRole.data?.role;
+	const { can } = usePlatformPermissions();
+	const isPlatformMod = can("communities:edit");
 	const canManage =
-		role === "admin" || role === "moderator" || role === "owner";
-	const canEditSettings = role === "admin" || role === "owner";
+		role === "admin" ||
+		role === "moderator" ||
+		role === "owner" ||
+		isPlatformMod;
+	const canEditSettings = role === "admin" || role === "owner" || isPlatformMod;
 
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");

@@ -4,7 +4,14 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Alert, Linking, ScrollView, View } from "react-native";
 import { DateBlock } from "@/components/event/date-block";
-import { CalendarClock, Check, Globe, MapPin, Users } from "@/components/icons";
+import {
+	CalendarClock,
+	Check,
+	Globe,
+	MapPin,
+	Trash2,
+	Users,
+} from "@/components/icons";
 import { StorageImage } from "@/components/storage-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +24,7 @@ import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
+import { usePlatformPermissions } from "@/lib/use-permissions";
 
 export default function Event() {
 	const { eventId } = useLocalSearchParams<{ eventId: string }>();
@@ -35,6 +43,33 @@ export default function Event() {
 
 	const attending =
 		myAttending.data?.some((row) => row.eventId === eventId) ?? false;
+
+	const { can } = usePlatformPermissions();
+	const canDelete =
+		!!session &&
+		(data?.creatorUserId === session.user.id || can("events:delete"));
+
+	function deleteEvent() {
+		Alert.alert(t("events.deleteEvent"), t("events.deleteConfirm"), [
+			{ text: t("common.cancel"), style: "cancel" },
+			{
+				text: t("common.delete"),
+				style: "destructive",
+				onPress: async () => {
+					try {
+						await client.event.delete({ eventId });
+						queryClient.invalidateQueries({ queryKey: orpc.event.list.key() });
+						queryClient.invalidateQueries({
+							queryKey: orpc.event.upcoming.key(),
+						});
+						router.back();
+					} catch (e) {
+						Alert.alert(t("events.deleteFailed"), humanizeError(e));
+					}
+				},
+			},
+		]);
+	}
 
 	// Optimistic: toggle the cached attendance + count immediately, roll back
 	// on error — the tap must not wait on the network for visual feedback.
@@ -256,6 +291,21 @@ export default function Event() {
 					<Text>{attending ? t("events.attending") : t("events.attend")}</Text>
 				</Button>
 			</AnimatedEntrance>
+
+			{canDelete ? (
+				<AnimatedEntrance index={6} preset="fadeUp">
+					<Button
+						variant="ghost"
+						fullWidth
+						onPress={deleteEvent}
+						accessibilityRole="button"
+						accessibilityLabel={t("events.deleteEvent")}
+					>
+						<Icon as={Trash2} size={18} className="text-destructive" />
+						<Text className="text-destructive">{t("events.deleteEvent")}</Text>
+					</Button>
+				</AnimatedEntrance>
+			) : null}
 		</ScrollView>
 	);
 }

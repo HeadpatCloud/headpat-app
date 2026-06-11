@@ -22,6 +22,7 @@ import { PressableScale } from "@/lib/motion/pressable-scale";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 import { useTheme } from "@/lib/theme/provider";
+import { usePlatformPermissions } from "@/lib/use-permissions";
 
 export default function Community() {
 	const { communityId } = useLocalSearchParams<{ communityId: string }>();
@@ -29,6 +30,7 @@ export default function Community() {
 	const { t } = useI18n();
 	const { colors } = useTheme();
 	const { data: session } = useSession();
+	const { can } = usePlatformPermissions();
 	const [busy, setBusy] = useState(false);
 
 	const community = useQuery(
@@ -132,7 +134,10 @@ export default function Community() {
 	const iFollow = followStatus.data?.iFollow ?? false;
 	const role = myRole.data?.role;
 	const canManage =
-		role === "admin" || role === "moderator" || role === "owner";
+		role === "admin" ||
+		role === "moderator" ||
+		role === "owner" ||
+		can("communities:edit");
 
 	return (
 		<ScrollView

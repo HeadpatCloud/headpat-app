@@ -44,6 +44,7 @@ import { springs } from "@/lib/motion/springs";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 import { useTheme } from "@/lib/theme/provider";
+import { usePlatformPermissions } from "@/lib/use-permissions";
 import { cn } from "@/lib/utils";
 
 function CommentAction({
@@ -102,13 +103,9 @@ export default function GalleryItem() {
 	);
 
 	const { data: session } = useSession();
-	const perms = useQuery({
-		...orpc.adminRole.myPermissions.queryOptions(),
-		enabled: !!session,
-	});
-	const canModerate = (perms.data ?? []).some(
-		(p) => p === "*:*" || p === "gallery:*" || p === "gallery:delete",
-	);
+	const { can } = usePlatformPermissions();
+	const canModerate = can("gallery:delete");
+	const isOwnPost = !!session && item.data?.author?.userId === session.user.id;
 
 	const sheetRef = useRef<BottomSheetModal>(null);
 	const [selected, setSelected] = useState<
@@ -165,6 +162,27 @@ export default function GalleryItem() {
 		} finally {
 			setDeleting(false);
 		}
+	}
+
+	function deletePost() {
+		Alert.alert(t("gallery.deletePost"), t("gallery.deletePostConfirm"), [
+			{ text: t("common.cancel"), style: "cancel" },
+			{
+				text: t("common.delete"),
+				style: "destructive",
+				onPress: async () => {
+					try {
+						await client.gallery.delete({ itemId: galleryId });
+						queryClient.invalidateQueries({
+							queryKey: orpc.gallery.list.key(),
+						});
+						router.back();
+					} catch (e) {
+						Alert.alert(t("gallery.deleteFailed"), humanizeError(e));
+					}
+				},
+			},
+		]);
 	}
 
 	// Optimistic: flip the cached item immediately, roll back on error. The tap
@@ -373,6 +391,19 @@ export default function GalleryItem() {
 							value={item.data.commentsCount}
 							label={t("gallery.comments")}
 						/>
+						{isOwnPost || canModerate ? (
+							<View className="ml-auto">
+								<Button
+									variant="ghost"
+									size="sm"
+									onPress={deletePost}
+									accessibilityRole="button"
+									accessibilityLabel={t("gallery.deletePost")}
+								>
+									<Icon as={Trash2} size={18} className="text-destructive" />
+								</Button>
+							</View>
+						) : null}
 					</View>
 				</AnimatedEntrance>
 
