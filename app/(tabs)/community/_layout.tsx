@@ -1,9 +1,11 @@
 import { Stack } from "expo-router";
 import { HeaderControls } from "@/components/header-controls";
+import { useI18n } from "@/lib/i18n/provider";
 import { useTheme } from "@/lib/theme/provider";
 
 export default function CommunityLayout() {
 	const { colors } = useTheme();
+	const { t } = useI18n();
 	return (
 		<Stack
 			screenOptions={{
@@ -13,8 +15,7 @@ export default function CommunityLayout() {
 			<Stack.Screen
 				name="index"
 				options={{
-					// screens render their own display headers (spec §9)
-					title: "",
+					title: t("titles.communities"),
 					headerRight: () => <HeaderControls />,
 				}}
 			/>

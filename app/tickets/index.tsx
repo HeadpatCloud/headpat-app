@@ -3,14 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { router } from "expo-router";
 import { useEffect, useRef } from "react";
-import { RefreshControl, StyleSheet, View } from "react-native";
+import { RefreshControl, View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
 	withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { GlowBackdrop } from "@/components/brand/glow-backdrop";
 import { EmptyState } from "@/components/empty-state";
 import { Inbox, Plus } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
@@ -90,7 +89,6 @@ export default function Tickets() {
 				ItemSeparatorComponent={Separator}
 				ListHeaderComponent={
 					<View className="gap-1 pb-4 pt-2">
-						<GlowBackdrop size={220} style={styles.bloom} />
 						<GradientText className="text-4xl font-extrabold leading-10 tracking-tight">
 							{t("tickets.heading")}
 						</GradientText>
@@ -216,7 +214,3 @@ function ComposeFab({
 		</Animated.View>
 	);
 }
-
-const styles = StyleSheet.create({
-	bloom: { position: "absolute", top: -70, left: -60 },
-});
