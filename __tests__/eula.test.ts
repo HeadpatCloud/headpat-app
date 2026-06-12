@@ -19,6 +19,15 @@ describe("eulaNeedsAcceptance", () => {
 		).toBe(true);
 	});
 
+	it("treats corrupt dates safely: bad acceptance re-gates, bad server date never gates", () => {
+		expect(eulaNeedsAcceptance("garbage", "2026-06-12T00:00:00.000Z")).toBe(
+			true,
+		);
+		expect(eulaNeedsAcceptance("2026-01-01T00:00:00.000Z", "garbage")).toBe(
+			false,
+		);
+	});
+
 	it("does not gate when the acceptance is current or newer", () => {
 		expect(
 			eulaNeedsAcceptance(
