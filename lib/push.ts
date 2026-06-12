@@ -1,5 +1,4 @@
 import { isRunningInExpoGo } from "expo";
-import Constants from "expo-constants";
 import type { NotificationResponse } from "expo-notifications";
 import { Platform } from "react-native";
 import { client } from "@/lib/orpc";
@@ -14,9 +13,21 @@ function getNotifications(): NotificationsModule | null {
 	return require("expo-notifications") as NotificationsModule;
 }
 
-const projectId = Constants.expoConfig?.extra?.eas?.projectId as
-	| string
-	| undefined;
+function nativePlatform(): "ios" | "android" | null {
+	if (Platform.OS === "ios") return "ios";
+	if (Platform.OS === "android") return "android";
+	return null;
+}
+
+// Debug/dev-client builds get tokens that only work against APNs sandbox;
+// release builds (preview/TestFlight/App Store) use production. The token string
+// doesn't reveal which, so the backend stores this per device.
+function apnsEnvFor(
+	platform: "ios" | "android",
+): "sandbox" | "production" | undefined {
+	if (platform !== "ios") return undefined;
+	return __DEV__ ? "sandbox" : "production";
+}
 
 // Remember the last token we obtained so we can unregister it on sign-out even
 // after the session cookie is gone.
@@ -38,16 +49,10 @@ function ensureHandler(N: NotificationsModule): void {
 	});
 }
 
-function nativePlatform(): "ios" | "android" | null {
-	if (Platform.OS === "ios") return "ios";
-	if (Platform.OS === "android") return "android";
-	return null;
-}
-
 export async function registerPushToken(): Promise<void> {
 	const N = getNotifications();
 	const platform = nativePlatform();
-	if (!N || !platform || !projectId) return;
+	if (!N || !platform) return;
 	try {
 		ensureHandler(N);
 		let { status } = await N.getPermissionsAsync();
@@ -63,9 +68,15 @@ export async function registerPushToken(): Promise<void> {
 			});
 		}
 
-		const { data: token } = await N.getExpoPushTokenAsync({ projectId });
+		// Native APNs/FCM token (not an Expo push token) — sent straight to
+		// Apple/Google by our backend.
+		const { data: token } = await N.getDevicePushTokenAsync();
 		lastToken = token;
-		await client.pushToken.register({ token, platform });
+		await client.pushToken.register({
+			token,
+			platform,
+			apnsEnv: apnsEnvFor(platform),
+		});
 	} catch (e) {
 		console.warn("[push] registration failed", e);
 	}
@@ -75,15 +86,30 @@ export async function registerPushToken(): Promise<void> {
 // session still alive.
 export async function unregisterPushToken(): Promise<void> {
 	const N = getNotifications();
-	if (!N || !projectId) return;
+	if (!N) return;
 	try {
-		const token =
-			lastToken ?? (await N.getExpoPushTokenAsync({ projectId })).data;
+		const token = lastToken ?? (await N.getDevicePushTokenAsync()).data;
 		await client.pushToken.unregister({ token });
 		lastToken = null;
 	} catch (e) {
 		console.warn("[push] unregister failed", e);
 	}
+}
+
+// FCM tokens rotate on reinstall/data-clear/restore; re-register so the backend
+// never holds a stale token. Returns an unsubscribe function.
+export function attachPushTokenRotation(): () => void {
+	const N = getNotifications();
+	if (!N) return () => {};
+	const sub = N.addPushTokenListener((t) => {
+		const platform = t.type === "ios" || t.type === "android" ? t.type : null;
+		if (!platform) return;
+		lastToken = t.data;
+		client.pushToken
+			.register({ token: t.data, platform, apnsEnv: apnsEnvFor(platform) })
+			.catch(() => {});
+	});
+	return () => sub.remove();
 }
 
 // Open the linked screen for a notification tap. Dedupe by request id so the

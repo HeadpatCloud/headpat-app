@@ -1,4 +1,11 @@
+import { existsSync } from "node:fs";
 import type { ConfigContext, ExpoConfig } from "expo/config";
+
+// Drop the Firebase google-services.json in the project root to enable Android
+// (FCM) push; until then it's omitted so builds don't fail on the missing file.
+const googleServicesFile = existsSync("./google-services.json")
+	? "./google-services.json"
+	: undefined;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
@@ -30,6 +37,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	},
 	android: {
 		package: "com.headpat.app",
+		googleServicesFile,
 		adaptiveIcon: {
 			foregroundImage: "./assets/images/adaptive-icon.png",
 			backgroundColor: "#ffffff",

@@ -2,7 +2,11 @@ import { type Href, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { appRoute } from "@/lib/app-route";
 import { useSession } from "@/lib/auth-client";
-import { attachNotificationTapHandler, registerPushToken } from "@/lib/push";
+import {
+	attachNotificationTapHandler,
+	attachPushTokenRotation,
+	registerPushToken,
+} from "@/lib/push";
 
 export function usePushNotifications() {
 	const { data } = useSession();
@@ -27,4 +31,7 @@ export function usePushNotifications() {
 			if (route) router.push(route as Href);
 		});
 	}, [router]);
+
+	// Keep the backend's token current when the OS rotates it.
+	useEffect(() => attachPushTokenRotation(), []);
 }
