@@ -12,7 +12,15 @@
     "doctor": "npx expo-doctor@latest",
     "lint": "biome lint .",
     "format": "biome format --write .",
-    "lint:fix": "biome format --write . && biome lint --fix ."
+    "lint:fix": "biome format --write . && biome lint --fix .",
+    "local:android": "bun local:android:preview",
+    "local:android:development": "bunx eas build --platform android --profile development --local",
+    "local:android:preview": "bunx eas build --platform android --profile preview --local",
+    "local:android:production": "bunx eas build --platform android --profile production --local",
+    "local:ios": "bun local:ios:preview",
+    "local:ios:development": "bunx eas build --platform ios --profile development --local",
+    "local:ios:preview": "bunx eas build --platform ios --profile preview --local",
+    "local:ios:production": "bunx eas build --platform ios --profile production --local"
   },
   "jest": {
     "preset": "jest-expo",
@@ -49,6 +57,7 @@
     "expo-build-properties": "~56.0.18",
     "expo-constants": "~56.0.17",
     "expo-crypto": "~56.0.4",
+    "expo-dev-client": "~56.0.20",
     "expo-file-system": "~56.0.7",
     "expo-haptics": "~56.0.3",
     "expo-image": "~56.0.10",
