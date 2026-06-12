@@ -46,5 +46,9 @@ expo-env.d.ts
 .env*.local
 !.env.example
 
+# ios & android dev build folders
 ios
 android
+
+# ios & android builds
+build-*
