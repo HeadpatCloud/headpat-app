@@ -1,10 +1,13 @@
 import { existsSync } from "node:fs";
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
-// Drop the Firebase google-services.json in the project root to enable Android
-// (FCM) push; until then it's omitted so builds don't fail on the missing file.
-const googleServicesFile = existsSync("./google-services.json")
+// Firebase config files (FCM push). Omitted when absent so a build doesn't fail
+// on a missing file before they're added.
+const androidGoogleServices = existsSync("./google-services.json")
 	? "./google-services.json"
+	: undefined;
+const iosGoogleServices = existsSync("./GoogleService-Info.plist")
+	? "./GoogleService-Info.plist"
 	: undefined;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
@@ -27,6 +30,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		appStoreUrl: "https://apps.apple.com/app/headpat/id6502715063",
 		usesAppleSignIn: true,
 		config: { usesNonExemptEncryption: false },
+		googleServicesFile: iosGoogleServices,
 		associatedDomains: [
 			"applinks:headpat.app",
 			"applinks:headpat.place",
@@ -37,7 +41,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	},
 	android: {
 		package: "com.headpat.app",
-		googleServicesFile,
+		googleServicesFile: androidGoogleServices,
 		adaptiveIcon: {
 			foregroundImage: "./assets/images/adaptive-icon.png",
 			backgroundColor: "#ffffff",
@@ -75,6 +79,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 					"Headpat uses your photos so you can share them in the gallery and set your avatar.",
 			},
 		],
-		"expo-notifications",
+		"@react-native-firebase/app",
+		"@react-native-firebase/messaging",
+		["expo-build-properties", { ios: { useFrameworks: "static" } }],
 	],
 });
