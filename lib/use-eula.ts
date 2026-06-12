@@ -15,7 +15,8 @@ export function useEula() {
 
 	useEffect(() => {
 		AsyncStorage.getItem(EULA_ACCEPTED_KEY).then((v) => {
-			setAcceptedAt(v);
+			// Don't overwrite a stamp accept() already set
+			setAcceptedAt((current) => current ?? v);
 			setLoaded(true);
 		});
 	}, []);

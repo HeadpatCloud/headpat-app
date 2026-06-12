@@ -26,7 +26,7 @@ export function LegalLinks() {
 					key={doc.titleKey}
 					onPress={() => open(doc.url)}
 					haptic="selection"
-					accessibilityRole="button"
+					accessibilityRole="link"
 					accessibilityLabel={t("account.hub.rowA11y", {
 						label: t(doc.titleKey),
 					})}
