@@ -544,6 +544,13 @@
 		"terms": "Servicevoorwaarden",
 		"privacy": "Privacybeleid"
 	},
+	"eula": {
+		"consentIntro": "Om Headpat te gebruiken moet je akkoord gaan met onze:",
+		"agree": "Ik ga akkoord",
+		"updatedTitle": "We hebben onze EULA bijgewerkt",
+		"updatedBody": "Lees en accepteer de bijgewerkte overeenkomst om Headpat te blijven gebruiken.",
+		"lastUpdated": "Laatst bijgewerkt op %{date}"
+	},
 	"support": {
 		"subtitle": "Hulp nodig? Bereik ons hier",
 		"discord": "Discord-server",

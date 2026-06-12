@@ -544,6 +544,13 @@
 		"terms": "Terms of Service",
 		"privacy": "Privacy Policy"
 	},
+	"eula": {
+		"consentIntro": "To use Headpat you need to agree to our:",
+		"agree": "I agree",
+		"updatedTitle": "We've updated our EULA",
+		"updatedBody": "Please review and accept the updated agreement to keep using Headpat.",
+		"lastUpdated": "Last updated %{date}"
+	},
 	"support": {
 		"subtitle": "Need help? Reach us here",
 		"discord": "Discord server",
