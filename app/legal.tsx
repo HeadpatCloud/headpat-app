@@ -5,19 +5,8 @@ import { SettingsRow } from "@/components/settings-row";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Text } from "@/components/ui/text";
 import { useI18n } from "@/lib/i18n/provider";
+import { LEGAL_DOCS } from "@/lib/legal-docs";
 import { humanizeError } from "@/lib/orpc-error";
-
-const DOCS = [
-	{ titleKey: "legal.eula", url: "https://headpat.place/legal/eula" },
-	{
-		titleKey: "legal.terms",
-		url: "https://headpat.place/legal/termsofservice.pdf",
-	},
-	{
-		titleKey: "legal.privacy",
-		url: "https://headpat.place/legal/privacypolicy",
-	},
-];
 
 export default function Legal() {
 	const { t } = useI18n();
@@ -42,7 +31,7 @@ export default function Legal() {
 				<Text variant="muted">{t("legal.subtitle")}</Text>
 			</View>
 			<View className="gap-3">
-				{DOCS.map((doc, i) => (
+				{LEGAL_DOCS.map((doc, i) => (
 					<SettingsRow
 						key={doc.titleKey}
 						icon={FileText}
