@@ -30,7 +30,10 @@
 		"following": "Folgt",
 		"notifications": "Benachrichtigungen",
 		"legal": "Rechtliches",
-		"support": "Support"
+		"support": "Support",
+		"admin": "Admin-Bereich",
+		"adminReports": "Meldungen",
+		"adminTickets": "Alle Tickets"
 	},
 	"header": {
 		"language": "Sprache",
@@ -46,7 +49,8 @@
 		"delete": "Löschen",
 		"search": "Suchen",
 		"loading": "Lädt…",
-		"linkFailed": "Link konnte nicht geöffnet werden"
+		"linkFailed": "Link konnte nicht geöffnet werden",
+		"all": "Alle"
 	},
 	"auth": {
 		"login": {
@@ -537,6 +541,31 @@
 			"settings": "Einstellungen",
 			"support": "Support & Infos",
 			"admin": "Admin"
+		}
+	},
+	"admin": {
+		"subtitle": "Moderations- & Plattform-Tools"
+	},
+	"reports": {
+		"empty": "Keine Meldungen hier",
+		"by": "Gemeldet von %{name}",
+		"markReviewing": "In Prüfung nehmen",
+		"resolve": "Erledigen",
+		"dismiss": "Verwerfen",
+		"updateFailed": "Meldung konnte nicht aktualisiert werden",
+		"filter": {
+			"open": "Offen",
+			"reviewing": "In Prüfung",
+			"resolved": "Erledigt",
+			"dismissed": "Verworfen"
+		},
+		"type": {
+			"user": "Nutzer",
+			"gallery": "Galerie-Beitrag",
+			"message": "Nachricht",
+			"community": "Community",
+			"event": "Event",
+			"announcement": "Ankündigung"
 		}
 	},
 	"legal": {

@@ -30,7 +30,10 @@
 		"following": "Following",
 		"notifications": "Notifications",
 		"legal": "Legal",
-		"support": "Support"
+		"support": "Support",
+		"admin": "Admin panel",
+		"adminReports": "Reports",
+		"adminTickets": "All tickets"
 	},
 	"header": {
 		"language": "Language",
@@ -46,7 +49,8 @@
 		"delete": "Delete",
 		"search": "Search",
 		"loading": "Loading…",
-		"linkFailed": "Couldn't open link"
+		"linkFailed": "Couldn't open link",
+		"all": "All"
 	},
 	"auth": {
 		"login": {
@@ -537,6 +541,31 @@
 			"settings": "Settings",
 			"support": "Support & info",
 			"admin": "Admin"
+		}
+	},
+	"admin": {
+		"subtitle": "Moderation & platform tools"
+	},
+	"reports": {
+		"empty": "No reports here",
+		"by": "Reported by %{name}",
+		"markReviewing": "Mark reviewing",
+		"resolve": "Resolve",
+		"dismiss": "Dismiss",
+		"updateFailed": "Couldn't update report",
+		"filter": {
+			"open": "Open",
+			"reviewing": "Reviewing",
+			"resolved": "Resolved",
+			"dismissed": "Dismissed"
+		},
+		"type": {
+			"user": "User",
+			"gallery": "Gallery post",
+			"message": "Message",
+			"community": "Community",
+			"event": "Event",
+			"announcement": "Announcement"
 		}
 	},
 	"legal": {

@@ -30,7 +30,10 @@
 		"following": "Volgend",
 		"notifications": "Meldingen",
 		"legal": "Juridisch",
-		"support": "Support"
+		"support": "Support",
+		"admin": "Beheerpaneel",
+		"adminReports": "Meldingen",
+		"adminTickets": "Alle tickets"
 	},
 	"header": {
 		"language": "Taal",
@@ -46,7 +49,8 @@
 		"delete": "Verwijderen",
 		"search": "Zoeken",
 		"loading": "Laden…",
-		"linkFailed": "Link kon niet worden geopend"
+		"linkFailed": "Link kon niet worden geopend",
+		"all": "Alle"
 	},
 	"auth": {
 		"login": {
@@ -537,6 +541,31 @@
 			"settings": "Instellingen",
 			"support": "Support & info",
 			"admin": "Beheer"
+		}
+	},
+	"admin": {
+		"subtitle": "Moderatie- en platformtools"
+	},
+	"reports": {
+		"empty": "Geen meldingen hier",
+		"by": "Gemeld door %{name}",
+		"markReviewing": "In behandeling nemen",
+		"resolve": "Oplossen",
+		"dismiss": "Afwijzen",
+		"updateFailed": "Melding kon niet worden bijgewerkt",
+		"filter": {
+			"open": "Open",
+			"reviewing": "In behandeling",
+			"resolved": "Opgelost",
+			"dismissed": "Afgewezen"
+		},
+		"type": {
+			"user": "Gebruiker",
+			"gallery": "Galerijpost",
+			"message": "Bericht",
+			"community": "Community",
+			"event": "Evenement",
+			"announcement": "Aankondiging"
 		}
 	},
 	"legal": {

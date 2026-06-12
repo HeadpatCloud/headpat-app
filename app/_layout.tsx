@@ -127,6 +127,7 @@ function RootNav() {
 					}}
 				/>
 				<Stack.Screen name="tickets" />
+				<Stack.Screen name="admin" />
 				<Stack.Screen
 					name="community-admin/[communityId]"
 					options={{ headerShown: true, title: t("titles.communityAdmin") }}
