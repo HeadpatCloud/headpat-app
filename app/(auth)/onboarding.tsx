@@ -24,6 +24,7 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Aurora } from "@/components/brand/aurora";
 import { Moon, Sun } from "@/components/icons";
+import { LegalLinks } from "@/components/legal-links";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
@@ -33,6 +34,7 @@ import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { tripletToHex } from "@/lib/theme/color";
 import { PRESET_LIST, PRESETS } from "@/lib/theme/presets";
 import { useTheme } from "@/lib/theme/provider";
+import { useEula } from "@/lib/use-eula";
 
 const ONBOARDED_KEY = "hp-onboarded";
 const SWATCH_KEYS = ["primary", "accent", "background"] as const;
@@ -170,6 +172,7 @@ export default function Onboarding() {
 	const reduced = useReducedMotion();
 	const { t } = useI18n();
 	const { scheme, setMode, colors } = useTheme();
+	const { accepted, accept } = useEula();
 	const scrollX = useSharedValue(0);
 	const scrollRef = useRef<Animated.ScrollView>(null);
 	const [, setPage] = useState(0);
@@ -235,15 +238,17 @@ export default function Onboarding() {
 						className="text-foreground"
 					/>
 				</Button>
-				<Button
-					variant="ghost"
-					size="sm"
-					onPress={finishOnboarding}
-					accessibilityRole="button"
-					accessibilityLabel={t("auth.onboarding.skipA11y")}
-				>
-					<Text>{t("auth.onboarding.skip")}</Text>
-				</Button>
+				{accepted ? (
+					<Button
+						variant="ghost"
+						size="sm"
+						onPress={finishOnboarding}
+						accessibilityRole="button"
+						accessibilityLabel={t("auth.onboarding.skipA11y")}
+					>
+						<Text>{t("auth.onboarding.skip")}</Text>
+					</Button>
+				) : null}
 			</View>
 
 			<AnimatedScrollView
@@ -254,6 +259,7 @@ export default function Onboarding() {
 				onScroll={scrollHandler}
 				onMomentumScrollEnd={onMomentumEnd}
 				scrollEventThrottle={16}
+				scrollEnabled={accepted}
 				className="flex-1"
 			>
 				<Panel width={width}>
@@ -274,6 +280,26 @@ export default function Onboarding() {
 							{t("auth.onboarding.slide1Body")}
 						</Text>
 					</View>
+					{!accepted ? (
+						<View className="border-primary/30 bg-card/80 w-full gap-3 rounded-2xl border p-4">
+							<Text variant="muted" className="text-sm">
+								{t("eula.consentIntro")}
+							</Text>
+							<LegalLinks />
+							<Button
+								size="lg"
+								fullWidth
+								onPress={() => {
+									accept();
+									scrollRef.current?.scrollTo({ x: width, animated: true });
+								}}
+								accessibilityRole="button"
+								accessibilityLabel={t("eula.agree")}
+							>
+								<Text>{t("eula.agree")}</Text>
+							</Button>
+						</View>
+					) : null}
 				</Panel>
 
 				<Panel width={width}>
