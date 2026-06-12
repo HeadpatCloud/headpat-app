@@ -1,6 +1,7 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
+import Constants from "expo-constants";
 import { type Href, router } from "expo-router";
 import { useRef } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
@@ -290,6 +291,10 @@ export default function Home() {
 						href="/users"
 					/>
 				</AnimatedEntrance>
+
+				<Text variant="caption" className="pt-2 text-center">
+					BETA {Constants.expoConfig?.version}
+				</Text>
 			</ScrollView>
 
 			<Sheet ref={createRef} title={t("home.createTitle")} accent>
