@@ -535,7 +535,8 @@
 	"menu": {
 		"groups": {
 			"settings": "Einstellungen",
-			"support": "Support & Infos"
+			"support": "Support & Infos",
+			"admin": "Admin"
 		}
 	},
 	"legal": {
@@ -549,7 +550,11 @@
 		"agree": "Ich stimme zu",
 		"updatedTitle": "Wir haben unsere EULA aktualisiert",
 		"updatedBody": "Bitte lies und akzeptiere die aktualisierte Vereinbarung, um Headpat weiter zu nutzen.",
-		"lastUpdated": "Zuletzt aktualisiert am %{date}"
+		"lastUpdated": "Zuletzt aktualisiert am %{date}",
+		"bump": "EULA-Datum aktualisieren",
+		"bumpConfirm": "Alle Geräte müssen die EULA danach erneut akzeptieren. Fortfahren?",
+		"bumpDone": "EULA-Datum aktualisiert",
+		"bumpFailed": "EULA-Datum konnte nicht aktualisiert werden"
 	},
 	"support": {
 		"subtitle": "Brauchst du Hilfe? Hier erreichst du uns",

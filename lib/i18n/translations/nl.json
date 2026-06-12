@@ -535,7 +535,8 @@
 	"menu": {
 		"groups": {
 			"settings": "Instellingen",
-			"support": "Support & info"
+			"support": "Support & info",
+			"admin": "Beheer"
 		}
 	},
 	"legal": {
@@ -549,7 +550,11 @@
 		"agree": "Ik ga akkoord",
 		"updatedTitle": "We hebben onze EULA bijgewerkt",
 		"updatedBody": "Lees en accepteer de bijgewerkte overeenkomst om Headpat te blijven gebruiken.",
-		"lastUpdated": "Laatst bijgewerkt op %{date}"
+		"lastUpdated": "Laatst bijgewerkt op %{date}",
+		"bump": "EULA-datum bijwerken",
+		"bumpConfirm": "Alle apparaten moeten de EULA daarna opnieuw accepteren. Doorgaan?",
+		"bumpDone": "EULA-datum bijgewerkt",
+		"bumpFailed": "EULA-datum kon niet worden bijgewerkt"
 	},
 	"support": {
 		"subtitle": "Hulp nodig? Bereik ons hier",

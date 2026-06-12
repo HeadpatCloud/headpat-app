@@ -2,7 +2,7 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import { type Href, router } from "expo-router";
 import { useRef } from "react";
-import { ScrollView, View } from "react-native";
+import { Alert, ScrollView, View } from "react-native";
 import { CountBadge } from "@/components/count-badge";
 import {
 	Bell,
@@ -31,8 +31,10 @@ import { signOut, useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
-import { orpc } from "@/lib/orpc";
+import { client, orpc } from "@/lib/orpc";
+import { humanizeError } from "@/lib/orpc-error";
 import { unregisterPushToken } from "@/lib/push";
+import { usePlatformPermissions } from "@/lib/use-permissions";
 
 type Row = { href: Href; icon: LucideIcon; titleKey: string };
 type T = ReturnType<typeof useI18n>["t"];
@@ -103,6 +105,7 @@ function RowGroup({
 export default function Menu() {
 	const { t } = useI18n();
 	const { data } = useSession();
+	const { can } = usePlatformPermissions();
 	const sheetRef = useRef<BottomSheetModal>(null);
 	const me = useQuery({
 		...orpc.profile.me.queryOptions({ input: {} }),
@@ -171,6 +174,24 @@ export default function Menu() {
 
 	const displayName =
 		me.data?.displayName || data.user?.name || t("account.hub.yourAccount");
+	const isLegalAdmin = can("legal:manage");
+
+	function bumpEula() {
+		Alert.alert(t("eula.bump"), t("eula.bumpConfirm"), [
+			{ text: t("common.cancel"), style: "cancel" },
+			{
+				text: t("eula.bump"),
+				onPress: async () => {
+					try {
+						await client.legal.touch();
+						Alert.alert(t("eula.bumpDone"));
+					} catch (e) {
+						Alert.alert(t("eula.bumpFailed"), humanizeError(e));
+					}
+				},
+			},
+		]);
+	}
 
 	return (
 		<ScrollView
@@ -232,8 +253,27 @@ export default function Menu() {
 				t={t}
 			/>
 
+			{isLegalAdmin ? (
+				<>
+					<GroupLabel index={SETTINGS_ROWS.length + SUPPORT_ROWS.length + 3}>
+						{t("menu.groups.admin")}
+					</GroupLabel>
+					<SettingsRow
+						icon={FileClock}
+						label={t("eula.bump")}
+						index={SETTINGS_ROWS.length + SUPPORT_ROWS.length + 4}
+						onPress={bumpEula}
+						accessibilityLabel={t("account.hub.rowA11y", {
+							label: t("eula.bump"),
+						})}
+					/>
+				</>
+			) : null}
+
 			<AnimatedEntrance
-				index={SETTINGS_ROWS.length + SUPPORT_ROWS.length + 3}
+				index={
+					SETTINGS_ROWS.length + SUPPORT_ROWS.length + (isLegalAdmin ? 5 : 3)
+				}
 				className="pt-2"
 			>
 				<Button
