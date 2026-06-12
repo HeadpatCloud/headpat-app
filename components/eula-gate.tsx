@@ -27,6 +27,7 @@ export function EulaGate({
 					style={{ width: 80, height: 80 }}
 					resizeMode="contain"
 					accessibilityRole="image"
+					accessibilityLabel={t("auth.onboarding.logoA11y")}
 				/>
 				<GradientText className="text-center text-3xl font-extrabold tracking-tight">
 					{t("eula.updatedTitle")}
