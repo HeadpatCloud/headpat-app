@@ -2,14 +2,13 @@ import { isRunningInExpoGo } from "expo";
 import { PermissionsAndroid, Platform } from "react-native";
 import { client } from "@/lib/orpc";
 
-type MessagingModule =
-	typeof import("@react-native-firebase/messaging").default;
+type MessagingApi = typeof import("@react-native-firebase/messaging");
 
 // @react-native-firebase is native-only and absent in Expo Go / on web, so load
 // it lazily behind a guard. Everything here no-ops where it isn't available.
-function getMessaging(): MessagingModule | null {
+function getMessagingApi(): MessagingApi | null {
 	if (Platform.OS === "web" || isRunningInExpoGo()) return null;
-	return require("@react-native-firebase/messaging").default;
+	return require("@react-native-firebase/messaging");
 }
 
 function nativePlatform(): "ios" | "android" | null {
@@ -22,23 +21,23 @@ function nativePlatform(): "ios" | "android" | null {
 // session cookie is gone.
 let lastToken: string | null = null;
 
-async function ensurePermission(m: MessagingModule): Promise<boolean> {
-	const status = await m().requestPermission();
+async function ensurePermission(api: MessagingApi): Promise<boolean> {
+	const status = await api.requestPermission(api.getMessaging());
 	return (
-		status === m.AuthorizationStatus.AUTHORIZED ||
-		status === m.AuthorizationStatus.PROVISIONAL
+		status === api.AuthorizationStatus.AUTHORIZED ||
+		status === api.AuthorizationStatus.PROVISIONAL
 	);
 }
 
 export async function registerPushToken(): Promise<void> {
-	const m = getMessaging();
+	const api = getMessagingApi();
 	const platform = nativePlatform();
-	if (!m || !platform) return;
+	if (!api || !platform) return;
 	try {
 		if (platform === "ios") {
-			if (!(await ensurePermission(m))) return;
+			if (!(await ensurePermission(api))) return;
 			// iOS must register with APNs before Firebase can mint an FCM token.
-			await m().registerDeviceForRemoteMessages();
+			await api.registerDeviceForRemoteMessages(api.getMessaging());
 		} else if (Number(Platform.Version) >= 33) {
 			// rnfirebase's requestPermission() is a no-op on Android; the runtime
 			// POST_NOTIFICATIONS prompt (Android 13+) goes via PermissionsAndroid.
@@ -47,7 +46,7 @@ export async function registerPushToken(): Promise<void> {
 			);
 			if (res !== PermissionsAndroid.RESULTS.GRANTED) return;
 		}
-		const token = await m().getToken();
+		const token = await api.getToken(api.getMessaging());
 		lastToken = token;
 		await client.pushToken.register({ token, platform });
 	} catch (e) {
@@ -58,10 +57,10 @@ export async function registerPushToken(): Promise<void> {
 // Call this BEFORE signOut — unregister is an authed endpoint, so it needs the
 // session still alive.
 export async function unregisterPushToken(): Promise<void> {
-	const m = getMessaging();
-	if (!m) return;
+	const api = getMessagingApi();
+	if (!api) return;
 	try {
-		const token = lastToken ?? (await m().getToken());
+		const token = lastToken ?? (await api.getToken(api.getMessaging()));
 		await client.pushToken.unregister({ token });
 		lastToken = null;
 	} catch (e) {
@@ -72,10 +71,10 @@ export async function unregisterPushToken(): Promise<void> {
 // The OS rotates FCM tokens (reinstall/restore/data-clear); re-register so the
 // backend never holds a stale token. Returns an unsubscribe function.
 export function attachPushTokenRotation(): () => void {
-	const m = getMessaging();
+	const api = getMessagingApi();
 	const platform = nativePlatform();
-	if (!m || !platform) return () => {};
-	return m().onTokenRefresh((token: string) => {
+	if (!api || !platform) return () => {};
+	return api.onTokenRefresh(api.getMessaging(), (token: string) => {
 		lastToken = token;
 		client.pushToken.register({ token, platform }).catch(() => {});
 	});
@@ -86,14 +85,16 @@ export function attachPushTokenRotation(): () => void {
 export function attachNotificationTapHandler(
 	onLink: (link: string) => void,
 ): () => void {
-	const m = getMessaging();
-	if (!m) return () => {};
+	const api = getMessagingApi();
+	if (!api) return () => {};
 	const route = (link: unknown) => {
 		if (typeof link === "string") onLink(link);
 	};
-	m()
-		.getInitialNotification()
+	api
+		.getInitialNotification(api.getMessaging())
 		.then((msg) => route(msg?.data?.link))
 		.catch(() => {});
-	return m().onNotificationOpenedApp((msg) => route(msg?.data?.link));
+	return api.onNotificationOpenedApp(api.getMessaging(), (msg) =>
+		route(msg?.data?.link),
+	);
 }
