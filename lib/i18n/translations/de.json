@@ -586,6 +586,15 @@
 		"bumpDone": "EULA-Datum aktualisiert",
 		"bumpFailed": "EULA-Datum konnte nicht aktualisiert werden"
 	},
+	"ageGate": {
+		"title": "Bist du 18 Jahre oder älter?",
+		"body": "Headpat ist eine Community ab 18. Bestätige dein Alter, um fortzufahren.",
+		"checking": "Alter wird geprüft…",
+		"pickDob": "Geburtsdatum: %{date}",
+		"confirm": "Weiter",
+		"blockedTitle": "Du musst 18+ sein",
+		"blockedBody": "Du erfüllst das Mindestalter für Headpat nicht."
+	},
 	"support": {
 		"subtitle": "Brauchst du Hilfe? Hier erreichst du uns",
 		"discord": "Discord-Server",

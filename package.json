@@ -53,6 +53,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "expo": "^56.0.9",
+    "expo-age-range": "~56.0.5",
     "expo-apple-authentication": "~56.0.4",
     "expo-build-properties": "~56.0.18",
     "expo-constants": "~56.0.17",

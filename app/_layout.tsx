@@ -8,12 +8,14 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AgeGate } from "@/components/age-gate";
 import { EulaGate } from "@/components/eula-gate";
 import { useSession } from "@/lib/auth-client";
 import { I18nProvider, useI18n } from "@/lib/i18n/provider";
 import { MotionProvider, useReducedMotion } from "@/lib/motion/reduced-motion";
 import { AppProviders } from "@/lib/providers";
 import { ThemeProvider, useTheme } from "@/lib/theme/provider";
+import { useAgeGate } from "@/lib/use-age-gate";
 import { useEula } from "@/lib/use-eula";
 import { usePushNotifications } from "@/lib/use-push-notifications";
 
@@ -60,6 +62,7 @@ function RootNav() {
 	const { t } = useI18n();
 	const segments = useSegments();
 	const { needsAcceptance, serverUpdatedAt, accept } = useEula();
+	const { needsAgeCheck, clear: clearAge } = useAgeGate();
 	const showEulaGate = needsAcceptance && segments[0] !== "(auth)";
 	return (
 		<>
@@ -139,6 +142,7 @@ function RootNav() {
 			{showEulaGate ? (
 				<EulaGate updatedAt={serverUpdatedAt} onAccept={accept} />
 			) : null}
+			{needsAgeCheck ? <AgeGate onClear={clearAge} /> : null}
 		</>
 	);
 }

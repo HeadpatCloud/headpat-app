@@ -586,6 +586,15 @@
 		"bumpDone": "EULA-datum bijgewerkt",
 		"bumpFailed": "EULA-datum kon niet worden bijgewerkt"
 	},
+	"ageGate": {
+		"title": "Ben je 18 jaar of ouder?",
+		"body": "Headpat is een 18+ community. Bevestig je leeftijd om door te gaan.",
+		"checking": "Leeftijd controleren…",
+		"pickDob": "Geboortedatum: %{date}",
+		"confirm": "Doorgaan",
+		"blockedTitle": "Je moet 18+ zijn",
+		"blockedBody": "Je voldoet niet aan de minimumleeftijd voor Headpat."
+	},
 	"support": {
 		"subtitle": "Hulp nodig? Bereik ons hier",
 		"discord": "Discord-server",

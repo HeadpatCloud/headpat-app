@@ -14,7 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
 	name: "Headpat",
 	slug: "headpat-app",
-	version: "0.9.2",
+	version: "0.9.3",
 	orientation: "portrait",
 	icon: "./assets/images/icon.png",
 	scheme: "headpat",
@@ -30,6 +30,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		appStoreUrl: "https://apps.apple.com/app/headpat/id6502715063",
 		usesAppleSignIn: true,
 		config: { usesNonExemptEncryption: false },
+		// Apple Declared Age Range (iOS 26+) — required to call requestAgeRangeAsync.
+		entitlements: {
+			"com.apple.developer.declared-age-range": true,
+		},
 		googleServicesFile: iosGoogleServices,
 		associatedDomains: [
 			"applinks:headpat.app",
