@@ -69,6 +69,9 @@ function RootNav() {
 					animation: reduced ? "fade" : "slide_from_right",
 					animationDuration: reduced ? 120 : undefined,
 					gestureEnabled: true,
+					// Detail screens push over the "(tabs)" route; without this the iOS
+					// back button inherits that group name as its label.
+					headerBackButtonDisplayMode: "minimal",
 					// Paint the native screen container — the nav theme only colors the
 					// JS view, so transitions otherwise flash the white window behind.
 					contentStyle: { backgroundColor: colors.background },

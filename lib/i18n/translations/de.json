@@ -40,6 +40,7 @@
 		"toggleMode": "Hell-/Dunkelmodus umschalten"
 	},
 	"common": {
+		"back": "Zurück",
 		"nothingHere": "Noch nichts hier",
 		"couldntLoad": "Konnte nicht geladen werden",
 		"retry": "Erneut versuchen",

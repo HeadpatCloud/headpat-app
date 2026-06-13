@@ -40,6 +40,7 @@
 		"toggleMode": "Toggle light or dark mode"
 	},
 	"common": {
+		"back": "Back",
 		"nothingHere": "Nothing here yet",
 		"couldntLoad": "Couldn't load",
 		"retry": "Retry",

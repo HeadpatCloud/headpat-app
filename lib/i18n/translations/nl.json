@@ -40,6 +40,7 @@
 		"toggleMode": "Licht/donker wisselen"
 	},
 	"common": {
+		"back": "Terug",
 		"nothingHere": "Nog niets hier",
 		"couldntLoad": "Laden mislukt",
 		"retry": "Opnieuw proberen",
