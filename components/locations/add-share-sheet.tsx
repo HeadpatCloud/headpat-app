@@ -7,17 +7,17 @@ import {
 } from "@tanstack/react-query";
 import { forwardRef, useState } from "react";
 import { Alert, ScrollView, TextInput, View } from "react-native";
+import { DurationPicker } from "@/components/locations/duration-picker";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
-import { DurationPicker } from "@/components/locations/duration-picker";
-import { locationApi, locationQueries } from "@/lib/location/api";
 import { useI18n } from "@/lib/i18n/provider";
+import { locationApi, locationQueries } from "@/lib/location/api";
+import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
-import { PressableScale } from "@/lib/motion/pressable-scale";
 
 type Target = {
 	type: "user" | "community";
@@ -264,7 +264,9 @@ export const AddShareSheet = forwardRef<BottomSheetModal>((_props, ref) => {
 								<Avatar
 									fileId={target.avatarFileId ?? null}
 									name={target.name}
-									kind={target.type === "community" ? "community-avatar" : "avatar"}
+									kind={
+										target.type === "community" ? "community-avatar" : "avatar"
+									}
 									size={48}
 								/>
 								<Text variant="large" className="flex-1" numberOfLines={2}>

@@ -6,11 +6,11 @@ import { AddShareSheet } from "@/components/locations/add-share-sheet";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
+import { useI18n } from "@/lib/i18n/provider";
 import { locationApi, locationQueries } from "@/lib/location/api";
 import { timeLeftLabel } from "@/lib/location/format";
 import { useLocationSharing } from "@/lib/location/use-location-sharing";
 import { humanizeError } from "@/lib/orpc-error";
-import { useI18n } from "@/lib/i18n/provider";
 
 type Share = {
 	id: string;
@@ -37,9 +37,8 @@ export default function ManageSharesScreen() {
 	const addRef = useRef<BottomSheetModal>(null);
 	const { activeCount, pause, resume } = useLocationSharing();
 	const shares = useQuery(locationQueries.mine());
-	const active = (shares.data as Share[] | undefined)?.filter(
-		(s) => !s.revokedAt,
-	) ?? [];
+	const active =
+		(shares.data as Share[] | undefined)?.filter((s) => !s.revokedAt) ?? [];
 
 	const refresh = () =>
 		qc.invalidateQueries({ queryKey: locationQueries.mine().queryKey });
@@ -53,7 +52,9 @@ export default function ManageSharesScreen() {
 	const stopAllMutation = useMutation({
 		mutationFn: () =>
 			Promise.all(
-				active.map((s) => locationApi.revoke({ shareId: s.id }).catch(() => {})),
+				active.map((s) =>
+					locationApi.revoke({ shareId: s.id }).catch(() => {}),
+				),
 			),
 		onSuccess: refresh,
 		onError: (e) => Alert.alert(t("locations.errorTitle"), humanizeError(e)),

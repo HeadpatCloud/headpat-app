@@ -7,7 +7,8 @@ import { LOCATION_OPTIONS, LOCATION_TASK } from "@/lib/location/constants";
 // active share or the user is paused (defense in depth).
 TaskManager.defineTask(LOCATION_TASK, async ({ data, error }) => {
 	if (error) return;
-	const loc = (data as { locations?: Location.LocationObject[] } | undefined)?.locations?.[0];
+	const loc = (data as { locations?: Location.LocationObject[] } | undefined)
+		?.locations?.[0];
 	if (!loc) return;
 	try {
 		await locationApi.updateLocation({
@@ -28,7 +29,8 @@ export async function startSharingUpdates(): Promise<void> {
 		...LOCATION_OPTIONS,
 		foregroundService: {
 			notificationTitle: "Sharing your location",
-			notificationBody: "Headpat is sharing your location with your active shares.",
+			notificationBody:
+				"Headpat is sharing your location with your active shares.",
 		},
 	});
 }

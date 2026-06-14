@@ -1,10 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { locationApi, locationQueries } from "@/lib/location/api";
-import { startSharingUpdates, stopSharingUpdates } from "@/lib/location/background-task";
+import {
+	startSharingUpdates,
+	stopSharingUpdates,
+} from "@/lib/location/background-task";
 import { ensureBackgroundPermission } from "@/lib/location/permissions";
 
-function isActive(s: { revokedAt: Date | null; expiresAt: Date | null }): boolean {
+function isActive(s: {
+	revokedAt: Date | null;
+	expiresAt: Date | null;
+}): boolean {
 	if (s.revokedAt) return false;
 	return s.expiresAt === null || s.expiresAt.getTime() > Date.now();
 }

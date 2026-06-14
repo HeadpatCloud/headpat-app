@@ -25,17 +25,28 @@ export function connectLocationSocket(onEvent: Handler): () => void {
 		ws = new WebSocket(WS_URL, undefined, options);
 		ws.onopen = () => {
 			retry = 0;
-			heartbeat = setInterval(() => ws?.send(JSON.stringify({ type: "heartbeat" })), 25_000);
+			heartbeat = setInterval(
+				() => ws?.send(JSON.stringify({ type: "heartbeat" })),
+				25_000,
+			);
 		};
 		ws.onmessage = (e) => {
-			let msg: { type?: string; userId?: string; location?: { lat: number; lng: number } };
+			let msg: {
+				type?: string;
+				userId?: string;
+				location?: { lat: number; lng: number };
+			};
 			try {
 				msg = JSON.parse(String(e.data));
 			} catch {
 				return;
 			}
 			if (msg.type === "location" && msg.userId && msg.location) {
-				onEvent({ type: "location", userId: msg.userId, location: msg.location });
+				onEvent({
+					type: "location",
+					userId: msg.userId,
+					location: msg.location,
+				});
 			} else if (msg.type === "location-share-ended" && msg.userId) {
 				onEvent({ type: "location-share-ended", userId: msg.userId });
 			}

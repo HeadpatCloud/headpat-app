@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useI18n } from "@/lib/i18n/provider";
 import { locationQueries } from "@/lib/location/api";
-import { type LiveLocation, useLiveLocations } from "@/lib/location/live-locations";
+import {
+	type LiveLocation,
+	useLiveLocations,
+} from "@/lib/location/live-locations";
 import { useLocationSharing } from "@/lib/location/use-location-sharing";
 import { connectLocationSocket } from "@/lib/location/ws";
 
@@ -25,7 +28,10 @@ export default function LocationsScreen() {
 			speed: item.speed ?? null,
 			statusText: item.statusText ?? null,
 			statusColor: item.statusColor ?? null,
-			updatedAt: item.updatedAt instanceof Date ? item.updatedAt.toISOString() : (item.updatedAt ?? undefined),
+			updatedAt:
+				item.updatedAt instanceof Date
+					? item.updatedAt.toISOString()
+					: (item.updatedAt ?? undefined),
 		}));
 	}, [visible.data]);
 	const { locations, dispatch } = useLiveLocations(seed);
@@ -34,9 +40,17 @@ export default function LocationsScreen() {
 
 	return (
 		<View style={StyleSheet.absoluteFill}>
-			<MapView provider={PROVIDER_GOOGLE} style={StyleSheet.absoluteFill} showsUserLocation>
+			<MapView
+				provider={PROVIDER_GOOGLE}
+				style={StyleSheet.absoluteFill}
+				showsUserLocation
+			>
 				{locations.map((l) => (
-					<Marker key={l.userId} coordinate={{ latitude: l.lat, longitude: l.lng }} title={l.statusText ?? undefined} />
+					<Marker
+						key={l.userId}
+						coordinate={{ latitude: l.lat, longitude: l.lng }}
+						title={l.statusText ?? undefined}
+					/>
 				))}
 			</MapView>
 			{locations.length === 0 ? (
@@ -45,7 +59,10 @@ export default function LocationsScreen() {
 				</View>
 			) : null}
 			<View className="absolute right-4 top-4">
-				<Button size="sm" onPress={() => router.push("/locations/share" as never)}>
+				<Button
+					size="sm"
+					onPress={() => router.push("/locations/share" as never)}
+				>
 					<Text>{t("locations.manageTitle")}</Text>
 				</Button>
 			</View>
