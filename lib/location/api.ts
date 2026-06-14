@@ -17,4 +17,6 @@ export const locationApi = {
 	setStatus: (input: { statusText: string | null; statusColor: string | null }) => client.location.setStatus(input),
 	pause: () => client.location.pause({}),
 	resume: () => client.location.resume({}),
+	setPrecision: (input: { shareId: string; precision: "exact" | "approximate" }) =>
+		client.location.setPrecision(input),
 };

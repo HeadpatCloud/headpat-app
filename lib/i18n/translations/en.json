@@ -609,7 +609,9 @@
 		},
 		"expiresIn": "Expires in %{label}",
 		"indefinite": "No expiry",
-		"expired": "Expired"
+		"expired": "Expired",
+		"precisionSwitch": "Switch precision",
+		"errorTitle": "Something went wrong"
 	},
 	"legal": {
 		"subtitle": "The fine print, hosted on headpat.place",

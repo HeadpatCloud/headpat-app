@@ -609,7 +609,9 @@
 		},
 		"expiresIn": "Läuft ab in %{label}",
 		"indefinite": "Kein Ablauf",
-		"expired": "Abgelaufen"
+		"expired": "Abgelaufen",
+		"precisionSwitch": "Genauigkeit wechseln",
+		"errorTitle": "Ein Fehler ist aufgetreten"
 	},
 	"legal": {
 		"subtitle": "Das Kleingedruckte, gehostet auf headpat.place",

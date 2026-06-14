@@ -609,7 +609,9 @@
 		},
 		"expiresIn": "Verloopt over %{label}",
 		"indefinite": "Geen vervaldatum",
-		"expired": "Verlopen"
+		"expired": "Verlopen",
+		"precisionSwitch": "Nauwkeurigheid wisselen",
+		"errorTitle": "Er ging iets mis"
 	},
 	"legal": {
 		"subtitle": "De kleine lettertjes, gehost op headpat.place",
