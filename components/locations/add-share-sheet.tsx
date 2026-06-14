@@ -230,6 +230,14 @@ export const AddShareSheet = forwardRef<BottomSheetModal>((_props, ref) => {
 									setStep("precision");
 								}}
 							/>
+							<Button
+								size="lg"
+								fullWidth
+								variant="ghost"
+								onPress={() => setStep("target")}
+							>
+								<Text>{t("common.back")}</Text>
+							</Button>
 						</View>
 					) : null}
 
@@ -256,6 +264,14 @@ export const AddShareSheet = forwardRef<BottomSheetModal>((_props, ref) => {
 								}}
 							>
 								<Text>{t("locations.precisionApprox")}</Text>
+							</Button>
+							<Button
+								size="lg"
+								fullWidth
+								variant="ghost"
+								onPress={() => setStep("duration")}
+							>
+								<Text>{t("common.back")}</Text>
 							</Button>
 						</View>
 					) : null}
