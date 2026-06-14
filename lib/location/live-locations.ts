@@ -25,7 +25,7 @@ export function applyLocationEvent(state: LiveState, evt: LiveEvent): LiveState 
 		case "seed":
 			return Object.fromEntries(evt.items.map((i) => [i.userId, i]));
 		case "location":
-			return { ...state, [evt.userId]: { userId: evt.userId, ...state[evt.userId], ...evt.location } };
+			return { ...state, [evt.userId]: { ...state[evt.userId], userId: evt.userId, ...evt.location } };
 		case "location-share-ended": {
 			if (!state[evt.userId]) return state;
 			const next = { ...state };
