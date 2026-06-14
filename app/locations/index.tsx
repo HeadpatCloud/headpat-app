@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useEffect, useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
@@ -41,7 +41,9 @@ export default function LocationsScreen() {
 	return (
 		<View style={StyleSheet.absoluteFill}>
 			<MapView
-				provider={PROVIDER_GOOGLE}
+				// Google on Android; Apple Maps on iOS (avoids the react-native-google-maps
+				// pod, which 1.27.2 doesn't ship and which conflicts with static frameworks).
+				provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
 				style={StyleSheet.absoluteFill}
 				showsUserLocation
 			>
