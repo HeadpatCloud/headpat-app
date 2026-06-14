@@ -29,7 +29,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		bundleIdentifier: "com.headpat.app",
 		appStoreUrl: "https://apps.apple.com/app/headpat/id6502715063",
 		usesAppleSignIn: true,
-		config: { usesNonExemptEncryption: false },
+		config: {
+				usesNonExemptEncryption: false,
+				googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+			},
 		// Apple Declared Age Range (iOS 26+) — required to call requestAgeRangeAsync.
 		entitlements: {
 			"com.apple.developer.declared-age-range": true,
@@ -46,6 +49,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	android: {
 		package: "com.headpat.app",
 		googleServicesFile: androidGoogleServices,
+		config: {
+			googleMaps: { apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
+		},
 		adaptiveIcon: {
 			foregroundImage: "./assets/images/adaptive-icon.png",
 			backgroundColor: "#ffffff",
@@ -86,5 +92,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		"@react-native-firebase/app",
 		"@react-native-firebase/messaging",
 		["expo-build-properties", { ios: { useFrameworks: "static" } }],
+		[
+			"expo-location",
+			{
+				locationWhenInUsePermission:
+					"Headpat uses your location to share it with the people and communities you choose.",
+				locationAlwaysAndWhenInUsePermission:
+					"Headpat shares your location in the background only while you have an active share, so others can see you on the map.",
+				isIosBackgroundLocationEnabled: true,
+				isAndroidBackgroundLocationEnabled: true,
+				isAndroidForegroundServiceEnabled: true,
+			},
+		],
 	],
 });
