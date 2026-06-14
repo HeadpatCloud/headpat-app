@@ -581,7 +581,16 @@
 		"pickPrecision": "Location precision",
 		"precisionExact": "Exact",
 		"precisionApprox": "Approximate (~1 km)",
-		"durations": { "5m": "5 minutes", "15m": "15 minutes", "1h": "1 hour", "8h": "8 hours", "1d": "1 day", "7d": "7 days", "indefinite": "Until I turn it off", "custom": "Custom…" },
+		"durations": {
+			"5m": "5 minutes",
+			"15m": "15 minutes",
+			"1h": "1 hour",
+			"8h": "8 hours",
+			"1d": "1 day",
+			"7d": "7 days",
+			"indefinite": "Until I turn it off",
+			"custom": "Custom…"
+		},
 		"confirm": "Start sharing",
 		"confirmUser": "%{name} will see your live location %{duration}.",
 		"confirmCommunity": "All %{count} members of %{name} — and anyone who joins while this share is active — will see your live location %{duration}.",
@@ -593,7 +602,11 @@
 		"pause": "Pause sharing",
 		"resume": "Resume sharing",
 		"paused": "Sharing paused",
-		"sharingWith": { "zero": "Not sharing", "one": "Sharing with 1", "other": "Sharing with %{count}" },
+		"sharingWith": {
+			"zero": "Not sharing",
+			"one": "Sharing with 1",
+			"other": "Sharing with %{count}"
+		},
 		"expiresIn": "Expires in %{label}",
 		"indefinite": "No expiry",
 		"expired": "Expired"

@@ -16,16 +16,30 @@ export type LiveState = Record<string, LiveLocation>;
 
 export type LiveEvent =
 	| { type: "seed"; items: LiveLocation[] }
-	| { type: "location"; userId: string; location: Partial<LiveLocation> & { lat: number; lng: number } }
+	| {
+			type: "location";
+			userId: string;
+			location: Partial<LiveLocation> & { lat: number; lng: number };
+	  }
 	| { type: "location-share-ended"; userId: string };
 
 // Pure: fold a websocket/seed event into the {userId -> location} map.
-export function applyLocationEvent(state: LiveState, evt: LiveEvent): LiveState {
+export function applyLocationEvent(
+	state: LiveState,
+	evt: LiveEvent,
+): LiveState {
 	switch (evt.type) {
 		case "seed":
 			return Object.fromEntries(evt.items.map((i) => [i.userId, i]));
 		case "location":
-			return { ...state, [evt.userId]: { ...state[evt.userId], userId: evt.userId, ...evt.location } };
+			return {
+				...state,
+				[evt.userId]: {
+					...state[evt.userId],
+					userId: evt.userId,
+					...evt.location,
+				},
+			};
 		case "location-share-ended": {
 			if (!state[evt.userId]) return state;
 			const next = { ...state };
@@ -41,6 +55,7 @@ export function useLiveLocations(seed: LiveLocation[]) {
 	useEffect(() => {
 		setState(applyLocationEvent({}, { type: "seed", items: seed }));
 	}, [seed]);
-	const dispatch = (evt: LiveEvent) => setState((s) => applyLocationEvent(s, evt));
+	const dispatch = (evt: LiveEvent) =>
+		setState((s) => applyLocationEvent(s, evt));
 	return { locations: Object.values(state), dispatch };
 }

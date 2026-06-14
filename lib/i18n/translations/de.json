@@ -581,7 +581,16 @@
 		"pickPrecision": "Standortgenauigkeit",
 		"precisionExact": "Genau",
 		"precisionApprox": "Ungefähr (~1 km)",
-		"durations": { "5m": "5 Minuten", "15m": "15 Minuten", "1h": "1 Stunde", "8h": "8 Stunden", "1d": "1 Tag", "7d": "7 Tage", "indefinite": "Bis ich es abschalte", "custom": "Benutzerdefiniert…" },
+		"durations": {
+			"5m": "5 Minuten",
+			"15m": "15 Minuten",
+			"1h": "1 Stunde",
+			"8h": "8 Stunden",
+			"1d": "1 Tag",
+			"7d": "7 Tage",
+			"indefinite": "Bis ich es abschalte",
+			"custom": "Benutzerdefiniert…"
+		},
 		"confirm": "Teilen starten",
 		"confirmUser": "%{name} wird deinen Live-Standort %{duration} sehen.",
 		"confirmCommunity": "Alle %{count} Mitglieder von %{name} — und alle, die während dieser Freigabe beitreten — werden deinen Live-Standort %{duration} sehen.",
@@ -593,7 +602,11 @@
 		"pause": "Pausieren",
 		"resume": "Fortsetzen",
 		"paused": "Freigabe pausiert",
-		"sharingWith": { "zero": "Kein Teilen aktiv", "one": "Teile mit 1", "other": "Teile mit %{count}" },
+		"sharingWith": {
+			"zero": "Kein Teilen aktiv",
+			"one": "Teile mit 1",
+			"other": "Teile mit %{count}"
+		},
 		"expiresIn": "Läuft ab in %{label}",
 		"indefinite": "Kein Ablauf",
 		"expired": "Abgelaufen"

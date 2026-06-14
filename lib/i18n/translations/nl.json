@@ -581,7 +581,16 @@
 		"pickPrecision": "Locatienauwkeurigheid",
 		"precisionExact": "Exact",
 		"precisionApprox": "Ongeveer (~1 km)",
-		"durations": { "5m": "5 minuten", "15m": "15 minuten", "1h": "1 uur", "8h": "8 uur", "1d": "1 dag", "7d": "7 dagen", "indefinite": "Tot ik het uitzet", "custom": "Aangepast…" },
+		"durations": {
+			"5m": "5 minuten",
+			"15m": "15 minuten",
+			"1h": "1 uur",
+			"8h": "8 uur",
+			"1d": "1 dag",
+			"7d": "7 dagen",
+			"indefinite": "Tot ik het uitzet",
+			"custom": "Aangepast…"
+		},
 		"confirm": "Delen starten",
 		"confirmUser": "%{name} ziet je live locatie %{duration}.",
 		"confirmCommunity": "Alle %{count} leden van %{name} — en iedereen die lid wordt terwijl dit delen actief is — zien je live locatie %{duration}.",
@@ -593,7 +602,11 @@
 		"pause": "Pauzeren",
 		"resume": "Hervatten",
 		"paused": "Delen gepauzeerd",
-		"sharingWith": { "zero": "Niet aan het delen", "one": "Delen met 1", "other": "Delen met %{count}" },
+		"sharingWith": {
+			"zero": "Niet aan het delen",
+			"one": "Delen met 1",
+			"other": "Delen met %{count}"
+		},
 		"expiresIn": "Verloopt over %{label}",
 		"indefinite": "Geen vervaldatum",
 		"expired": "Verlopen"

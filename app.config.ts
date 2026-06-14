@@ -30,9 +30,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		appStoreUrl: "https://apps.apple.com/app/headpat/id6502715063",
 		usesAppleSignIn: true,
 		config: {
-				usesNonExemptEncryption: false,
-				googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
-			},
+			usesNonExemptEncryption: false,
+			googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+		},
 		// Apple Declared Age Range (iOS 26+) — required to call requestAgeRangeAsync.
 		entitlements: {
 			"com.apple.developer.declared-age-range": true,

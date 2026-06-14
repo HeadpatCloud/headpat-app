@@ -1,6 +1,9 @@
 // Coarse "time left" token. Callers map "indefinite"/"expired" to i18n strings
 // and render the m/h/d tokens with a unit label.
-export function timeLeftLabel(expiresAt: string | null, now: Date = new Date()): string {
+export function timeLeftLabel(
+	expiresAt: string | null,
+	now: Date = new Date(),
+): string {
 	if (expiresAt === null) return "indefinite";
 	const ms = new Date(expiresAt).getTime() - now.getTime();
 	if (ms <= 0) return "expired";

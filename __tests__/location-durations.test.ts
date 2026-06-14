@@ -1,4 +1,8 @@
-import { DURATION_PRESETS, expiresAtFromCustom, expiresAtFromPreset } from "@/lib/location/durations";
+import {
+	DURATION_PRESETS,
+	expiresAtFromCustom,
+	expiresAtFromPreset,
+} from "@/lib/location/durations";
 
 const now = new Date("2026-06-14T00:00:00.000Z");
 
@@ -19,6 +23,8 @@ describe("expiresAtFromPreset", () => {
 
 describe("expiresAtFromCustom", () => {
 	it("serializes a chosen date", () => {
-		expect(expiresAtFromCustom(new Date("2026-07-01T12:00:00.000Z"))).toBe("2026-07-01T12:00:00.000Z");
+		expect(expiresAtFromCustom(new Date("2026-07-01T12:00:00.000Z"))).toBe(
+			"2026-07-01T12:00:00.000Z",
+		);
 	});
 });
