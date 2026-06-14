@@ -6,6 +6,7 @@ export default function LocationsLayout() {
 	return (
 		<Stack>
 			<Stack.Screen name="index" options={{ headerShown: true, title: t("titles.locations") }} />
+			<Stack.Screen name="share" options={{ headerShown: true, title: t("locations.manageTitle") }} />
 		</Stack>
 	);
 }

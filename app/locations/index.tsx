@@ -1,14 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
+import { router } from "expo-router";
 import { useEffect, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { useI18n } from "@/lib/i18n/provider";
 import { locationQueries } from "@/lib/location/api";
 import { type LiveLocation, useLiveLocations } from "@/lib/location/live-locations";
 import { useLocationSharing } from "@/lib/location/use-location-sharing";
 import { connectLocationSocket } from "@/lib/location/ws";
 
 export default function LocationsScreen() {
+	const { t } = useI18n();
 	useLocationSharing(); // starts/stops background updates based on active shares
 	const visible = useQuery(locationQueries.visible());
 	const seed = useMemo<LiveLocation[]>(() => {
@@ -37,9 +41,14 @@ export default function LocationsScreen() {
 			</MapView>
 			{locations.length === 0 ? (
 				<View className="absolute inset-x-0 bottom-10 items-center">
-					<Text variant="muted">{/* i18n added in Plan 5 */}No one is sharing with you yet.</Text>
+					<Text variant="muted">{t("locations.empty")}</Text>
 				</View>
 			) : null}
+			<View className="absolute right-4 top-4">
+				<Button size="sm" onPress={() => router.push("/locations/share" as never)}>
+					<Text>{t("locations.manageTitle")}</Text>
+				</Button>
+			</View>
 		</View>
 	);
 }
