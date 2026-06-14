@@ -11,6 +11,7 @@ import {
 	LifeBuoy,
 	Link2,
 	type LucideIcon,
+	MapPin,
 	Megaphone,
 	MessageCircle,
 	Palette,
@@ -45,6 +46,7 @@ const SETTINGS_ROWS: Row[] = [
 	{ href: "/appearance", icon: Palette, titleKey: "titles.appearance" },
 	{ href: "/security", icon: ShieldCheck, titleKey: "titles.security" },
 	{ href: "/connections", icon: Link2, titleKey: "titles.connections" },
+	{ href: "/locations" as Href, icon: MapPin, titleKey: "titles.locations" },
 ];
 
 const SUPPORT_ROWS: Row[] = [
