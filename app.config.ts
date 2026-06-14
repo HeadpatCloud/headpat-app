@@ -70,6 +70,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	experiments: { typedRoutes: true },
 	plugins: [
 		"expo-router",
+		"expo-image",
 		[
 			"expo-splash-screen",
 			{
