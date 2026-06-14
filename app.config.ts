@@ -91,6 +91,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		],
 		"@react-native-firebase/app",
 		"@react-native-firebase/messaging",
+		[
+			"./plugins/with-notification-icon",
+			{
+				// Provide an all-white, transparent silhouette PNG here (~96x96).
+				icon: "./assets/images/notification-icon.png",
+				color: "#E84393",
+			},
+		],
 		["expo-build-properties", { ios: { useFrameworks: "static" } }],
 		[
 			"expo-location",
