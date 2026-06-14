@@ -104,6 +104,7 @@ function RootNav() {
 					name="connections"
 					options={{ headerShown: true, title: t("titles.connections") }}
 				/>
+				<Stack.Screen name="locations" />
 				<Stack.Screen name="announcements" />
 				<Stack.Screen
 					name="changelog"
