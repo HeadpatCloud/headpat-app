@@ -102,7 +102,9 @@ function UserSearch({ onSelect }: { onSelect: (t: Target) => void }) {
 
 function CommunityList({ onSelect }: { onSelect: (t: Target) => void }) {
 	const { t } = useI18n();
-	const communities = useQuery(orpc.community.mine.queryOptions());
+	const communities = useQuery(
+		orpc.community.myFollowedCommunities.queryOptions(),
+	);
 	const rows = communities.data ?? [];
 
 	if (rows.length === 0) return null;
