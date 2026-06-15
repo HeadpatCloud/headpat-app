@@ -10,9 +10,9 @@ import {
 	Bell,
 	CalendarPlus,
 	ChevronRight,
-	FileClock,
 	ImagePlus,
 	type LucideIcon,
+	MapPin,
 	Megaphone,
 	Plus,
 	RefreshCw,
@@ -270,6 +270,7 @@ export default function Home() {
 				</AnimatedEntrance>
 
 				<AnimatedEntrance index={3} className="gap-2">
+					<QuickLink icon={MapPin} label={t("titles.map")} href="/locations" />
 					<QuickLink
 						icon={Bell}
 						label={t("titles.notifications")}
@@ -279,11 +280,6 @@ export default function Home() {
 						icon={Megaphone}
 						label={t("titles.announcements")}
 						href="/announcements"
-					/>
-					<QuickLink
-						icon={FileClock}
-						label={t("titles.changelog")}
-						href="/changelog"
 					/>
 					<QuickLink
 						icon={UsersRound}

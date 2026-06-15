@@ -46,7 +46,7 @@ const SETTINGS_ROWS: Row[] = [
 	{ href: "/appearance", icon: Palette, titleKey: "titles.appearance" },
 	{ href: "/security", icon: ShieldCheck, titleKey: "titles.security" },
 	{ href: "/connections", icon: Link2, titleKey: "titles.connections" },
-	{ href: "/locations", icon: MapPin, titleKey: "titles.locations" },
+	{ href: "/locations", icon: MapPin, titleKey: "titles.map" },
 ];
 
 const SUPPORT_ROWS: Row[] = [
