@@ -30,9 +30,7 @@ function parseCoord(coord: string): LatLng | null {
 }
 
 function eventPoints(coordinates: string[]): LatLng[] {
-	return coordinates
-		.map(parseCoord)
-		.filter((p): p is LatLng => p !== null);
+	return coordinates.map(parseCoord).filter((p): p is LatLng => p !== null);
 }
 
 function centroid(points: LatLng[]): LatLng | null {
@@ -137,7 +135,10 @@ export default function LocationsScreen() {
 				</View>
 			) : null}
 			<View className="absolute right-4 top-4">
-				<Button size="sm" onPress={() => router.push("/locations/share" as never)}>
+				<Button
+					size="sm"
+					onPress={() => router.push("/locations/share" as never)}
+				>
 					<Text>{t("locations.manageTitle")}</Text>
 				</Button>
 			</View>

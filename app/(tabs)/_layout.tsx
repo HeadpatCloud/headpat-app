@@ -46,7 +46,10 @@ export default function TabsLayout() {
 			/>
 			<Tabs.Screen
 				name="community"
-				options={{ title: t("tabs.community"), tabBarIcon: iconFor(UsersRound) }}
+				options={{
+					title: t("tabs.community"),
+					tabBarIcon: iconFor(UsersRound),
+				}}
 			/>
 			<Tabs.Screen
 				name="events"

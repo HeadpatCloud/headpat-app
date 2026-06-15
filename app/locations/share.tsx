@@ -177,9 +177,7 @@ export default function ManageSharesScreen() {
 						loading={pauseMutation.isPending}
 						disabled={pauseMutation.isPending}
 					>
-						<Text>
-							{paused ? t("locations.resume") : t("locations.pause")}
-						</Text>
+						<Text>{paused ? t("locations.resume") : t("locations.pause")}</Text>
 					</Button>
 				</View>
 
