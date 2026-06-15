@@ -15,15 +15,10 @@ export default function EventsLayout() {
 		<Stack
 			screenOptions={{
 				contentStyle: { backgroundColor: colors.background },
+				headerRight: () => <HeaderControls />,
 			}}
 		>
-			<Stack.Screen
-				name="index"
-				options={{
-					title: t("titles.events"),
-					headerRight: () => <HeaderControls />,
-				}}
-			/>
+			<Stack.Screen name="index" options={{ title: t("titles.events") }} />
 			<Stack.Screen name="new" options={{ title: t("titles.eventNew") }} />
 			<Stack.Screen name="[eventId]" options={{ title: "" }} />
 			<Stack.Screen

@@ -10,15 +10,10 @@ export default function CommunityLayout() {
 		<Stack
 			screenOptions={{
 				contentStyle: { backgroundColor: colors.background },
+				headerRight: () => <HeaderControls />,
 			}}
 		>
-			<Stack.Screen
-				name="index"
-				options={{
-					title: t("titles.communities"),
-					headerRight: () => <HeaderControls />,
-				}}
-			/>
+			<Stack.Screen name="index" options={{ title: t("titles.communities") }} />
 			<Stack.Screen name="[communityId]" options={{ title: "" }} />
 			<Stack.Screen name="new" options={{ title: "", presentation: "modal" }} />
 		</Stack>

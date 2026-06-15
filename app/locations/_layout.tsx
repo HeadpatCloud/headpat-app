@@ -1,5 +1,6 @@
 import { router, Stack } from "expo-router";
 import { Pressable } from "react-native";
+import { HeaderControls } from "@/components/header-controls";
 import { ChevronLeft } from "@/components/icons";
 import { Icon } from "@/components/ui/icon";
 import { useI18n } from "@/lib/i18n/provider";
@@ -7,7 +8,7 @@ import { useI18n } from "@/lib/i18n/provider";
 export default function LocationsLayout() {
 	const { t } = useI18n();
 	return (
-		<Stack>
+		<Stack screenOptions={{ headerRight: () => <HeaderControls /> }}>
 			<Stack.Screen
 				name="index"
 				options={{

@@ -1,5 +1,6 @@
 import { router, Stack } from "expo-router";
 import { Pressable } from "react-native";
+import { HeaderControls } from "@/components/header-controls";
 import { ChevronLeft } from "@/components/icons";
 import { Icon } from "@/components/ui/icon";
 import { useI18n } from "@/lib/i18n/provider";
@@ -12,6 +13,7 @@ export default function TicketsLayout() {
 		<Stack
 			screenOptions={{
 				contentStyle: { backgroundColor: colors.background },
+				headerRight: () => <HeaderControls />,
 			}}
 		>
 			<Stack.Screen
@@ -27,11 +29,7 @@ export default function TicketsLayout() {
 							accessibilityRole="button"
 							accessibilityLabel={t("common.back")}
 						>
-							<Icon
-								as={ChevronLeft}
-								size={28}
-								className="text-foreground"
-							/>
+							<Icon as={ChevronLeft} size={28} className="text-foreground" />
 						</Pressable>
 					),
 				}}

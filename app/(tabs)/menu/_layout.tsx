@@ -12,15 +12,10 @@ export default function MenuLayout() {
 		<Stack
 			screenOptions={{
 				contentStyle: { backgroundColor: colors.background },
+				headerRight: () => <HeaderControls />,
 			}}
 		>
-			<Stack.Screen
-				name="index"
-				options={{
-					title: t("tabs.menu"),
-					headerRight: () => <HeaderControls />,
-				}}
-			/>
+			<Stack.Screen name="index" options={{ title: t("tabs.menu") }} />
 		</Stack>
 	);
 }

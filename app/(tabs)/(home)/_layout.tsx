@@ -12,15 +12,10 @@ export default function HomeLayout() {
 		<Stack
 			screenOptions={{
 				contentStyle: { backgroundColor: colors.background },
+				headerRight: () => <HeaderControls />,
 			}}
 		>
-			<Stack.Screen
-				name="index"
-				options={{
-					title: t("tabs.home"),
-					headerRight: () => <HeaderControls />,
-				}}
-			/>
+			<Stack.Screen name="index" options={{ title: t("tabs.home") }} />
 		</Stack>
 	);
 }

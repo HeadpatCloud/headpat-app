@@ -10,15 +10,13 @@ export default function GalleryLayout() {
 		<Stack
 			screenOptions={{
 				contentStyle: { backgroundColor: colors.background },
+				headerRight: () => <HeaderControls />,
 			}}
 		>
 			<Stack.Screen
 				name="index"
-				options={{
-					// the screen renders its own display header (spec §8)
-					title: "",
-					headerRight: () => <HeaderControls />,
-				}}
+				// the screen renders its own display header (spec §8)
+				options={{ title: "" }}
 			/>
 			<Stack.Screen name="[galleryId]" options={{ title: "" }} />
 			<Stack.Screen
