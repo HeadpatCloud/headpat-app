@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Fab } from "@/components/ui/fab";
 import { GlowShadow } from "@/components/ui/gradient";
-import { GradientText } from "@/components/ui/gradient-text";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
@@ -24,23 +23,6 @@ import { useTheme } from "@/lib/theme/provider";
 type GalleryItem = Awaited<
 	ReturnType<typeof client.gallery.list>
 >["items"][number];
-
-function GalleryHeader() {
-	const { t } = useI18n();
-	return (
-		<AnimatedEntrance index={0} className="px-1.5 pb-3 pt-1">
-			<GradientText
-				heading
-				className="text-[34px] font-extrabold leading-10 tracking-tight"
-			>
-				{t("gallery.title")}
-			</GradientText>
-			<Text variant="muted" className="mt-0.5">
-				{t("gallery.subtitle")}
-			</Text>
-		</AnimatedEntrance>
-	);
-}
 
 function GalleryCard({
 	item,
@@ -109,7 +91,6 @@ export default function Gallery() {
 	if (query.isLoading) {
 		return (
 			<View className="bg-background flex-1" style={{ padding: 12 }}>
-				<GalleryHeader />
 				<View className="flex-row flex-wrap">
 					{[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
 						<View key={i} style={{ width: "50%", padding: 6 }}>
@@ -150,7 +131,6 @@ export default function Gallery() {
 				numColumns={2}
 				keyExtractor={(item) => item.id}
 				contentContainerStyle={{ padding: 12 }}
-				ListHeaderComponent={<GalleryHeader />}
 				renderItem={({ item, index }) => {
 					const seen = animated.current.has(index);
 					if (!seen) animated.current.add(index);

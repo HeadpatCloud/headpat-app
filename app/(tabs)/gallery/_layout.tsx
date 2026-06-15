@@ -13,11 +13,7 @@ export default function GalleryLayout() {
 				headerRight: () => <HeaderControls />,
 			}}
 		>
-			<Stack.Screen
-				name="index"
-				// the screen renders its own display header (spec §8)
-				options={{ title: "" }}
-			/>
+			<Stack.Screen name="index" options={{ title: t("titles.gallery") }} />
 			<Stack.Screen name="[galleryId]" options={{ title: "" }} />
 			<Stack.Screen
 				name="edit/[galleryId]"

@@ -173,8 +173,6 @@
 		"goHome": "Go to home screen!"
 	},
 	"gallery": {
-		"title": "Gallery",
-		"subtitle": "Fresh from the community",
 		"empty": "No gallery items yet",
 		"shareFirst": "Share the first one",
 		"tryAgain": "Try again",
