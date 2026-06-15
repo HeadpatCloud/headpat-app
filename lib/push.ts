@@ -80,6 +80,19 @@ export function attachPushTokenRotation(): () => void {
 	});
 }
 
+// Refresh in-app data when a push arrives while the app is foregrounded. FCM
+// delivers these via onMessage; background/quit messages go to the OS tray and
+// are handled on tap instead. This is the battery-friendly way to stay current —
+// the server tells us when something changed, so we don't poll. Returns an
+// unsubscribe.
+export function attachForegroundMessageHandler(
+	onMessage: () => void,
+): () => void {
+	const api = getMessagingApi();
+	if (!api) return () => {};
+	return api.onMessage(api.getMessaging(), () => onMessage());
+}
+
 // Open the linked screen when a notification is tapped — both the cold-start tap
 // that launched the app and taps while it's backgrounded. Returns an unsubscribe.
 export function attachNotificationTapHandler(

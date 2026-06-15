@@ -107,7 +107,9 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 		...orpc.notification.unreadCount.queryOptions(),
 		enabled: !!session,
 		staleTime: 30_000,
-		refetchInterval: 60_000,
+		// Foreground-only fallback poll; push + foreground refetch keep this live,
+		// so a long interval is enough and easy on the battery.
+		refetchInterval: 5 * 60_000,
 	});
 	const unreadCount = session ? (unread.data?.count ?? 0) : 0;
 	const slotsRef = useRef<{ x: number; width: number }[]>([]);

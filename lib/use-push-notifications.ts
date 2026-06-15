@@ -2,11 +2,14 @@ import { type Href, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { appRoute } from "@/lib/app-route";
 import { useSession } from "@/lib/auth-client";
+import { orpc } from "@/lib/orpc";
 import {
+	attachForegroundMessageHandler,
 	attachNotificationTapHandler,
 	attachPushTokenRotation,
 	registerPushToken,
 } from "@/lib/push";
+import { queryClient } from "@/lib/query";
 
 export function usePushNotifications() {
 	const { data } = useSession();
@@ -34,4 +37,18 @@ export function usePushNotifications() {
 
 	// Keep the backend's token current when the OS rotates it.
 	useEffect(() => attachPushTokenRotation(), []);
+
+	// A push arriving while the app is open means the inbox/badge are now stale.
+	// Invalidate (not refetch) so only currently-mounted queries hit the network —
+	// event-driven freshness with no polling.
+	useEffect(() => {
+		return attachForegroundMessageHandler(() => {
+			queryClient.invalidateQueries({
+				queryKey: orpc.notification.list.key(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: orpc.notification.unreadCount.key(),
+			});
+		});
+	}, []);
 }

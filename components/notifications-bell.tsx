@@ -18,7 +18,9 @@ export function NotificationsBell() {
 		...orpc.notification.unreadCount.queryOptions(),
 		enabled: !!session,
 		staleTime: 30_000,
-		refetchInterval: 60_000,
+		// Foreground-only fallback poll; push + foreground refetch keep this live,
+		// so a long interval is enough and easy on the battery.
+		refetchInterval: 5 * 60_000,
 	});
 	const count = session ? (unread.data?.count ?? 0) : 0;
 
@@ -38,7 +40,9 @@ export function NotificationsBell() {
 		>
 			<View className="h-10 w-10 items-center justify-center rounded-full">
 				<Icon as={Bell} size={20} className="text-foreground" />
-				<View className="absolute -right-1 -top-1">
+				{/* Keep the badge inside the button box: the iOS header's glass capsule
+				    clips anything that pokes outside, so negative offsets get cut off. */}
+				<View className="absolute right-0.5 top-0.5">
 					<CountBadge count={count} />
 				</View>
 			</View>
