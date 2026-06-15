@@ -1,3 +1,4 @@
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import DateTimePicker, {
 	DateTimePickerAndroid,
 	type DateTimePickerEvent,
@@ -5,15 +6,15 @@ import DateTimePicker, {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns/format";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import { Alert, Platform, ScrollView, StyleSheet, View } from "react-native";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Alert, Platform, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CalendarClock } from "@/components/icons";
+import { CalendarClock, Check, ChevronDown } from "@/components/icons";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
@@ -23,8 +24,6 @@ import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
-import { useTheme } from "@/lib/theme/provider";
-import { cn } from "@/lib/utils";
 
 function roundedHour(offsetHours: number) {
 	const d = new Date();
@@ -32,50 +31,103 @@ function roundedHour(offsetHours: number) {
 	return d;
 }
 
-function CommunityOption({
-	name,
-	avatarFileId,
-	selected,
-	onPress,
-}: {
+type CommunityItem = {
+	id: string;
 	name: string;
 	avatarFileId: string | null;
-	selected: boolean;
-	onPress: () => void;
+};
+
+// Trigger + bottom-sheet picker. Keeps the form compact no matter how many
+// communities the caller can host events in.
+function CommunityPicker({
+	communities,
+	selectedId,
+	onSelect,
+}: {
+	communities: CommunityItem[];
+	selectedId: string | null;
+	onSelect: (id: string) => void;
 }) {
-	const { colors } = useTheme();
+	const { t } = useI18n();
+	const sheetRef = useRef<BottomSheetModal>(null);
+	const selected = communities.find((c) => c.id === selectedId) ?? null;
+
 	return (
-		<PressableScale
-			onPress={onPress}
-			haptic="selection"
-			accessibilityRole="radio"
-			accessibilityState={{ selected }}
-			accessibilityLabel={name}
-		>
-			<View
-				className={cn(
-					"min-h-11 flex-row items-center gap-2 overflow-hidden rounded-xl border px-3 py-2",
-					selected ? "border-transparent" : "border-border bg-card",
-				)}
+		<>
+			<PressableScale
+				onPress={() => sheetRef.current?.present()}
+				haptic="selection"
+				accessibilityRole="button"
+				accessibilityLabel={
+					selected?.name ?? t("events.form.communityPlaceholder")
+				}
 			>
-				{selected ? (
-					<Gradient style={StyleSheet.absoluteFill} pointerEvents="none" />
-				) : null}
-				<Avatar
-					fileId={avatarFileId}
-					name={name}
-					kind="community-avatar"
-					size={20}
-				/>
-				<Text
-					className={selected ? "font-semibold" : "text-foreground"}
-					style={selected ? { color: colors["primary-foreground"] } : undefined}
-					numberOfLines={1}
-				>
-					{name}
-				</Text>
-			</View>
-		</PressableScale>
+				<View className="border-border bg-card min-h-12 flex-row items-center gap-2.5 rounded-xl border px-3 py-2.5">
+					{selected ? (
+						<Avatar
+							fileId={selected.avatarFileId}
+							name={selected.name}
+							kind="community-avatar"
+							size={24}
+						/>
+					) : null}
+					<Text
+						className={
+							selected
+								? "text-foreground flex-1"
+								: "text-muted-foreground flex-1"
+						}
+						numberOfLines={1}
+					>
+						{selected?.name ?? t("events.form.communityPlaceholder")}
+					</Text>
+					<Icon as={ChevronDown} size={18} className="text-muted-foreground" />
+				</View>
+			</PressableScale>
+
+			<Sheet ref={sheetRef} title={t("events.form.community")} accent>
+				<ScrollView className="max-h-96" showsVerticalScrollIndicator={false}>
+					<View className="gap-0.5">
+						{communities.map((c) => {
+							const isSelected = c.id === selectedId;
+							return (
+								<Pressable
+									key={c.id}
+									onPress={() => {
+										onSelect(c.id);
+										sheetRef.current?.dismiss();
+									}}
+									accessibilityRole="radio"
+									accessibilityState={{ selected: isSelected }}
+									accessibilityLabel={c.name}
+									className="active:bg-accent/50 flex-row items-center gap-3 rounded-xl px-2 py-3"
+								>
+									<Avatar
+										fileId={c.avatarFileId}
+										name={c.name}
+										kind="community-avatar"
+										size={32}
+									/>
+									<Text
+										className={
+											isSelected
+												? "text-primary flex-1 font-semibold"
+												: "text-foreground flex-1"
+										}
+										numberOfLines={1}
+									>
+										{c.name}
+									</Text>
+									{isSelected ? (
+										<Icon as={Check} size={18} className="text-primary" />
+									) : null}
+								</Pressable>
+							);
+						})}
+					</View>
+				</ScrollView>
+			</Sheet>
+		</>
 	);
 }
 
@@ -101,11 +153,20 @@ export default function NewEvent() {
 		...orpc.community.mine.queryOptions(),
 		enabled: !!session,
 	});
+	// Only communities where the caller can actually create events (moderator+).
+	const communities = useMemo(
+		() =>
+			(mine.data ?? []).filter(
+				(c) =>
+					c.role === "owner" || c.role === "admin" || c.role === "moderator",
+			),
+		[mine.data],
+	);
 	useEffect(() => {
-		if (!communityId && mine.data?.length === 1) {
-			setCommunityId(mine.data[0].id);
+		if (!communityId && communities.length === 1) {
+			setCommunityId(communities[0].id);
 		}
-	}, [mine.data, communityId]);
+	}, [communities, communityId]);
 
 	// Android has no "datetime" mode (mounting the component with it crashes on
 	// unmount) — chain the imperative date dialog into the time dialog instead.
@@ -208,21 +269,15 @@ export default function NewEvent() {
 			<AnimatedEntrance index={0}>
 				<Field label={t("events.form.community")}>
 					{mine.isLoading ? (
-						<Skeleton className="h-11 w-2/3 rounded-xl" />
-					) : (mine.data?.length ?? 0) === 0 ? (
+						<Skeleton className="h-12 w-2/3 rounded-xl" />
+					) : communities.length === 0 ? (
 						<Text variant="muted">{t("events.form.noCommunities")}</Text>
 					) : (
-						<View className="flex-row flex-wrap gap-2">
-							{mine.data?.map((c) => (
-								<CommunityOption
-									key={c.id}
-									name={c.name}
-									avatarFileId={c.avatarFileId}
-									selected={communityId === c.id}
-									onPress={() => setCommunityId(c.id)}
-								/>
-							))}
-						</View>
+						<CommunityPicker
+							communities={communities}
+							selectedId={communityId}
+							onSelect={setCommunityId}
+						/>
 					)}
 				</Field>
 			</AnimatedEntrance>
