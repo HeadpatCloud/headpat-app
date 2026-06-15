@@ -34,7 +34,8 @@
 		"admin": "Admin panel",
 		"adminReports": "Reports",
 		"adminTickets": "All tickets",
-		"locations": "Location sharing"
+		"locations": "Location sharing",
+		"map": "Map"
 	},
 	"header": {
 		"language": "Language",
@@ -242,6 +243,7 @@
 		"deleteFailed": "Couldn't delete event",
 		"form": {
 			"community": "Community",
+			"communityPlaceholder": "Select a community",
 			"noCommunities": "You need a moderator role in a community to host events.",
 			"title": "Title",
 			"titlePlaceholder": "Event title",
@@ -597,6 +599,7 @@
 		"forDuration": "for %{label}",
 		"untilOff": "until you turn it off",
 		"extend": "Extend",
+		"extendTitle": "Extend sharing",
 		"remove": "Remove",
 		"stopAll": "Stop all sharing",
 		"pause": "Pause sharing",

@@ -34,7 +34,8 @@
 		"admin": "Admin-Bereich",
 		"adminReports": "Meldungen",
 		"adminTickets": "Alle Tickets",
-		"locations": "Standort teilen"
+		"locations": "Standort teilen",
+		"map": "Karte"
 	},
 	"header": {
 		"language": "Sprache",
@@ -242,6 +243,7 @@
 		"deleteFailed": "Event konnte nicht gelöscht werden",
 		"form": {
 			"community": "Community",
+			"communityPlaceholder": "Community auswählen",
 			"noCommunities": "Du brauchst eine Moderatorenrolle in einer Community, um Events zu erstellen.",
 			"title": "Titel",
 			"titlePlaceholder": "Event-Titel",
@@ -597,6 +599,7 @@
 		"forDuration": "für %{label}",
 		"untilOff": "bis du es abschaltest",
 		"extend": "Verlängern",
+		"extendTitle": "Teilen verlängern",
 		"remove": "Entfernen",
 		"stopAll": "Alles stoppen",
 		"pause": "Pausieren",

@@ -1,8 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { useEffect, useMemo } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import { Platform, StyleSheet, View } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, {
+	Circle,
+	Marker,
+	Polygon,
+	PROVIDER_GOOGLE,
+} from "react-native-maps";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useI18n } from "@/lib/i18n/provider";
@@ -12,12 +17,55 @@ import {
 	useLiveLocations,
 } from "@/lib/location/live-locations";
 import { useLocationSharing } from "@/lib/location/use-location-sharing";
+import { useTargetName } from "@/lib/location/use-target-name";
 import { connectLocationSocket } from "@/lib/location/ws";
+import { orpc } from "@/lib/orpc";
+
+type LatLng = { latitude: number; longitude: number };
+
+function parseCoord(coord: string): LatLng | null {
+	const [lat, lng] = coord.split(",").map(Number);
+	if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+	return { latitude: lat, longitude: lng };
+}
+
+function eventPoints(coordinates: string[]): LatLng[] {
+	return coordinates
+		.map(parseCoord)
+		.filter((p): p is LatLng => p !== null);
+}
+
+function centroid(points: LatLng[]): LatLng | null {
+	if (points.length === 0) return null;
+	const sum = points.reduce(
+		(acc, p) => ({
+			latitude: acc.latitude + p.latitude,
+			longitude: acc.longitude + p.longitude,
+		}),
+		{ latitude: 0, longitude: 0 },
+	);
+	return {
+		latitude: sum.latitude / points.length,
+		longitude: sum.longitude / points.length,
+	};
+}
+
+function PersonMarker({ l }: { l: LiveLocation }) {
+	const name = useTargetName("user", l.userId);
+	return (
+		<Marker
+			coordinate={{ latitude: l.lat, longitude: l.lng }}
+			title={name}
+			description={l.statusText ?? undefined}
+		/>
+	);
+}
 
 export default function LocationsScreen() {
 	const { t } = useI18n();
 	useLocationSharing(); // starts/stops background updates based on active shares
 	const visible = useQuery(locationQueries.visible());
+	const events = useQuery(orpc.event.mapList.queryOptions());
 	const seed = useMemo<LiveLocation[]>(() => {
 		return (visible.data ?? []).map((item) => ({
 			userId: item.userId,
@@ -48,12 +96,40 @@ export default function LocationsScreen() {
 				showsUserLocation
 			>
 				{locations.map((l) => (
-					<Marker
-						key={l.userId}
-						coordinate={{ latitude: l.lat, longitude: l.lng }}
-						title={l.statusText ?? undefined}
-					/>
+					<PersonMarker key={l.userId} l={l} />
 				))}
+				{(events.data ?? []).map((e) => {
+					const points = eventPoints(e.coordinates);
+					const center =
+						e.locationZoneMethod === "circle" ? points[0] : centroid(points);
+					if (!center) return null;
+					return (
+						<Fragment key={e.id}>
+							{e.locationZoneMethod === "polygon" && points.length >= 3 ? (
+								<Polygon
+									coordinates={points}
+									strokeColor="#7c3aed"
+									fillColor="rgba(124,58,237,0.15)"
+								/>
+							) : null}
+							{e.locationZoneMethod === "circle" && e.circleRadius ? (
+								<Circle
+									center={center}
+									radius={e.circleRadius}
+									strokeColor="#7c3aed"
+									fillColor="rgba(124,58,237,0.15)"
+								/>
+							) : null}
+							<Marker
+								coordinate={center}
+								title={e.title}
+								description={e.locationText ?? undefined}
+								pinColor="#7c3aed"
+								onCalloutPress={() => router.push(`/events/${e.id}`)}
+							/>
+						</Fragment>
+					);
+				})}
 			</MapView>
 			{locations.length === 0 ? (
 				<View className="absolute inset-x-0 bottom-10 items-center">
@@ -61,10 +137,7 @@ export default function LocationsScreen() {
 				</View>
 			) : null}
 			<View className="absolute right-4 top-4">
-				<Button
-					size="sm"
-					onPress={() => router.push("/locations/share" as never)}
-				>
+				<Button size="sm" onPress={() => router.push("/locations/share" as never)}>
 					<Text>{t("locations.manageTitle")}</Text>
 				</Button>
 			</View>

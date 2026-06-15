@@ -34,7 +34,8 @@
 		"admin": "Beheerpaneel",
 		"adminReports": "Meldingen",
 		"adminTickets": "Alle tickets",
-		"locations": "Locatie delen"
+		"locations": "Locatie delen",
+		"map": "Kaart"
 	},
 	"header": {
 		"language": "Taal",
@@ -242,6 +243,7 @@
 		"deleteFailed": "Evenement kon niet worden verwijderd",
 		"form": {
 			"community": "Community",
+			"communityPlaceholder": "Kies een community",
 			"noCommunities": "Je hebt een moderatorrol in een community nodig om evenementen te organiseren.",
 			"title": "Titel",
 			"titlePlaceholder": "Titel van het evenement",
@@ -597,6 +599,7 @@
 		"forDuration": "voor %{label}",
 		"untilOff": "totdat je het uitzet",
 		"extend": "Verlengen",
+		"extendTitle": "Delen verlengen",
 		"remove": "Verwijderen",
 		"stopAll": "Alles stoppen",
 		"pause": "Pauzeren",

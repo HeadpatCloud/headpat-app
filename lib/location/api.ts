@@ -6,6 +6,7 @@ export const locationQueries = {
 	mine: () => orpc.location.listMyShares.queryOptions({ input: {} }),
 	sharedWithMe: () =>
 		orpc.location.listSharedWithMe.queryOptions({ input: {} }),
+	status: () => orpc.location.shareStatus.queryOptions({ input: {} }),
 };
 
 export const locationApi = {
