@@ -1,4 +1,7 @@
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
+import { Pressable } from "react-native";
+import { ChevronLeft } from "@/components/icons";
+import { Icon } from "@/components/ui/icon";
 import { useI18n } from "@/lib/i18n/provider";
 import { useTheme } from "@/lib/theme/provider";
 
@@ -11,7 +14,23 @@ export default function AdminLayout() {
 				contentStyle: { backgroundColor: colors.background },
 			}}
 		>
-			<Stack.Screen name="index" options={{ title: "" }} />
+			<Stack.Screen
+				name="index"
+				options={{
+					title: "",
+					// Root of this nested stack, so no automatic back button.
+					headerLeft: () => (
+						<Pressable
+							onPress={() => router.back()}
+							accessibilityRole="button"
+							accessibilityLabel={t("common.back")}
+							hitSlop={12}
+						>
+							<Icon as={ChevronLeft} size={28} />
+						</Pressable>
+					),
+				}}
+			/>
 			<Stack.Screen
 				name="reports"
 				options={{ title: t("titles.adminReports") }}

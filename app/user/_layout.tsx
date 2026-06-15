@@ -1,4 +1,7 @@
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
+import { Pressable } from "react-native";
+import { ChevronLeft } from "@/components/icons";
+import { Icon } from "@/components/ui/icon";
 import { useI18n } from "@/lib/i18n/provider";
 import { useTheme } from "@/lib/theme/provider";
 
@@ -11,7 +14,24 @@ export default function UserLayout() {
 				contentStyle: { backgroundColor: colors.background },
 			}}
 		>
-			<Stack.Screen name="[profileUrl]/index" options={{ title: "" }} />
+			<Stack.Screen
+				name="[profileUrl]/index"
+				options={{
+					title: "",
+					// Root of this nested stack, so no automatic back button — add one
+					// that pops back to wherever the profile was opened from.
+					headerLeft: () => (
+						<Pressable
+							onPress={() => router.back()}
+							accessibilityRole="button"
+							accessibilityLabel={t("common.back")}
+							hitSlop={12}
+						>
+							<Icon as={ChevronLeft} size={28} />
+						</Pressable>
+					),
+				}}
+			/>
 			<Stack.Screen
 				name="[profileUrl]/followers"
 				options={{ title: t("titles.followers") }}
