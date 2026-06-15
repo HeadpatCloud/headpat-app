@@ -47,7 +47,7 @@ function useProtectedRoute() {
 		if (!data && !onboarded && !inAuthGroup) {
 			router.replace("/(auth)/onboarding");
 		} else if (data && inAuthGroup) {
-			router.replace("/(tabs)");
+			router.replace("/");
 		}
 		// Onboarded but signed-out users roam freely (guest browsing): the (auth)
 		// screens to sign in, or the (tabs) to browse public content.

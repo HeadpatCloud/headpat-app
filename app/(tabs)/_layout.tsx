@@ -1,5 +1,4 @@
 import { Tabs } from "expo-router";
-import { HeaderControls } from "@/components/header-controls";
 import {
 	CalendarDays,
 	House,
@@ -30,39 +29,28 @@ export default function TabsLayout() {
 		<Tabs
 			tabBar={(props) => <TabBar {...props} />}
 			screenOptions={{
-				headerShown: true,
+				// Every tab is a nested stack that renders its own (native) header, so
+				// the Tabs JS header stays off — keeps the top-right controls consistent.
+				headerShown: false,
 				freezeOnBlur: true,
 				sceneStyle: { backgroundColor: colors.background },
-				headerRight: () => <HeaderControls />,
 			}}
 		>
 			<Tabs.Screen
-				name="index"
+				name="(home)"
 				options={{ title: t("tabs.home"), tabBarIcon: iconFor(House) }}
 			/>
 			<Tabs.Screen
 				name="gallery"
-				options={{
-					title: t("tabs.gallery"),
-					headerShown: false,
-					tabBarIcon: iconFor(Images),
-				}}
+				options={{ title: t("tabs.gallery"), tabBarIcon: iconFor(Images) }}
 			/>
 			<Tabs.Screen
 				name="community"
-				options={{
-					title: t("tabs.community"),
-					headerShown: false,
-					tabBarIcon: iconFor(UsersRound),
-				}}
+				options={{ title: t("tabs.community"), tabBarIcon: iconFor(UsersRound) }}
 			/>
 			<Tabs.Screen
 				name="events"
-				options={{
-					title: t("tabs.events"),
-					headerShown: false,
-					tabBarIcon: iconFor(CalendarDays),
-				}}
+				options={{ title: t("tabs.events"), tabBarIcon: iconFor(CalendarDays) }}
 			/>
 			<Tabs.Screen
 				name="menu"
