@@ -539,6 +539,7 @@
 	},
 	"menu": {
 		"groups": {
+			"browse": "Entdecken",
 			"settings": "Einstellungen",
 			"support": "Support & Infos",
 			"admin": "Admin"
@@ -569,9 +570,21 @@
 			"announcement": "Ankündigung"
 		}
 	},
+	"presence": {
+		"statusTitle": "Dein Status",
+		"statusPlaceholder": "Statusnachricht festlegen",
+		"setStatus": "Status",
+		"online": "Online",
+		"away": "Abwesend",
+		"dnd": "Nicht stören",
+		"invisible": "Unsichtbar"
+	},
 	"locations": {
 		"empty": "Noch teilt niemand seinen Standort mit dir.",
 		"manageTitle": "Mit wem du teilst",
+		"bgDisclosureTitle": "Standort im Hintergrund teilen",
+		"bgDisclosureBody": "Headpat nutzt deinen Standort, um deinen Live-Standort mit den von dir gewählten Personen und Communities zu teilen — auch im Hintergrund, selbst wenn die App geschlossen ist oder nicht verwendet wird. Es läuft nur, solange du eine aktive Freigabe hast, und du kannst es jederzeit stoppen.",
+		"bgDisclosureAllow": "Hintergrundstandort erlauben",
 		"add": "Standort teilen",
 		"shareWithUser": "Eine Person",
 		"shareWithCommunity": "Eine Community",

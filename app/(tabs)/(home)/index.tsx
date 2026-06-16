@@ -16,6 +16,7 @@ import {
 	Megaphone,
 	Plus,
 	RefreshCw,
+	UserRound,
 	UsersRound,
 } from "@/components/icons";
 import { Avatar } from "@/components/ui/avatar";
@@ -272,6 +273,11 @@ export default function Home() {
 				<AnimatedEntrance index={3} className="gap-2">
 					<QuickLink icon={MapPin} label={t("titles.map")} href="/locations" />
 					<QuickLink
+						icon={UsersRound}
+						label={t("titles.communities")}
+						href="/community"
+					/>
+					<QuickLink
 						icon={Bell}
 						label={t("titles.notifications")}
 						href="/notifications"
@@ -281,11 +287,7 @@ export default function Home() {
 						label={t("titles.announcements")}
 						href="/announcements"
 					/>
-					<QuickLink
-						icon={UsersRound}
-						label={t("titles.users")}
-						href="/users"
-					/>
+					<QuickLink icon={UserRound} label={t("titles.users")} href="/users" />
 				</AnimatedEntrance>
 
 				<Text variant="caption" className="pt-2 text-center">

@@ -6,8 +6,10 @@ import { ScrollView, View } from "react-native";
 import { CountBadge } from "@/components/count-badge";
 import {
 	Bell,
+	CalendarDays,
 	ChevronRight,
 	FileClock,
+	Images,
 	LifeBuoy,
 	Link2,
 	type LucideIcon,
@@ -19,6 +21,8 @@ import {
 	Shield,
 	ShieldCheck,
 	UserPen,
+	UserRound,
+	UsersRound,
 } from "@/components/icons";
 import { SettingsRow } from "@/components/settings-row";
 import { Avatar } from "@/components/ui/avatar";
@@ -40,13 +44,20 @@ import { usePlatformPermissions } from "@/lib/use-permissions";
 type Row = { href: Href; icon: LucideIcon; titleKey: string };
 type T = ReturnType<typeof useI18n>["t"];
 
+const BROWSE_ROWS: Row[] = [
+	{ href: "/gallery", icon: Images, titleKey: "titles.gallery" },
+	{ href: "/community", icon: UsersRound, titleKey: "titles.communities" },
+	{ href: "/events", icon: CalendarDays, titleKey: "titles.events" },
+	{ href: "/locations", icon: MapPin, titleKey: "titles.map" },
+	{ href: "/users", icon: UserRound, titleKey: "titles.users" },
+];
+
 const SETTINGS_ROWS: Row[] = [
 	{ href: "/notifications", icon: Bell, titleKey: "titles.notifications" },
 	{ href: "/profile-edit", icon: UserPen, titleKey: "titles.profileEdit" },
 	{ href: "/appearance", icon: Palette, titleKey: "titles.appearance" },
 	{ href: "/security", icon: ShieldCheck, titleKey: "titles.security" },
 	{ href: "/connections", icon: Link2, titleKey: "titles.connections" },
-	{ href: "/locations", icon: MapPin, titleKey: "titles.map" },
 ];
 
 const SUPPORT_ROWS: Row[] = [
@@ -221,33 +232,55 @@ export default function Menu() {
 				</PressableScale>
 			</AnimatedEntrance>
 
-			<GroupLabel index={1}>{t("menu.groups.settings")}</GroupLabel>
+			<GroupLabel index={1}>{t("menu.groups.browse")}</GroupLabel>
 			<RowGroup
-				rows={SETTINGS_ROWS}
+				rows={BROWSE_ROWS}
 				startIndex={2}
 				unreadCount={unreadCount}
 				t={t}
 			/>
 
-			<GroupLabel index={SETTINGS_ROWS.length + 2}>
+			<GroupLabel index={BROWSE_ROWS.length + 2}>
+				{t("menu.groups.settings")}
+			</GroupLabel>
+			<RowGroup
+				rows={SETTINGS_ROWS}
+				startIndex={BROWSE_ROWS.length + 3}
+				unreadCount={unreadCount}
+				t={t}
+			/>
+
+			<GroupLabel index={BROWSE_ROWS.length + SETTINGS_ROWS.length + 3}>
 				{t("menu.groups.support")}
 			</GroupLabel>
 			<RowGroup
 				rows={SUPPORT_ROWS}
-				startIndex={SETTINGS_ROWS.length + 3}
+				startIndex={BROWSE_ROWS.length + SETTINGS_ROWS.length + 4}
 				unreadCount={unreadCount}
 				t={t}
 			/>
 
 			{showAdmin ? (
 				<>
-					<GroupLabel index={SETTINGS_ROWS.length + SUPPORT_ROWS.length + 3}>
+					<GroupLabel
+						index={
+							BROWSE_ROWS.length +
+							SETTINGS_ROWS.length +
+							SUPPORT_ROWS.length +
+							4
+						}
+					>
 						{t("menu.groups.admin")}
 					</GroupLabel>
 					<SettingsRow
 						icon={Shield}
 						label={t("titles.admin")}
-						index={SETTINGS_ROWS.length + SUPPORT_ROWS.length + 4}
+						index={
+							BROWSE_ROWS.length +
+							SETTINGS_ROWS.length +
+							SUPPORT_ROWS.length +
+							5
+						}
 						onPress={() => router.push("/admin")}
 						accessibilityLabel={t("account.hub.rowA11y", {
 							label: t("titles.admin"),
@@ -257,7 +290,12 @@ export default function Menu() {
 			) : null}
 
 			<AnimatedEntrance
-				index={SETTINGS_ROWS.length + SUPPORT_ROWS.length + (showAdmin ? 5 : 3)}
+				index={
+					BROWSE_ROWS.length +
+					SETTINGS_ROWS.length +
+					SUPPORT_ROWS.length +
+					(showAdmin ? 6 : 4)
+				}
 				className="pt-2"
 			>
 				<Button

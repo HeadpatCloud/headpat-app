@@ -112,13 +112,26 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 		refetchInterval: 5 * 60_000,
 	});
 	const unreadCount = session ? (unread.data?.count ?? 0) : 0;
+	// expo-router marks href:null tabs with tabBarItemStyle display:'none'. This
+	// custom bar iterates state.routes directly, so filter those out here.
+	const visibleRoutes = state.routes.filter(
+		(route) =>
+			(
+				descriptors[route.key].options.tabBarItemStyle as
+					| { display?: string }
+					| undefined
+			)?.display !== "none",
+	);
+	const activeVisibleIndex = visibleRoutes.findIndex(
+		(route) => route.key === state.routes[state.index]?.key,
+	);
 	const slotsRef = useRef<{ x: number; width: number }[]>([]);
 	const [slots, setSlots] = useState<{ x: number; width: number }[]>([]);
 
 	const x = useSharedValue(0);
 	const width = useSharedValue(0);
 
-	const active = slots[state.index];
+	const active = slots[activeVisibleIndex];
 	useEffect(() => {
 		if (!active) return;
 		if (reduced || width.value === 0) {
@@ -143,7 +156,7 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 		const { x: lx, width: lw } = e.nativeEvent.layout;
 		slotsRef.current[index] = { x: lx, width: lw };
 		const next = slotsRef.current;
-		if (next.filter(Boolean).length < state.routes.length) return;
+		if (next.filter(Boolean).length < visibleRoutes.length) return;
 		setSlots((prev) =>
 			prev.length === next.length &&
 			prev.every((s, i) => s.x === next[i].x && s.width === next[i].width)
@@ -169,9 +182,9 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 					className="rounded-full"
 				/>
 			</Animated.View>
-			{state.routes.map((route, index) => {
+			{visibleRoutes.map((route, index) => {
 				const { options } = descriptors[route.key];
-				const focused = state.index === index;
+				const focused = index === activeVisibleIndex;
 				const label =
 					typeof options.title === "string" ? options.title : route.name;
 

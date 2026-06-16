@@ -132,7 +132,7 @@ export default function Welcome() {
 						icon={UsersRound}
 						title={t("auth.welcome.communities")}
 						subtitle={t("auth.welcome.communitiesSubtitle")}
-						onPress={() => router.push("/(tabs)/community")}
+						onPress={() => router.push("/community")}
 					/>
 					<AreaCard
 						icon={ShoppingBag}

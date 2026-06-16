@@ -539,6 +539,7 @@
 	},
 	"menu": {
 		"groups": {
+			"browse": "Browse",
 			"settings": "Settings",
 			"support": "Support & info",
 			"admin": "Admin"
@@ -569,9 +570,21 @@
 			"announcement": "Announcement"
 		}
 	},
+	"presence": {
+		"statusTitle": "Your status",
+		"statusPlaceholder": "Set a status message",
+		"setStatus": "Status",
+		"online": "Online",
+		"away": "Away",
+		"dnd": "Do not disturb",
+		"invisible": "Invisible"
+	},
 	"locations": {
 		"empty": "No one is sharing with you yet.",
 		"manageTitle": "Who you share with",
+		"bgDisclosureTitle": "Share your location in the background",
+		"bgDisclosureBody": "Headpat uses your location to share your live location with the people and communities you choose — including in the background, even when the app is closed or not in use. It only runs while you have an active share, and you can stop anytime.",
+		"bgDisclosureAllow": "Allow background location",
 		"add": "Share my location",
 		"shareWithUser": "A person",
 		"shareWithCommunity": "A community",

@@ -4,8 +4,8 @@ import {
 	House,
 	Images,
 	type LucideIcon,
+	MapPin,
 	Menu,
-	UsersRound,
 } from "@/components/icons";
 import { TabBar } from "@/components/tab-bar";
 import { Icon } from "@/components/ui/icon";
@@ -45,15 +45,12 @@ export default function TabsLayout() {
 				options={{ title: t("tabs.gallery"), tabBarIcon: iconFor(Images) }}
 			/>
 			<Tabs.Screen
-				name="community"
-				options={{
-					title: t("tabs.community"),
-					tabBarIcon: iconFor(UsersRound),
-				}}
-			/>
-			<Tabs.Screen
 				name="events"
 				options={{ title: t("tabs.events"), tabBarIcon: iconFor(CalendarDays) }}
+			/>
+			<Tabs.Screen
+				name="locations"
+				options={{ title: t("titles.map"), tabBarIcon: iconFor(MapPin) }}
 			/>
 			<Tabs.Screen
 				name="menu"

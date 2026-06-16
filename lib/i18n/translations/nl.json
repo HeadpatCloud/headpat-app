@@ -539,6 +539,7 @@
 	},
 	"menu": {
 		"groups": {
+			"browse": "Verkennen",
 			"settings": "Instellingen",
 			"support": "Support & info",
 			"admin": "Beheer"
@@ -569,9 +570,21 @@
 			"announcement": "Aankondiging"
 		}
 	},
+	"presence": {
+		"statusTitle": "Je status",
+		"statusPlaceholder": "Stel een statusbericht in",
+		"setStatus": "Status",
+		"online": "Online",
+		"away": "Afwezig",
+		"dnd": "Niet storen",
+		"invisible": "Onzichtbaar"
+	},
 	"locations": {
 		"empty": "Niemand deelt nog zijn locatie met jou.",
 		"manageTitle": "Met wie je deelt",
+		"bgDisclosureTitle": "Deel je locatie op de achtergrond",
+		"bgDisclosureBody": "Headpat gebruikt je locatie om je live locatie te delen met de mensen en communities die jij kiest — ook op de achtergrond, zelfs wanneer de app gesloten is of niet wordt gebruikt. Het draait alleen zolang je een actieve deling hebt en je kunt het altijd stoppen.",
+		"bgDisclosureAllow": "Achtergrondlocatie toestaan",
 		"add": "Mijn locatie delen",
 		"shareWithUser": "Een persoon",
 		"shareWithCommunity": "Een community",
