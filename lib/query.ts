@@ -1,6 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-import { focusManager, onlineManager, QueryClient } from "@tanstack/react-query";
+import {
+	focusManager,
+	onlineManager,
+	QueryClient,
+} from "@tanstack/react-query";
 import { AppState, type AppStateStatus, Platform } from "react-native";
 
 export const queryClient = new QueryClient({
@@ -28,10 +32,12 @@ if (Platform.OS !== "web") {
 	// NetInfo is a native module; guard so the bundle still runs in builds where
 	// it isn't compiled in yet (Expo Go, a dev client built before this dep).
 	try {
-		const NetInfo =
-			require("@react-native-community/netinfo").default as typeof import("@react-native-community/netinfo").default;
+		const NetInfo = require("@react-native-community/netinfo")
+			.default as typeof import("@react-native-community/netinfo").default;
 		onlineManager.setEventListener((setOnline) =>
-			NetInfo.addEventListener((state) => setOnline(Boolean(state.isConnected))),
+			NetInfo.addEventListener((state) =>
+				setOnline(Boolean(state.isConnected)),
+			),
 		);
 	} catch {
 		// NetInfo unavailable in this build — React Query assumes always-online.
