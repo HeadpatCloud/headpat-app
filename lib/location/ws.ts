@@ -10,7 +10,10 @@ const WS_URL = `${env.apiUrl.replace(/^http/, "ws")}/ws`;
 
 type Handler = (evt: LiveEvent) => void;
 
-export function connectLocationSocket(onEvent: Handler): () => void {
+export function connectLocationSocket(
+	onEvent: Handler,
+	onReconnect?: () => void,
+): () => void {
 	let ws: WebSocket | null = null;
 	let closed = false;
 	let heartbeat: ReturnType<typeof setInterval> | null = null;
@@ -24,6 +27,9 @@ export function connectLocationSocket(onEvent: Handler): () => void {
 		// @ts-expect-error React Native WebSocket supports a headers option not in the DOM lib
 		ws = new WebSocket(WS_URL, undefined, options);
 		ws.onopen = () => {
+			// Reconnected after a drop — the server doesn't replay missed events, so
+			// ask the caller to re-sync (refetch the seed).
+			if (retry > 0) onReconnect?.();
 			retry = 0;
 			heartbeat = setInterval(
 				() => ws?.send(JSON.stringify({ type: "heartbeat" })),

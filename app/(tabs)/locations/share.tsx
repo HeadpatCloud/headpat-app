@@ -19,15 +19,18 @@ type Share = {
 	targetType: "user" | "community";
 	targetId: string;
 	precision: "exact" | "approximate";
-	expiresAt: Date | null;
-	revokedAt: Date | null;
+	expiresAt: Date | string | null;
+	revokedAt: Date | string | null;
 };
 
 function expiryLabel(
 	t: (key: string, opts?: Record<string, unknown>) => string,
-	expiresAt: Date | null,
+	expiresAt: Date | string | null,
 ): string {
-	const tk = timeLeftLabel(expiresAt ? expiresAt.toISOString() : null);
+	// expiresAt may be a Date or an ISO string (rehydrated cache) — coerce.
+	const tk = timeLeftLabel(
+		expiresAt ? new Date(expiresAt).toISOString() : null,
+	);
 	if (tk === "indefinite") return t("locations.indefinite");
 	if (tk === "expired") return t("locations.expired");
 	return t("locations.expiresIn", { label: tk });
@@ -111,7 +114,8 @@ export default function ManageSharesScreen() {
 	const addRef = useRef<BottomSheetModal>(null);
 	const extendRef = useRef<BottomSheetModal>(null);
 	const [extendId, setExtendId] = useState<string | null>(null);
-	const { activeCount } = useLocationSharing();
+	const { activeCount, needsBackgroundConsent, enableBackgroundSharing } =
+		useLocationSharing();
 	const shares = useQuery(locationQueries.mine());
 	const status = useQuery(locationQueries.status());
 	const paused = status.data?.paused ?? false;
@@ -165,6 +169,20 @@ export default function ManageSharesScreen() {
 	return (
 		<View className="flex-1">
 			<ScrollView contentContainerClassName="gap-3 p-4">
+				{/* Prominent disclosure: required before requesting background location.
+				    The OS permission is only requested when the user taps Allow here. */}
+				{needsBackgroundConsent ? (
+					<Card className="gap-2 p-4">
+						<Text className="font-semibold">
+							{t("locations.bgDisclosureTitle")}
+						</Text>
+						<Text variant="muted">{t("locations.bgDisclosureBody")}</Text>
+						<Button fullWidth onPress={() => enableBackgroundSharing()}>
+							<Text>{t("locations.bgDisclosureAllow")}</Text>
+						</Button>
+					</Card>
+				) : null}
+
 				{/* Status header */}
 				<View className="flex-row items-center justify-between gap-2">
 					<Text variant="muted">
