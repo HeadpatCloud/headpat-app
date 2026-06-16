@@ -14,7 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
 	name: "Headpat",
 	slug: "headpat-app",
-	version: "0.9.3",
+	version: "0.9.4",
 	orientation: "portrait",
 	icon: "./assets/images/icon.png",
 	scheme: "headpat",
@@ -35,6 +35,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		// Apple Declared Age Range (iOS 26+) — required to call requestAgeRangeAsync.
 		entitlements: {
 			"com.apple.developer.declared-age-range": true,
+			// Push Notifications capability. Without this, APNs registration fails
+			// with "no valid aps-environment entitlement". Local + the dev EAS
+			// profile use the APNs sandbox; preview (ad-hoc) and production use
+			// production APNs.
+			"aps-environment":
+				process.env.EAS_BUILD_PROFILE &&
+				process.env.EAS_BUILD_PROFILE !== "development"
+					? "production"
+					: "development",
 		},
 		googleServicesFile: iosGoogleServices,
 		associatedDomains: [

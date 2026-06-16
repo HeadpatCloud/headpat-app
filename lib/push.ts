@@ -35,9 +35,9 @@ export async function registerPushToken(): Promise<void> {
 	if (!api || !platform) return;
 	try {
 		if (platform === "ios") {
+			// Auto-registration is on (firebase.json default), so Firebase registers
+			// with APNs itself — calling registerDeviceForRemoteMessages is redundant.
 			if (!(await ensurePermission(api))) return;
-			// iOS must register with APNs before Firebase can mint an FCM token.
-			await api.registerDeviceForRemoteMessages(api.getMessaging());
 		} else if (Number(Platform.Version) >= 33) {
 			// rnfirebase's requestPermission() is a no-op on Android; the runtime
 			// POST_NOTIFICATIONS prompt (Android 13+) goes via PermissionsAndroid.
