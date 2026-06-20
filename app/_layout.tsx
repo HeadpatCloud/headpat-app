@@ -1,4 +1,9 @@
 import "@/global.css";
+// Register the background-location task at the top of the always-loaded root
+// layout so iOS has a JS handler when it relaunches the app headlessly to deliver
+// background location. Must live here (not in a route screen), but NOT in a
+// custom entry file — a custom main desyncs expo-router's module graph.
+import "@/lib/location/background-task";
 
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
