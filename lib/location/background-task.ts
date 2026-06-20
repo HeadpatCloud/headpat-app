@@ -1,16 +1,25 @@
 import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
-import { locationApi } from "@/lib/location/api";
 import { LOCATION_OPTIONS, LOCATION_TASK } from "@/lib/location/constants";
 
-// Posts each background fix to the server. The server no-ops if there is no
-// active share or the user is paused (defense in depth).
+// Registered at module top level and imported from the app entry (index.js) so
+// this runs on EVERY launch — including the headless background relaunches iOS
+// performs to deliver location updates while a share is active. Defining the
+// task lazily inside a route screen left it (and expo-task-manager's JS event
+// listener) unregistered on a cold background launch, so the delivered location
+// event had no JS handler and the headless boot aborted (SIGABRT).
+//
+// The whole body is guarded so a background fix can never throw, and locationApi
+// is lazy-required so importing this module at the entry stays light (it must
+// not pull the expo-router/auth graph just to register the task).
 TaskManager.defineTask(LOCATION_TASK, async ({ data, error }) => {
-	if (error) return;
-	const loc = (data as { locations?: Location.LocationObject[] } | undefined)
-		?.locations?.[0];
-	if (!loc) return;
 	try {
+		if (error) return;
+		const loc = (data as { locations?: Location.LocationObject[] } | undefined)
+			?.locations?.[0];
+		if (!loc) return;
+		const { locationApi } =
+			require("@/lib/location/api") as typeof import("@/lib/location/api");
 		await locationApi.updateLocation({
 			lat: loc.coords.latitude,
 			lng: loc.coords.longitude,
@@ -19,7 +28,7 @@ TaskManager.defineTask(LOCATION_TASK, async ({ data, error }) => {
 			speed: loc.coords.speed ?? undefined,
 		});
 	} catch {
-		// transient network error — next fix will retry
+		// transient network/auth error (or nothing to do) — next fix retries
 	}
 });
 
