@@ -585,6 +585,7 @@
 		"bgDisclosureTitle": "Standort im Hintergrund teilen",
 		"bgDisclosureBody": "Headpat nutzt deinen Standort, um deinen Live-Standort mit den von dir gewählten Personen und Communities zu teilen — auch im Hintergrund, selbst wenn die App geschlossen ist oder nicht verwendet wird. Es läuft nur, solange du eine aktive Freigabe hast, und du kannst es jederzeit stoppen.",
 		"bgDisclosureAllow": "Hintergrundstandort erlauben",
+		"bgDisclosureDecline": "Jetzt nicht",
 		"add": "Standort teilen",
 		"shareWithUser": "Eine Person",
 		"shareWithCommunity": "Eine Community",

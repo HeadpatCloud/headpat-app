@@ -1,7 +1,8 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, ScrollView, View } from "react-native";
+import { BackgroundLocationDisclosure } from "@/components/background-location-disclosure";
 import { AddShareSheet } from "@/components/locations/add-share-sheet";
 import { ExtendSheet } from "@/components/locations/extend-sheet";
 import { Button } from "@/components/ui/button";
@@ -116,6 +117,17 @@ export default function ManageSharesScreen() {
 	const [extendId, setExtendId] = useState<string | null>(null);
 	const { activeCount, needsBackgroundConsent, enableBackgroundSharing } =
 		useLocationSharing();
+	// Prominent disclosure (Google Play): auto-present once when this screen opens
+	// without background permission, so it's seen before any permission request and
+	// without needing to create a share first. Re-openable via the inline button.
+	const [disclosureVisible, setDisclosureVisible] = useState(false);
+	const [autoShown, setAutoShown] = useState(false);
+	useEffect(() => {
+		if (needsBackgroundConsent && !autoShown) {
+			setDisclosureVisible(true);
+			setAutoShown(true);
+		}
+	}, [needsBackgroundConsent, autoShown]);
 	const shares = useQuery(locationQueries.mine());
 	const status = useQuery(locationQueries.status());
 	const paused = status.data?.paused ?? false;
@@ -169,15 +181,16 @@ export default function ManageSharesScreen() {
 	return (
 		<View className="flex-1">
 			<ScrollView contentContainerClassName="gap-3 p-4">
-				{/* Prominent disclosure: required before requesting background location.
-				    The OS permission is only requested when the user taps Allow here. */}
+				{/* Prominent disclosure: the text stays visible while background
+				    location isn't granted; the OS permission is only ever requested
+				    from the modal below, which always precedes the system prompt. */}
 				{needsBackgroundConsent ? (
 					<Card className="gap-2 p-4">
 						<Text className="font-semibold">
 							{t("locations.bgDisclosureTitle")}
 						</Text>
 						<Text variant="muted">{t("locations.bgDisclosureBody")}</Text>
-						<Button fullWidth onPress={() => enableBackgroundSharing()}>
+						<Button fullWidth onPress={() => setDisclosureVisible(true)}>
 							<Text>{t("locations.bgDisclosureAllow")}</Text>
 						</Button>
 					</Card>
@@ -239,6 +252,14 @@ export default function ManageSharesScreen() {
 
 			<AddShareSheet ref={addRef} />
 			<ExtendSheet ref={extendRef} shareId={extendId} />
+			<BackgroundLocationDisclosure
+				visible={disclosureVisible}
+				onAllow={() => {
+					setDisclosureVisible(false);
+					void enableBackgroundSharing();
+				}}
+				onDismiss={() => setDisclosureVisible(false)}
+			/>
 		</View>
 	);
 }

@@ -56,9 +56,12 @@ export function useLocationSharing() {
 	return {
 		activeCount,
 		backgroundGranted: bgGranted === true,
-		// Sharing is active but background location isn't granted yet — the UI must
-		// show the disclosure before calling enableBackgroundSharing().
-		needsBackgroundConsent: activeCount > 0 && bgGranted === false,
+		// Background location is not granted yet (and the check has resolved). The
+		// UI must show the prominent disclosure before ever calling
+		// enableBackgroundSharing() — Google Play requires it precede the request.
+		// Decoupled from activeCount so the disclosure is reachable as soon as the
+		// user opens the sharing screen, not only after they create a share.
+		needsBackgroundConsent: bgGranted === false,
 		enableBackgroundSharing,
 		pause: () => locationApi.pause(),
 		resume: () => locationApi.resume(),
