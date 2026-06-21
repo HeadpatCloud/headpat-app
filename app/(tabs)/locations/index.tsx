@@ -1,14 +1,18 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { router } from "expo-router";
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { Platform, StyleSheet, View } from "react-native";
-import MapView, {
-	Circle,
+import {
+	Camera,
+	GeoJSONSource,
+	Layer,
+	Map as MapView,
 	Marker,
-	Polygon,
-	PROVIDER_GOOGLE,
-} from "react-native-maps";
+	type StyleSpecification,
+	UserLocation,
+} from "@maplibre/maplibre-react-native";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import * as Location from "expo-location";
+import { router } from "expo-router";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { StatusSheet } from "@/components/locations/status-sheet";
 import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
@@ -23,40 +27,107 @@ import { useLocationSharing } from "@/lib/location/use-location-sharing";
 import { connectLocationSocket } from "@/lib/location/ws";
 import { orpc } from "@/lib/orpc";
 import { presenceColor } from "@/lib/presence/status-color";
+import { useTheme } from "@/lib/theme/provider";
 
-type LatLng = { latitude: number; longitude: number };
+type LngLat = [number, number];
 type PresenceInfo = { status?: string; customStatus?: string | null };
-
-function parseCoord(coord: string): LatLng | null {
-	const [lat, lng] = coord.split(",").map(Number);
-	if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
-	return { latitude: lat, longitude: lng };
-}
-
-function eventPoints(coordinates: string[]): LatLng[] {
-	return coordinates.map(parseCoord).filter((p): p is LatLng => p !== null);
-}
-
-function centroid(points: LatLng[]): LatLng | null {
-	if (points.length === 0) return null;
-	const sum = points.reduce(
-		(acc, p) => ({
-			latitude: acc.latitude + p.latitude,
-			longitude: acc.longitude + p.longitude,
-		}),
-		{ latitude: 0, longitude: 0 },
-	);
-	return {
-		latitude: sum.latitude / points.length,
-		longitude: sum.longitude / points.length,
-	};
-}
 
 const MARKER = 44;
 const MARKER_INNER = MARKER - 6;
+const EVENT_COLOR = "#7c3aed";
+const DEFAULT_CENTER: LngLat = [0, 20];
 
-// A sharer's marker: their avatar (or first initial) in a circle, ringed in the
-// color of their presence status. The status message shows in the callout.
+// CARTO's OpenStreetMap raster basemap — the same tiles the web uses, no API key.
+function cartoStyle(dark: boolean): StyleSpecification {
+	const variant = dark ? "dark_all" : "light_all";
+	return {
+		version: 8,
+		sources: {
+			carto: {
+				type: "raster",
+				tiles: [
+					`https://a.basemaps.cartocdn.com/${variant}/{z}/{x}/{y}@2x.png`,
+					`https://b.basemaps.cartocdn.com/${variant}/{z}/{x}/{y}@2x.png`,
+					`https://c.basemaps.cartocdn.com/${variant}/{z}/{x}/{y}@2x.png`,
+					`https://d.basemaps.cartocdn.com/${variant}/{z}/{x}/{y}@2x.png`,
+				],
+				tileSize: 512,
+				attribution:
+					'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+			},
+		},
+		layers: [{ id: "carto", type: "raster", source: "carto" }],
+	};
+}
+
+type MapEvent = {
+	id: string;
+	title: string;
+	locationZoneMethod: string;
+	coordinates: string[];
+	circleRadius: number | null;
+};
+
+function parsePoint(coord: string): LngLat | null {
+	const [lat, lng] = coord.split(",").map(Number);
+	if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+	return [lng, lat];
+}
+
+function eventPoints(coords: string[]): LngLat[] {
+	return coords.map(parsePoint).filter((p): p is LngLat => p !== null);
+}
+
+function eventCenter(e: MapEvent): LngLat | null {
+	const pts = eventPoints(e.coordinates);
+	if (pts.length === 0) return null;
+	if (e.locationZoneMethod === "circle") return pts[0];
+	const sum = pts.reduce<LngLat>((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]);
+	return [sum[0] / pts.length, sum[1] / pts.length];
+}
+
+// Approximate a geographic circle (center + radius in metres) as a polygon ring,
+// so MapLibre can draw circle zones with the same fill/line layers as polygons.
+function circleRing(
+	center: LngLat,
+	radiusMeters: number,
+	steps = 64,
+): LngLat[] {
+	const [lng, lat] = center;
+	const dLat = radiusMeters / 111_320;
+	const dLng = radiusMeters / (111_320 * Math.cos((lat * Math.PI) / 180));
+	const ring: LngLat[] = [];
+	for (let i = 0; i <= steps; i++) {
+		const theta = (i / steps) * 2 * Math.PI;
+		ring.push([lng + dLng * Math.cos(theta), lat + dLat * Math.sin(theta)]);
+	}
+	return ring;
+}
+
+// One FeatureCollection of all event zones (polygons drawn directly, circles
+// approximated). Fed to a single GeoJSONSource + fill/line layers.
+function zoneFeatures(events: MapEvent[]): GeoJSON.FeatureCollection {
+	const features: GeoJSON.Feature[] = [];
+	for (const e of events) {
+		const pts = eventPoints(e.coordinates);
+		let ring: LngLat[] | null = null;
+		if (e.locationZoneMethod === "polygon" && pts.length >= 3) {
+			ring = [...pts, pts[0]];
+		} else if (e.locationZoneMethod === "circle" && e.circleRadius && pts[0]) {
+			ring = circleRing(pts[0], e.circleRadius);
+		}
+		if (!ring) continue;
+		features.push({
+			type: "Feature",
+			geometry: { type: "Polygon", coordinates: [ring] },
+			properties: { id: e.id },
+		});
+	}
+	return { type: "FeatureCollection", features };
+}
+
+// A sharer's marker: their avatar (or first initial) in a circle, ringed in their
+// presence color, with their name/status on a pill. Tap opens their profile.
 function PersonMarker({
 	l,
 	presence,
@@ -69,75 +140,78 @@ function PersonMarker({
 	);
 	const name =
 		profile.data?.displayName ?? profile.data?.profileUrl ?? l.userId;
+	const profileUrl = profile.data?.profileUrl ?? null;
 	const fileId = profile.data?.avatarFileId ?? null;
 	const letter = name.trim().charAt(0).toUpperCase() || "?";
 	const ring = presenceColor(presence?.status);
-
-	// react-native-maps repaints the marker bitmap only while tracksViewChanges is
-	// true — keep it on until the avatar image paints (or briefly, for the letter).
-	const [tracks, setTracks] = useState(true);
-	useEffect(() => {
-		if (fileId) return;
-		const id = setTimeout(() => setTracks(false), 400);
-		return () => clearTimeout(id);
-	}, [fileId]);
+	const label = presence?.customStatus || name;
 
 	return (
 		<Marker
-			coordinate={{ latitude: l.lat, longitude: l.lng }}
-			title={presence?.customStatus || name}
-			description={presence?.customStatus ? name : undefined}
-			anchor={{ x: 0.5, y: 0.5 }}
-			tracksViewChanges={tracks}
+			id={l.userId}
+			lngLat={[l.lng, l.lat]}
+			anchor="bottom"
+			onPress={() => {
+				if (profileUrl) router.push(`/user/${profileUrl}` as never);
+			}}
 		>
-			<View
-				style={{
-					width: MARKER,
-					height: MARKER,
-					borderRadius: MARKER / 2,
-					borderWidth: 3,
-					borderColor: ring,
-					backgroundColor: "#fff",
-					alignItems: "center",
-					justifyContent: "center",
-					overflow: "hidden",
-				}}
-			>
-				{fileId ? (
-					<StorageImage
-						kind="avatar"
-						fileId={fileId}
-						variant="sm"
-						transition={0}
-						onLoadEnd={() => setTracks(false)}
-						style={{
-							width: MARKER_INNER,
-							height: MARKER_INNER,
-							borderRadius: MARKER_INNER / 2,
-						}}
-					/>
-				) : (
-					<View
-						style={{
-							width: MARKER_INNER,
-							height: MARKER_INNER,
-							borderRadius: MARKER_INNER / 2,
-							backgroundColor: "#52525b",
-							alignItems: "center",
-							justifyContent: "center",
-						}}
-					>
-						<Text
+			<View className="items-center gap-1">
+				<View
+					style={{
+						width: MARKER,
+						height: MARKER,
+						borderRadius: MARKER / 2,
+						borderWidth: 3,
+						borderColor: ring,
+						backgroundColor: "#fff",
+						alignItems: "center",
+						justifyContent: "center",
+						overflow: "hidden",
+					}}
+				>
+					{fileId ? (
+						<StorageImage
+							kind="avatar"
+							fileId={fileId}
+							variant="sm"
+							transition={0}
 							style={{
-								color: "#fff",
-								fontWeight: "700",
-								fontSize: MARKER_INNER * 0.45,
+								width: MARKER_INNER,
+								height: MARKER_INNER,
+								borderRadius: MARKER_INNER / 2,
+							}}
+						/>
+					) : (
+						<View
+							style={{
+								width: MARKER_INNER,
+								height: MARKER_INNER,
+								borderRadius: MARKER_INNER / 2,
+								backgroundColor: "#52525b",
+								alignItems: "center",
+								justifyContent: "center",
 							}}
 						>
-							{letter}
-						</Text>
-					</View>
-				)}
+							<Text
+								style={{
+									color: "#fff",
+									fontWeight: "700",
+									fontSize: MARKER_INNER * 0.45,
+								}}
+							>
+								{letter}
+							</Text>
+						</View>
+					)}
+				</View>
+				<View className="max-w-[140px] rounded-full bg-black/70 px-2 py-0.5">
+					<Text
+						className="text-[10px] font-semibold text-white"
+						numberOfLines={1}
+					>
+						{label}
+					</Text>
+				</View>
 			</View>
 		</Marker>
 	);
@@ -145,6 +219,7 @@ function PersonMarker({
 
 export default function LocationsScreen() {
 	const { t } = useI18n();
+	const { scheme } = useTheme();
 	const qc = useQueryClient();
 	const statusRef = useRef<BottomSheetModal>(null);
 	useLocationSharing(); // starts/stops background updates based on active shares
@@ -201,57 +276,119 @@ export default function LocationsScreen() {
 		[dispatch, qc],
 	);
 
+	const eventPins = useMemo(
+		() =>
+			(events.data ?? [])
+				.map((e) => ({ e: e as MapEvent, center: eventCenter(e as MapEvent) }))
+				.filter((x): x is { e: MapEvent; center: LngLat } => x.center !== null),
+		[events.data],
+	);
+	const zones = useMemo(
+		() => zoneFeatures((events.data ?? []) as MapEvent[]),
+		[events.data],
+	);
+
+	// When-in-use permission for the "you are here" dot + initial centering. The
+	// background disclosure/permission lives on the share screen, not here.
+	const [showUser, setShowUser] = useState(false);
+	const [userCenter, setUserCenter] = useState<LngLat | null>(null);
+	useEffect(() => {
+		let cancelled = false;
+		(async () => {
+			let granted =
+				(await Location.getForegroundPermissionsAsync().catch(() => null))
+					?.granted ?? false;
+			if (!granted) {
+				granted =
+					(await Location.requestForegroundPermissionsAsync().catch(() => null))
+						?.granted ?? false;
+			}
+			if (cancelled) return;
+			setShowUser(granted);
+			if (granted) {
+				const pos = await Location.getLastKnownPositionAsync().catch(
+					() => null,
+				);
+				if (pos && !cancelled) {
+					setUserCenter([pos.coords.longitude, pos.coords.latitude]);
+				}
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	// Center once on the first available anchor: the user, else a shared person/event.
+	const dataCenter: LngLat | null = locations[0]
+		? [locations[0].lng, locations[0].lat]
+		: (eventPins[0]?.center ?? null);
+	const [frozenCenter, setFrozenCenter] = useState<LngLat | null>(null);
+	useEffect(() => {
+		if (frozenCenter) return;
+		const c = userCenter ?? dataCenter;
+		if (c) setFrozenCenter(c);
+	}, [userCenter, dataCenter, frozenCenter]);
+	const center = frozenCenter ?? DEFAULT_CENTER;
+
 	return (
 		<View style={StyleSheet.absoluteFill}>
 			<MapView
-				// Google on Android; Apple Maps on iOS (avoids the react-native-google-maps
-				// pod, which 1.27.2 doesn't ship and which conflicts with static frameworks).
-				provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
 				style={StyleSheet.absoluteFill}
-				showsUserLocation
+				mapStyle={cartoStyle(scheme === "dark")}
+				logo={false}
+				attributionPosition={{ bottom: 8, left: 8 }}
 			>
+				<Camera
+					key={frozenCenter ? "anchored" : "default"}
+					initialViewState={{ center, zoom: frozenCenter ? 12 : 1.5 }}
+				/>
+				{zones.features.length > 0 ? (
+					<GeoJSONSource id="event-zones" data={zones}>
+						<Layer
+							id="event-zones-fill"
+							type="fill"
+							paint={{ "fill-color": EVENT_COLOR, "fill-opacity": 0.15 }}
+						/>
+						<Layer
+							id="event-zones-line"
+							type="line"
+							paint={{ "line-color": EVENT_COLOR, "line-width": 2 }}
+						/>
+					</GeoJSONSource>
+				) : null}
+				{showUser ? <UserLocation /> : null}
 				{locations.map((l) => (
-					<PersonMarker
-						key={`${l.userId}-${presence[l.userId]?.status ?? "offline"}`}
-						l={l}
-						presence={presence[l.userId]}
-					/>
+					<PersonMarker key={l.userId} l={l} presence={presence[l.userId]} />
 				))}
-				{(events.data ?? []).map((e) => {
-					const points = eventPoints(e.coordinates);
-					const center =
-						e.locationZoneMethod === "circle" ? points[0] : centroid(points);
-					if (!center) return null;
-					return (
-						<Fragment key={e.id}>
-							{e.locationZoneMethod === "polygon" && points.length >= 3 ? (
-								<Polygon
-									coordinates={points}
-									strokeColor="#7c3aed"
-									fillColor="rgba(124,58,237,0.15)"
-								/>
-							) : null}
-							{e.locationZoneMethod === "circle" && e.circleRadius ? (
-								<Circle
-									center={center}
-									radius={e.circleRadius}
-									strokeColor="#7c3aed"
-									fillColor="rgba(124,58,237,0.15)"
-								/>
-							) : null}
-							<Marker
-								coordinate={center}
-								title={e.title}
-								description={e.locationText ?? undefined}
-								pinColor="#7c3aed"
-								onCalloutPress={() => router.push(`/events/${e.id}`)}
-							/>
-						</Fragment>
-					);
-				})}
+				{eventPins.map(({ e, center: c }) => (
+					<Marker
+						key={e.id}
+						id={e.id}
+						lngLat={c}
+						anchor="bottom"
+						onPress={() => router.push(`/events/${e.id}`)}
+					>
+						<View
+							className="rounded-full px-2 py-1"
+							style={{ backgroundColor: EVENT_COLOR }}
+						>
+							<Text
+								className="text-[10px] font-semibold text-white"
+								numberOfLines={1}
+							>
+								{e.title}
+							</Text>
+						</View>
+					</Marker>
+				))}
 			</MapView>
+
 			{locations.length === 0 ? (
-				<View className="absolute inset-x-0 bottom-10 items-center">
+				<View
+					className="absolute inset-x-0 bottom-10 items-center"
+					pointerEvents="none"
+				>
 					<Text variant="muted">{t("locations.empty")}</Text>
 				</View>
 			) : null}

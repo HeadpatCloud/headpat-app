@@ -14,7 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
 	name: "Headpat",
 	slug: "headpat-app",
-	version: "0.9.5",
+	version: "0.9.6",
 	orientation: "portrait",
 	icon: "./assets/images/icon.png",
 	scheme: "headpat",
@@ -57,9 +57,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	android: {
 		package: "com.headpat.app",
 		googleServicesFile: androidGoogleServices,
-		config: {
-			googleMaps: { apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
-		},
 		adaptiveIcon: {
 			foregroundImage: "./assets/images/adaptive-icon.png",
 			backgroundColor: "#ffffff",
@@ -121,5 +118,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 				isAndroidForegroundServiceEnabled: true,
 			},
 		],
+		"@maplibre/maplibre-react-native",
 	],
 });
