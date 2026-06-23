@@ -57,6 +57,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	android: {
 		package: "com.headpat.app",
 		googleServicesFile: androidGoogleServices,
+		// Required by expo-task-manager: the background-location task schedules a
+		// persisted JobScheduler job (survives reboot), which Android refuses
+		// without this permission. Neither the expo-location nor expo-task-manager
+		// config plugin adds it, so declare it here.
+		permissions: ["android.permission.RECEIVE_BOOT_COMPLETED"],
 		adaptiveIcon: {
 			foregroundImage: "./assets/images/adaptive-icon.png",
 			backgroundColor: "#ffffff",
