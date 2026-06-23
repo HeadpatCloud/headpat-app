@@ -45,10 +45,17 @@ export async function startSharingUpdates(): Promise<void> {
 }
 
 export async function stopSharingUpdates(): Promise<void> {
-	// stopLocationUpdatesAsync throws TaskNotFoundException when the task isn't
-	// registered (e.g. sharing was never started this install). Gate on the actual
-	// precondition — registration — not the "started" flag, which can read stale
-	// (true while unregistered) after an auto-unregister or reinstall.
-	if (!(await TaskManager.isTaskRegisteredAsync(LOCATION_TASK))) return;
-	await Location.stopLocationUpdatesAsync(LOCATION_TASK);
+	try {
+		// Nothing to stop if the task isn't registered (e.g. sharing was never
+		// started this install).
+		if (!(await TaskManager.isTaskRegisteredAsync(LOCATION_TASK))) return;
+		await Location.stopLocationUpdatesAsync(LOCATION_TASK);
+	} catch {
+		// expo-task-manager and expo-location can disagree: the task is registered
+		// with the task manager but expo-location can't stop it (TaskNotFound) —
+		// e.g. a prior startLocationUpdatesAsync failed part-way and left a stale
+		// registration. Clear that lingering entry so state is consistent and the
+		// next start works cleanly.
+		await TaskManager.unregisterTaskAsync(LOCATION_TASK).catch(() => {});
+	}
 }
