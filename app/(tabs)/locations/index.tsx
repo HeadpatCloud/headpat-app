@@ -295,14 +295,9 @@ export default function LocationsScreen() {
 	useEffect(() => {
 		let cancelled = false;
 		(async () => {
-			let granted =
+			const granted =
 				(await Location.getForegroundPermissionsAsync().catch(() => null))
 					?.granted ?? false;
-			if (!granted) {
-				granted =
-					(await Location.requestForegroundPermissionsAsync().catch(() => null))
-						?.granted ?? false;
-			}
 			if (cancelled) return;
 			setShowUser(granted);
 			if (granted) {
