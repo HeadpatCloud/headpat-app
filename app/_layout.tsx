@@ -1,326 +1,175 @@
+import "@/global.css";
+// Register the background-location task at the top of the always-loaded root
+// layout so iOS has a JS handler when it relaunches the app headlessly to deliver
+// background location. Must live here (not in a route screen), but NOT in a
+// custom entry file — a custom main desyncs expo-router's module graph.
+import "@/lib/location/background-task";
+
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-	type FirebaseMessagingTypes,
-	getInitialNotification,
-	getMessaging,
-	onMessage,
-	onNotificationOpenedApp,
-	onTokenRefresh,
-} from "@react-native-firebase/messaging";
-import { ThemeProvider } from "@react-navigation/native";
-import { NotifierWrapper } from "react-native-notifier";
-import { captureException } from "@sentry/react-native";
-import {
-	router,
-	SplashScreen,
-	Stack,
-	useRouter,
-	useSegments,
-} from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import type React from "react";
-import { useEffect, useMemo, useState } from "react";
-import { BackHandler, Platform } from "react-native";
+import { PortalHost } from "@rn-primitives/portal";
+import { Stack, useRouter, useSegments } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { ProfileThemeToggle } from "~/components/ThemeToggle";
-import { AlertModalProvider } from "~/components/contexts/AlertModalProvider";
-import { LanguageProvider } from "~/components/contexts/LanguageProvider";
-import { LocationProvider } from "~/components/contexts/SharingContext";
-import {
-	updatePushTargetWithAppwrite,
-	UserProvider,
-} from "~/components/contexts/UserContext";
-import CacheProvider from "~/components/contexts/cacheProvider";
-import { HeaderMenuSidebar } from "~/components/data/DrawerData";
-import { DrawerScreensData } from "~/components/data/DrawerScreensData";
-import { PortalHost } from "~/components/primitives/portal";
-import EulaModal from "~/components/system/EulaModal";
-import { requestUserPermission } from "~/components/system/pushNotifications";
-import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
-import { databases } from "~/lib/appwrite-client";
-import { NAV_THEME } from "~/lib/constants";
-import { toast } from "~/lib/toast";
-import { useColorScheme } from "~/lib/useColorScheme";
-import "../components/init/sentryInit";
-import "../components/system/backgroundTasks";
-import "../globals.css";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AgeGate } from "@/components/age-gate";
+import { EulaGate } from "@/components/eula-gate";
+import { useSession } from "@/lib/auth-client";
+import { I18nProvider, useI18n } from "@/lib/i18n/provider";
+import { MotionProvider, useReducedMotion } from "@/lib/motion/reduced-motion";
+import { AppProviders } from "@/lib/providers";
+import { ThemeProvider, useTheme } from "@/lib/theme/provider";
+import { useAgeGate } from "@/lib/use-age-gate";
+import { useEula } from "@/lib/use-eula";
+import { usePushNotifications } from "@/lib/use-push-notifications";
 
-export { ErrorBoundary } from "expo-router";
+export {
+	// Catch any errors thrown by the Layout component.
+	ErrorBoundary,
+} from "expo-router";
 
-export const unstable_settings = {
-	initialRouteName: "index",
-};
+// Hold the splash until ThemeProvider has hydrated the stored theme — the
+// first visible frame is then already in the user's colors, not the default.
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
-void SplashScreen.preventAutoHideAsync();
+function useProtectedRoute() {
+	const { data, isPending } = useSession();
+	const segments = useSegments();
+	const router = useRouter();
+	const [onboarded, setOnboarded] = useState<boolean | null>(null);
+
+	// Re-read on each navigation so finishing onboarding takes effect and a guest
+	// is never bounced back into onboarding once the flag is set.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: segments is the re-read trigger
+	useEffect(() => {
+		AsyncStorage.getItem("hp-onboarded").then((v) => setOnboarded(v === "1"));
+	}, [segments]);
+
+	useEffect(() => {
+		if (isPending || onboarded === null) return;
+		const inAuthGroup = segments[0] === "(auth)";
+		if (!data && !onboarded && !inAuthGroup) {
+			router.replace("/(auth)/onboarding");
+		} else if (data && inAuthGroup) {
+			router.replace("/");
+		}
+		// Onboarded but signed-out users roam freely (guest browsing): the (auth)
+		// screens to sign in, or the (tabs) to browse public content.
+	}, [data, isPending, segments, router, onboarded]);
+}
+
+function RootNav() {
+	useProtectedRoute();
+	usePushNotifications();
+	const reduced = useReducedMotion();
+	const { colors } = useTheme();
+	const { t } = useI18n();
+	const segments = useSegments();
+	const { needsAcceptance, serverUpdatedAt, accept } = useEula();
+	const { needsAgeCheck, clear: clearAge } = useAgeGate();
+	const showEulaGate = needsAcceptance && segments[0] !== "(auth)";
+	return (
+		<>
+			<Stack
+				screenOptions={{
+					headerShown: false,
+					animation: reduced ? "fade" : "slide_from_right",
+					animationDuration: reduced ? 120 : undefined,
+					gestureEnabled: true,
+					// Detail screens push over the "(tabs)" route; without this the iOS
+					// back button inherits that group name as its label.
+					headerBackButtonDisplayMode: "minimal",
+					// Paint the native screen container — the nav theme only colors the
+					// JS view, so transitions otherwise flash the white window behind.
+					contentStyle: { backgroundColor: colors.background },
+				}}
+			>
+				<Stack.Screen name="(auth)" />
+				<Stack.Screen name="(tabs)" />
+				<Stack.Screen
+					name="appearance"
+					// the screen renders its own hero title (spec §12)
+					options={{ headerShown: true, title: "" }}
+				/>
+				<Stack.Screen
+					name="theme-builder"
+					options={{
+						headerShown: true,
+						title: t("titles.themeBuilder"),
+						presentation: "modal",
+						animation: "default",
+					}}
+				/>
+				<Stack.Screen
+					name="security"
+					options={{ headerShown: true, title: t("titles.security") }}
+				/>
+				<Stack.Screen
+					name="connections"
+					options={{ headerShown: true, title: t("titles.connections") }}
+				/>
+				<Stack.Screen name="announcements" />
+				<Stack.Screen name="community" />
+				<Stack.Screen
+					name="changelog"
+					options={{ headerShown: true, title: "" }}
+				/>
+				<Stack.Screen name="legal" options={{ headerShown: true, title: "" }} />
+				<Stack.Screen
+					name="support"
+					options={{ headerShown: true, title: "" }}
+				/>
+				<Stack.Screen
+					name="notifications"
+					options={{ headerShown: true, title: "" }}
+				/>
+				<Stack.Screen
+					name="users/index"
+					options={{ headerShown: true, title: t("titles.users") }}
+				/>
+				<Stack.Screen name="user" />
+				<Stack.Screen
+					name="profile-edit"
+					options={{
+						headerShown: true,
+						title: t("titles.profileEdit"),
+						presentation: "modal",
+						animation: "default",
+					}}
+				/>
+				<Stack.Screen name="tickets" />
+				<Stack.Screen name="admin" />
+				<Stack.Screen
+					name="community-admin/[communityId]"
+					options={{ headerShown: true, title: t("titles.communityAdmin") }}
+				/>
+			</Stack>
+			{showEulaGate ? (
+				<EulaGate updatedAt={serverUpdatedAt} onAccept={accept} />
+			) : null}
+			{needsAgeCheck ? <AgeGate onClear={clearAge} /> : null}
+		</>
+	);
+}
 
 export default function RootLayout() {
-	const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
-	const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
-	const [lastBackPressed, setLastBackPressed] = useState(0);
-	const [openEulaModal, setOpenEulaModal] = useState(false);
-	const [versionData, setVersionData] = useState<any>(null);
-	const [isMounted, setIsMounted] = useState(false);
-	const messaging = getMessaging();
-
-	const theme = useMemo(
-		() => ({
-			fonts: {
-				regular: {
-					fontFamily: "Inter_400Regular",
-					fontWeight: "400" as const,
-				},
-				medium: {
-					fontFamily: "Inter_500Medium",
-					fontWeight: "500" as const,
-				},
-				bold: {
-					fontFamily: "Inter_700Bold",
-					fontWeight: "700" as const,
-				},
-				heavy: {
-					fontFamily: "Inter_800Heavy",
-					fontWeight: "800" as const,
-				},
-			},
-			dark: isDarkColorScheme,
-			colors: isDarkColorScheme ? NAV_THEME.dark : NAV_THEME.light,
-		}),
-		[isDarkColorScheme],
-	);
-
-	useEffect(() => {
-		const initialize = async () => {
-			const theme = await AsyncStorage.getItem("theme");
-			const colorTheme = theme === "dark" ? "dark" : "light";
-			await setAndroidNavigationBar(colorTheme);
-			if (colorTheme !== colorScheme) {
-				void setColorScheme(colorTheme);
-			}
-			setIsColorSchemeLoaded(true);
-			await SplashScreen.hideAsync();
-			setIsMounted(true);
-		};
-		void initialize();
-	}, [colorScheme, setColorScheme]);
-
-	const router = useRouter();
-	const segments = useSegments();
-	useEffect(() => {
-		const backAction = () => {
-			const now = Date.now();
-			if (segments[0] !== "index") {
-				router.back();
-			} else {
-				if (now - lastBackPressed < 2000) {
-					BackHandler.exitApp();
-				} else {
-					toast("Press back again to exit");
-					setLastBackPressed(now);
-				}
-			}
-			return true;
-		};
-
-		const backHandler = BackHandler.addEventListener(
-			"hardwareBackPress",
-			backAction,
-		);
-		return () => backHandler.remove();
-	}, [router, segments, lastBackPressed]);
-
-	useEffect(() => {
-		const handleMessaging = () => {
-			onMessage(messaging, (remoteMessage) => {
-				console.log(remoteMessage);
-			});
-			onNotificationOpenedApp(messaging, (remoteMessage) => {
-				if (remoteMessage.data?.type === "newFollower") {
-					router.navigate(
-						`/user/(stacks)/${remoteMessage.data.userId as string}`,
-					);
-				} else if (remoteMessage.data?.type === "newMessage") {
-					router.navigate(`/chat/${remoteMessage.data.userId as string}`);
-				}
-			});
-			void requestUserPermission();
-			onTokenRefresh(messaging, (newFcmToken) => {
-				if (!newFcmToken) return;
-				void AsyncStorage.setItem("fcmToken", newFcmToken);
-				void updatePushTargetWithAppwrite(newFcmToken);
-			});
-		};
-		handleMessaging();
-	}, [router]);
-
-	useEffect(() => {
-		const getEulaVersion = async () => {
-			try {
-				const data = await databases.getRow({
-					databaseId: "config",
-					tableId: "legal",
-					rowId: "eula",
-				});
-				const eula = await AsyncStorage.getItem("eula");
-				if (eula !== data.version) {
-					const allKeys = await AsyncStorage.getAllKeys();
-					const eulaKeys = allKeys.filter((key) => key.startsWith("eula"));
-					await AsyncStorage.multiRemove(eulaKeys);
-					setVersionData(data);
-					setOpenEulaModal(true);
-				}
-			} catch (error) {
-				captureException(error);
-			}
-		};
-		if (isMounted) {
-			void getEulaVersion();
-			void bootstrap(messaging);
-		}
-	}, [isMounted]);
-
-	if (!isColorSchemeLoaded) {
-		return null;
-	}
-
 	return (
-		<SafeAreaProvider>
-			<GestureHandlerRootView style={{ flex: 1 }}>
-				<ThemeProvider value={theme}>
-					<UserProvider>
-						<CacheProvider>
-							<LanguageProvider>
-								<AlertModalProvider>
-									<NotifierWrapper>
-										<EulaModal
-											isOpen={openEulaModal}
-											setOpen={setOpenEulaModal}
-											versionData={versionData}
-										/>
-										<LocationProvider>
-											<BottomSheetModalProvider>
-												{Platform.OS === "android" && (
-													<SafeAreaView style={{ flex: 1 }} edges={["top"]}>
-														<StatusBar
-															style={colorScheme === "dark" ? "light" : "dark"}
-															backgroundColor={
-																colorScheme === "dark" ? "#000000" : "#ffffff"
-															}
-														/>
-														<Stack
-															screenOptions={{
-																headerStyle: {
-																	backgroundColor:
-																		colorScheme === "dark" ? "#000" : "#fff",
-																},
-																headerTintColor:
-																	colorScheme === "dark" ? "#fff" : "#000",
-																contentStyle: {
-																	backgroundColor:
-																		colorScheme === "dark" ? "#000" : "#fff",
-																},
-															}}
-														>
-															{DrawerScreensData.map((screen: DrawerProps) => (
-																<Stack.Screen
-																	key={screen.location}
-																	name={screen.location}
-																	options={{
-																		keyboardHandlingEnabled: true,
-																		headerTitleAlign: "left",
-																		headerShown: screen.headerShown,
-																		headerTitle: screen.title,
-																		headerLargeTitle: screen.headerLargeTitle,
-																		headerLeft: () =>
-																			screen.headerLeft ?? (
-																				<HeaderMenuSidebar />
-																			),
-																		headerRight: () =>
-																			screen.headerRight ?? (
-																				<ProfileThemeToggle />
-																			),
-																		gestureEnabled: screen.swipeEnabled,
-																	}}
-																/>
-															))}
-														</Stack>
-													</SafeAreaView>
-												)}
-
-												{Platform.OS === "ios" && (
-													<>
-														<StatusBar
-															style={colorScheme === "dark" ? "light" : "dark"}
-														/>
-														<Stack
-															screenOptions={{
-																headerStyle: {
-																	backgroundColor:
-																		colorScheme === "dark" ? "#000" : "#fff",
-																},
-																headerTintColor:
-																	colorScheme === "dark" ? "#fff" : "#000",
-																contentStyle: {
-																	backgroundColor:
-																		colorScheme === "dark" ? "#000" : "#fff",
-																},
-															}}
-														>
-															{DrawerScreensData.map((screen: DrawerProps) => (
-																<Stack.Screen
-																	key={screen.location}
-																	name={screen.location}
-																	options={{
-																		keyboardHandlingEnabled: true,
-																		headerTitleAlign: "left",
-																		headerShown: screen.headerShown,
-																		headerTitle: screen.title,
-																		headerLargeTitle: screen.headerLargeTitle,
-																		headerLeft: () =>
-																			screen.headerLeft ?? (
-																				<HeaderMenuSidebar />
-																			),
-																		headerRight: () =>
-																			screen.headerRight ?? (
-																				<ProfileThemeToggle />
-																			),
-																		gestureEnabled: screen.swipeEnabled,
-																	}}
-																/>
-															))}
-														</Stack>
-													</>
-												)}
-												<PortalHost />
-											</BottomSheetModalProvider>
-										</LocationProvider>
-									</NotifierWrapper>
-								</AlertModalProvider>
-							</LanguageProvider>
-						</CacheProvider>
-					</UserProvider>
-				</ThemeProvider>
-			</GestureHandlerRootView>
-		</SafeAreaProvider>
+		<GestureHandlerRootView style={{ flex: 1 }}>
+			<SafeAreaProvider>
+				<AppProviders>
+					<ThemeProvider>
+						<I18nProvider>
+							<MotionProvider>
+								<BottomSheetModalProvider>
+									<RootNav />
+									<PortalHost />
+								</BottomSheetModalProvider>
+							</MotionProvider>
+						</I18nProvider>
+					</ThemeProvider>
+				</AppProviders>
+			</SafeAreaProvider>
+		</GestureHandlerRootView>
 	);
-}
-
-async function bootstrap(messaging: FirebaseMessagingTypes.Module) {
-	const initialNotification = await getInitialNotification(messaging);
-	if (initialNotification?.data?.type === "newFollower") {
-		router.navigate(
-			`/user/(stacks)/${initialNotification.data.userId as string}`,
-		);
-	}
-}
-
-export interface DrawerProps {
-	location: string;
-	title: string;
-	swipeEnabled?: boolean;
-	headerShown?: boolean;
-	headerLargeTitle?: boolean;
-	headerLeft?: React.ReactNode;
-	headerRight?: React.ReactNode;
 }

@@ -1,64 +1,41 @@
-import { router, Stack } from 'expo-router'
-import React from 'react'
-import { useColorScheme } from '~/lib/useColorScheme'
-import { useUser } from '~/components/contexts/UserContext'
-import { View } from 'react-native'
-import { TouchableOpacity } from '@gorhom/bottom-sheet'
-import { PlusIcon } from 'lucide-react-native'
-import { ProfileThemeToggle } from '~/components/ThemeToggle'
-import { HeaderSidebarBackButton } from '~/components/data/DrawerScreensData'
-import FeatureAccess from '~/components/FeatureAccess'
+import { router, Stack } from "expo-router";
+import { Pressable } from "react-native";
+import { HeaderControls } from "@/components/header-controls";
+import { ChevronLeft } from "@/components/icons";
+import { Icon } from "@/components/ui/icon";
+import { useI18n } from "@/lib/i18n/provider";
+import { useTheme } from "@/lib/theme/provider";
 
-function CommunityAddButton() {
-  const { isDarkColorScheme } = useColorScheme()
-  const theme = isDarkColorScheme ? 'white' : 'black'
-  const { current } = useUser()
-
-  return (
-    <FeatureAccess featureName={'communities'}>
-      <View className={'items-center flex-row gap-4'}>
-        {current && (
-          <TouchableOpacity onPress={() => router.navigate('/community/add')}>
-            <PlusIcon
-              aria-label={'Create community'}
-              title={'Create community'}
-              size={20}
-              color={theme}
-            />
-          </TouchableOpacity>
-        )}
-        <View>
-          <ProfileThemeToggle />
-        </View>
-      </View>
-    </FeatureAccess>
-  )
+export default function CommunityLayout() {
+	const { colors } = useTheme();
+	const { t } = useI18n();
+	return (
+		<Stack
+			screenOptions={{
+				contentStyle: { backgroundColor: colors.background },
+				headerRight: () => <HeaderControls />,
+			}}
+		>
+			<Stack.Screen
+				name="index"
+				options={{
+					title: t("titles.communities"),
+					// Root of this nested stack (pushed from menu/home), so no automatic
+					// back button — add one that pops back to where it was opened from.
+					headerLeft: () => (
+						<Pressable
+							onPress={() => router.back()}
+							accessibilityRole="button"
+							accessibilityLabel={t("common.back")}
+							hitSlop={12}
+						>
+							<Icon as={ChevronLeft} size={28} />
+						</Pressable>
+					),
+				}}
+			/>
+			<Stack.Screen name="[communityId]" options={{ title: "" }} />
+			<Stack.Screen name="new" options={{ title: "", presentation: "modal" }} />
+		</Stack>
+	);
 }
-
-function _layout() {
-  return (
-    <Stack initialRouteName="index">
-      <Stack.Screen
-        name="index"
-        options={{
-          headerLargeTitle: true,
-          headerTitle: 'Communities',
-          headerLeft: () => <HeaderSidebarBackButton />,
-          headerRight: () => <CommunityAddButton />
-        }}
-      />
-      <Stack.Screen
-        name="(stacks)"
-        options={{
-          headerLargeTitle: false,
-          headerTitle: 'Community',
-          headerLeft: () => <HeaderSidebarBackButton />,
-          headerRight: () => <ProfileThemeToggle />
-        }}
-      />
-      <Stack.Screen name="add/index" />
-    </Stack>
-  )
-}
-
-export default _layout

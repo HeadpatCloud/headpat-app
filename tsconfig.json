@@ -1,49 +1,25 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
     "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "baseUrl": ".",
     "paths": {
-      "~/*": ["*"]
+      "@/*": [
+        "./*"
+      ],
+      "@backend/*": [
+        "../headpat-place-api/src/*"
+      ]
     }
   },
   "include": [
-    "app/**/*.ts",
-    "app/**/*.tsx",
-    "components/**/*.ts",
-    "components/**/*.tsx",
-    "lib/**/*.ts",
-    "lib/**/*.tsx",
-    "*.ts",
-    "*.tsx",
+    "**/*.ts",
+    "**/*.tsx",
     "nativewind-env.d.ts",
-    "app.config.ts",
-    "tailwind.config.js",
-    "prettier.config.mjs",
-    "metro.config.js",
-    "eslint.config.mjs",
-    "firebaseConfig.ts",
-    "babel.config.js"
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
   ],
   "exclude": [
     "node_modules",
-    "ios",
-    "android",
-    ".expo",
-    "**/build/**",
-    "**/dist/**",
-    "**/.expo/**"
+    "__tests__"
   ]
 }

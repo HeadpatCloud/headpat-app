@@ -1,39 +1,68 @@
-import * as React from 'react'
+import { LinearGradient } from "expo-linear-gradient";
+import { useEffect, useState } from "react";
+import {
+	type LayoutChangeEvent,
+	StyleSheet,
+	View,
+	type ViewProps,
+} from "react-native";
 import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming
-} from 'react-native-reanimated'
-import { cn } from '~/lib/utils'
+	interpolate,
+	useAnimatedStyle,
+	useSharedValue,
+	withRepeat,
+	withTiming,
+} from "react-native-reanimated";
+import { useReducedMotion } from "@/lib/motion/reduced-motion";
+import { cn } from "@/lib/utils";
 
-const duration = 1000
+export function Skeleton({ className, style, ...props }: ViewProps) {
+	const reduced = useReducedMotion();
+	const [width, setWidth] = useState(0);
+	const progress = useSharedValue(0);
 
-function Skeleton({
-  className,
-  ...props
-}: Omit<React.ComponentPropsWithoutRef<typeof Animated.View>, 'style'>) {
-  const sv = useSharedValue(1)
+	useEffect(() => {
+		if (reduced) return;
+		progress.value = withRepeat(withTiming(1, { duration: 1200 }), -1, false);
+	}, [reduced, progress]);
 
-  React.useEffect(() => {
-    sv.value = withRepeat(
-      withSequence(withTiming(0.5, { duration }), withTiming(1, { duration })),
-      -1
-    )
-  }, [sv])
+	const sheenStyle = useAnimatedStyle(() => ({
+		transform: [
+			{ translateX: interpolate(progress.value, [0, 1], [-width, width]) },
+		],
+	}));
 
-  const style = useAnimatedStyle(() => ({
-    opacity: sv.value
-  }))
+	if (reduced) {
+		return (
+			<View
+				className={cn("bg-muted rounded-md", className)}
+				style={[{ opacity: 0.6 }, style]}
+				accessibilityElementsHidden
+				importantForAccessibility="no-hide-descendants"
+				{...props}
+			/>
+		);
+	}
 
-  return (
-    <Animated.View
-      style={style}
-      className={cn('rounded-md bg-secondary dark:bg-muted', className)}
-      {...props}
-    />
-  )
+	return (
+		<View
+			className={cn("bg-muted overflow-hidden rounded-md", className)}
+			style={style}
+			onLayout={(e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width)}
+			accessibilityElementsHidden
+			importantForAccessibility="no-hide-descendants"
+			{...props}
+		>
+			{width > 0 ? (
+				<Animated.View style={[StyleSheet.absoluteFill, sheenStyle]}>
+					<LinearGradient
+						colors={["transparent", "rgba(255, 255, 255, 0.18)", "transparent"]}
+						start={{ x: 0, y: 0 }}
+						end={{ x: 1, y: 0 }}
+						style={StyleSheet.absoluteFill}
+					/>
+				</Animated.View>
+			) : null}
+		</View>
+	);
 }
-
-export { Skeleton }

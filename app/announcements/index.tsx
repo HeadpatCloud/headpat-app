@@ -1,158 +1,69 @@
-import { useFocusEffect } from "@react-navigation/core"
-import { captureException } from "@sentry/react-native"
-import { FlashList } from "@shopify/flash-list"
-import {
-  InfiniteData,
-  useInfiniteQuery,
-  useQueryClient,
-} from "@tanstack/react-query"
-import React, { useCallback } from "react"
-import { RefreshControl, View } from "react-native"
-import { Query } from "react-native-appwrite"
-import { ScrollView } from "react-native-gesture-handler"
-import { useAlertModal } from "~/components/contexts/AlertModalProvider"
-import AnnouncementItem from "~/components/FlatlistItems/AnnouncementItem"
-import { i18n } from "~/components/system/i18n"
-import { Text } from "~/components/ui/text"
-import { H1 } from "~/components/ui/typography"
-import SlowInternet from "~/components/views/SlowInternet"
-import { databases } from "~/lib/appwrite-client"
-import {
-  AnnouncementDataType,
-  AnnouncementDocumentsType,
-} from "~/lib/types/collections"
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
+import { router } from "expo-router";
+import { StyleSheet, View } from "react-native";
+import { GlowBackdrop } from "@/components/brand/glow-backdrop";
+import { PaginatedList } from "@/components/paginated-list";
+import { GlowCard } from "@/components/ui/card";
+import { Gradient } from "@/components/ui/gradient";
+import { GradientText } from "@/components/ui/gradient-text";
+import { Text } from "@/components/ui/text";
+import { useI18n } from "@/lib/i18n/provider";
+import { PressableScale } from "@/lib/motion/pressable-scale";
+import { orpc } from "@/lib/orpc";
 
-const PAGE_SIZE = 50
+export default function Announcements() {
+	const { t } = useI18n();
+	const query = useInfiniteQuery(
+		orpc.announcement.list.infiniteOptions({
+			input: (page: number) => ({ page, pageSize: 24 }),
+			initialPageParam: 1,
+			getNextPageParam: (last) =>
+				last.page * last.pageSize < last.total ? last.page + 1 : undefined,
+		}),
+	);
 
-interface AnnouncementPage {
-  total: number
-  rows: AnnouncementDocumentsType[]
+	return (
+		<PaginatedList
+			query={query}
+			keyExtractor={(a) => a.id}
+			emptyTitle={t("announcements.empty")}
+			ListHeaderComponent={
+				<View className="gap-1 pb-4 pt-2">
+					<GlowBackdrop size={220} style={styles.bloom} />
+					<GradientText className="text-4xl font-extrabold leading-10 tracking-tight">
+						{t("announcements.heading")}
+					</GradientText>
+					<Text variant="muted">{t("announcements.subtitle")}</Text>
+				</View>
+			}
+			renderItem={(a) => (
+				<PressableScale
+					onPress={() => router.push(`/announcements/${a.id}`)}
+					haptic="selection"
+					accessibilityRole="button"
+					accessibilityLabel={a.title ?? undefined}
+				>
+					<GlowCard accent="none" className="gap-1.5 rounded-3xl p-4 pl-5">
+						<Gradient
+							style={styles.spine}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 0, y: 1 }}
+							pointerEvents="none"
+						/>
+						<Text variant="large">{a.title}</Text>
+						{a.sideText ? <Text variant="muted">{a.sideText}</Text> : null}
+						<Text variant="small" className="text-muted-foreground">
+							{formatDistanceToNow(new Date(a.createdAt), { addSuffix: true })}
+						</Text>
+					</GlowCard>
+				</PressableScale>
+			)}
+		/>
+	);
 }
 
-export default function AnnouncementsPage() {
-  const { showAlert } = useAlertModal()
-  const queryClient = useQueryClient()
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isRefetching } =
-    useInfiniteQuery<
-      AnnouncementPage,
-      Error,
-      InfiniteData<AnnouncementPage>,
-      string[],
-      number
-    >({
-      queryKey: ["announcements"],
-      queryFn: async ({ pageParam = 0 }) => {
-        try {
-          const currentDate = new Date()
-          const queries = [
-            Query.orderAsc("validUntil"),
-            Query.greaterThanEqual("validUntil", currentDate.toISOString()),
-            Query.limit(PAGE_SIZE),
-            Query.offset(pageParam),
-          ]
-
-          const data: AnnouncementDataType = await databases.listRows({
-            databaseId: "hp_db",
-            tableId: "announcements",
-            queries: queries,
-          })
-
-          return {
-            total: data.total,
-            rows: data.rows,
-          }
-        } catch (error) {
-          console.error("Error fetching announcements:", error)
-          showAlert(
-            "FAILED",
-            "Failed to fetch announcements. Please try again later."
-          )
-          captureException(error)
-          return {
-            total: 0,
-            rows: [],
-          }
-        }
-      },
-      getNextPageParam: (lastPage, allPages) => {
-        return lastPage.rows.length === PAGE_SIZE
-          ? allPages.length * PAGE_SIZE
-          : undefined
-      },
-      initialPageParam: 0,
-      staleTime: 1000 * 60 * 5, // 5 minutes
-    })
-
-  const onRefresh = useCallback(() => {
-    void queryClient.invalidateQueries({ queryKey: ["announcements"] })
-  }, [queryClient])
-
-  useFocusEffect(
-    useCallback(() => {
-      onRefresh()
-    }, [onRefresh])
-  )
-
-  const renderItem = useCallback(
-    ({ item }: { item: AnnouncementDocumentsType }) => (
-      <AnnouncementItem announcement={item} />
-    ),
-    []
-  )
-
-  const keyExtractor = useCallback(
-    (item: AnnouncementDocumentsType) => item.$id,
-    []
-  )
-
-  const announcements = data?.pages[0]
-  const allDocuments = data?.pages.flatMap((page) => page.rows) ?? []
-
-  if (isRefetching && !announcements) {
-    return <SlowInternet />
-  }
-
-  if ((!isRefetching && announcements?.total === 0) || !announcements) {
-    return (
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={onRefresh} />
-        }
-        contentInsetAdjustmentBehavior={"automatic"}
-      >
-        <View className={"flex h-full flex-1 items-center justify-center"}>
-          <View className={"gap-6 p-4 text-center"}>
-            <H1 className={"text-2xl font-semibold"}>Empty here..</H1>
-            <Text className={"text-muted-foreground"}>
-              Sorry, there are no announcements available at the moment.
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
-    )
-  }
-
-  return (
-    <View style={{ flex: 1 }}>
-      <FlashList
-        data={!isRefetching ? allDocuments : []}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        onRefresh={onRefresh}
-        refreshing={isRefetching}
-        contentContainerStyle={{ padding: 8 }}
-        onEndReached={() => {
-          if (hasNextPage && !isFetchingNextPage) {
-            void fetchNextPage()
-          }
-        }}
-        onEndReachedThreshold={0.5}
-        contentInsetAdjustmentBehavior={"automatic"}
-        ListFooterComponent={
-          isFetchingNextPage ? <Text>{i18n.t("main.loading")}</Text> : null
-        }
-      />
-    </View>
-  )
-}
+const styles = StyleSheet.create({
+	bloom: { position: "absolute", top: -70, left: -60 },
+	spine: { position: "absolute", top: 0, bottom: 0, left: 0, width: 3 },
+});

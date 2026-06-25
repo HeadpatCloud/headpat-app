@@ -1,57 +1,70 @@
-import { cva, type VariantProps } from 'class-variance-authority'
-import { View } from 'react-native'
-import * as Slot from '~/components/primitives/slot'
-import type { SlottableViewProps } from '~/components/primitives/types'
-import { cn } from '~/lib/utils'
-import { TextClassContext } from '~/components/ui/text'
+import type { ReactNode } from "react";
+import { StyleSheet, View } from "react-native";
+import type { LucideIcon } from "@/components/icons";
+import { Gradient } from "@/components/ui/gradient";
+import { Icon } from "@/components/ui/icon";
+import { Text, TextClassContext } from "@/components/ui/text";
+import { cn } from "@/lib/utils";
 
-const badgeVariants = cva(
-  'web:inline-flex items-center rounded-full border border-border px-2.5 py-0.5 web:transition-colors web:focus:outline-none web:focus:ring-2 web:focus:ring-ring web:focus:ring-offset-2',
-  {
-    variants: {
-      variant: {
-        default:
-          'border-transparent bg-primary web:hover:opacity-80 active:opacity-80',
-        secondary:
-          'border-transparent bg-secondary web:hover:opacity-80 active:opacity-80',
-        destructive:
-          'border-transparent bg-destructive web:hover:opacity-80 active:opacity-80',
-        outline: 'text-foreground'
-      }
-    },
-    defaultVariants: {
-      variant: 'default'
-    }
-  }
-)
+type Variant =
+	| "default"
+	| "secondary"
+	| "outline"
+	| "destructive"
+	| "gradient"
+	| "tonal";
 
-const badgeTextVariants = cva('text-xs font-semibold ', {
-  variants: {
-    variant: {
-      default: 'text-primary-foreground',
-      secondary: 'text-secondary-foreground',
-      destructive: 'text-destructive-foreground',
-      outline: 'text-foreground'
-    }
-  },
-  defaultVariants: {
-    variant: 'default'
-  }
-})
+const container: Record<Variant, string> = {
+	default: "bg-primary",
+	secondary: "bg-secondary",
+	outline: "border-border border",
+	destructive: "bg-destructive",
+	gradient: "",
+	tonal: "bg-primary/15",
+};
 
-type BadgeProps = SlottableViewProps & VariantProps<typeof badgeVariants>
+const text: Record<Variant, string> = {
+	default: "text-primary-foreground",
+	secondary: "text-secondary-foreground",
+	outline: "text-foreground",
+	destructive: "text-white",
+	gradient: "text-primary-foreground",
+	tonal: "text-primary",
+};
 
-function Badge({ className, variant, asChild, ...props }: BadgeProps) {
-  const Component = asChild ? Slot.View : View
-  return (
-    <TextClassContext.Provider value={badgeTextVariants({ variant })}>
-      <Component
-        className={cn(badgeVariants({ variant }), className)}
-        {...props}
-      />
-    </TextClassContext.Provider>
-  )
+export function Badge({
+	children,
+	variant = "secondary",
+	icon,
+	className,
+}: {
+	children: ReactNode;
+	variant?: Variant;
+	icon?: LucideIcon;
+	className?: string;
+}) {
+	const inner = (
+		<TextClassContext.Provider value={cn("text-xs font-medium", text[variant])}>
+			{icon ? <Icon as={icon} size={12} /> : null}
+			{typeof children === "string" ? <Text>{children}</Text> : children}
+		</TextClassContext.Provider>
+	);
+
+	const layout =
+		"flex-row items-center gap-1 self-start rounded-full px-2.5 py-0.5";
+
+	if (variant === "gradient") {
+		// layout classes live on a View — LinearGradient ignores className, so
+		// the gradient paints behind as an absolute fill instead.
+		return (
+			<View className={cn(layout, "overflow-hidden", className)}>
+				<Gradient style={StyleSheet.absoluteFill} pointerEvents="none" />
+				{inner}
+			</View>
+		);
+	}
+
+	return (
+		<View className={cn(layout, container[variant], className)}>{inner}</View>
+	);
 }
-
-export { Badge, badgeTextVariants, badgeVariants }
-export type { BadgeProps }

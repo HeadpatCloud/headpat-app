@@ -1,141 +1,128 @@
-export default ({ config }: { config: any }) => ({
-  ...config,
-  name: "Headpat",
-  slug: "headpat-app",
-  version: "0.8.15",
-  orientation: "portrait",
-  icon: "./assets/images/icon.png",
-  scheme: "appwrite-callback-hp-main",
-  userInterfaceStyle: "automatic",
-  runtimeVersion: {
-    policy: "appVersion",
-  },
-  splash: {
-    image: "./assets/images/headpat_splash.png",
-    resizeMode: "cover",
-    backgroundColor: "#000000",
-  },
-  notification: {
-    icon: "./assets/images/headpat_logo.png",
-    iosDisplayInForeground: true,
-  },
-  githubUrl: "https://github.com/Headpat-Community/headpat-app",
-  assetBundlePatterns: ["**/*"],
-  ios: {
-    entitlements: {
-      "aps-environment": "production",
-    },
-    supportsTablet: true,
-    bundleIdentifier: "com.headpat.app",
-    usesAppleSignIn: true,
-    googleServicesFile: "./GoogleService-Info.plist",
-    config: {
-      usesNonExemptEncryption: false,
-      googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? "",
-    },
-    appStoreUrl: "https://apps.apple.com/app/headpat/id6502715063",
-    infoPlist: {
-      UIBackgroundModes: ["fetch", "remote-notification", "processing"],
-      NSLocationWhenInUseUsageDescription:
-        "This app requires access to your location to show you on the map and see nearby events.",
-      NSLocationAlwaysAndWhenInUseUsageDescription:
-        "This app requires access to your location to show you on the map and see nearby events.",
-      NSLocationAlwaysUsageDescription:
-        "This app requires access to your location to show you on the map and see nearby events.",
-      BGTaskSchedulerPermittedIdentifiers: [
-        "com.headpat.app.location",
-        "com.headpat.app.fetch",
-      ],
-    },
-    associatedDomains: [
-      "applinks:headpat.app",
-      "applinks:headpat.place",
-      "applinks:headpat.space",
-      "applinks:headpat.dev",
-      "applinks:api.headpat.place",
-      "applinks:api.headpat.space",
-      "applinks:api.headpat.dev",
-    ],
-    appleTeamId: "S243K37R5M",
-  },
-  android: {
-    permissions: [
-      "android.permission.ACCESS_COARSE_LOCATION",
-      "android.permission.ACCESS_FINE_LOCATION",
-      "android.permission.ACCESS_BACKGROUND_LOCATION",
-      "android.permission.WAKE_LOCK",
-    ],
-    icon: "./assets/images/headpat_logo.png",
-    googleServicesFile: "./google-services.json",
-    adaptiveIcon: {
-      foregroundImage: "./assets/images/headpat_logo.png",
-      backgroundColor: "#ffffff",
-    },
-    config: {
-      googleMaps: {
-        apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? "",
-      },
-    },
-    package: "com.headpat.app",
-  },
-  extra: {
-    router: {
-      origin: false,
-    },
-    eas: {
-      projectId: "904378a3-321c-4abe-9c08-48274d5f6267",
-    },
-  },
-  owner: "expo-headpat",
-  plugins: [
-    "@react-native-firebase/app",
-    "@react-native-firebase/messaging",
-    "expo-localization",
-    "expo-apple-authentication",
-    "expo-background-task",
-    "expo-web-browser",
-    [
-      "expo-task-manager",
-      {
-        ios: {
-          minimumOSVersion: "15",
-        },
-      },
-    ],
-    [
-      "expo-location",
-      {
-        locationAlwaysAndWhenInUsePermission:
-          "Allow Headpat to share your location with other users so they can see you on the map and see nearby events.",
-        locationAlwaysPermission:
-          "Allow Headpat to share your location with other users so they can see you on the map and see nearby events.",
-        locationWhenInUsePermission:
-          "Allow Headpat to use your location to see yourself on the map and see nearby events.",
-        isIosBackgroundLocationEnabled: true,
-        isAndroidBackgroundLocationEnabled: true,
-      },
-    ],
-    [
-      "expo-image-picker",
-      {
-        photosPermission:
-          "The app accesses your photos to let you share them with your fellow friends.",
-      },
-    ],
-    [
-      "expo-build-properties",
-      {
-        ios: {
-          useFrameworks: "static",
-          buildReactNativeFromSource: true,
-          deploymentTarget: "15.1",
-        },
-      },
-    ],
-    "expo-maps",
-    "expo-video",
-    "expo-router",
-    "expo-secure-store",
-    "expo-font",
-  ],
-})
+import { existsSync } from "node:fs";
+import type { ConfigContext, ExpoConfig } from "expo/config";
+
+// Firebase config files (FCM push). Omitted when absent so a build doesn't fail
+// on a missing file before they're added.
+const androidGoogleServices = existsSync("./google-services.json")
+	? "./google-services.json"
+	: undefined;
+const iosGoogleServices = existsSync("./GoogleService-Info.plist")
+	? "./GoogleService-Info.plist"
+	: undefined;
+
+export default ({ config }: ConfigContext): ExpoConfig => ({
+	...config,
+	name: "Headpat",
+	slug: "headpat-app",
+	version: "0.9.7",
+	orientation: "portrait",
+	icon: "./assets/images/icon.png",
+	scheme: "headpat",
+	userInterfaceStyle: "automatic",
+	// Root native view behind all screens — white flashes through transitions
+	// otherwise. Matches the splash background.
+	backgroundColor: "#000000",
+	runtimeVersion: { policy: "appVersion" },
+	assetBundlePatterns: ["**/*"],
+	ios: {
+		supportsTablet: true,
+		bundleIdentifier: "com.headpat.app",
+		appStoreUrl: "https://apps.apple.com/app/headpat/id6502715063",
+		usesAppleSignIn: true,
+		config: {
+			usesNonExemptEncryption: false,
+		},
+		// Apple Declared Age Range (iOS 26+) — required to call requestAgeRangeAsync.
+		entitlements: {
+			"com.apple.developer.declared-age-range": true,
+			// Push Notifications capability. Without this, APNs registration fails
+			// with "no valid aps-environment entitlement". Local + the dev EAS
+			// profile use the APNs sandbox; preview (ad-hoc) and production use
+			// production APNs.
+			"aps-environment":
+				process.env.EAS_BUILD_PROFILE &&
+				process.env.EAS_BUILD_PROFILE !== "development"
+					? "production"
+					: "development",
+		},
+		googleServicesFile: iosGoogleServices,
+		associatedDomains: [
+			"applinks:headpat.app",
+			"applinks:headpat.place",
+			"applinks:headpat.space",
+			"applinks:headpat.dev",
+		],
+		appleTeamId: "S243K37R5M",
+	},
+	android: {
+		package: "com.headpat.app",
+		googleServicesFile: androidGoogleServices,
+		// Required by expo-task-manager: the background-location task schedules a
+		// persisted JobScheduler job (survives reboot), which Android refuses
+		// without this permission. Neither the expo-location nor expo-task-manager
+		// config plugin adds it, so declare it here.
+		permissions: ["android.permission.RECEIVE_BOOT_COMPLETED"],
+		adaptiveIcon: {
+			foregroundImage: "./assets/images/adaptive-icon.png",
+			backgroundColor: "#ffffff",
+		},
+	},
+	web: {
+		bundler: "metro",
+		output: "static",
+		favicon: "./assets/images/favicon.png",
+	},
+	extra: {
+		router: {},
+		eas: { projectId: "904378a3-321c-4abe-9c08-48274d5f6267" },
+	},
+	owner: "expo-headpat",
+	experiments: { typedRoutes: true },
+	plugins: [
+		"expo-router",
+		"expo-image",
+		[
+			"expo-splash-screen",
+			{
+				image: "./assets/images/headpat_splash.png",
+				resizeMode: "cover",
+				backgroundColor: "#000000",
+			},
+		],
+		"expo-status-bar",
+		"expo-secure-store",
+		"expo-web-browser",
+		"expo-apple-authentication",
+		[
+			"expo-image-picker",
+			{
+				photosPermission:
+					"Headpat uses your photos so you can share them in the gallery and set your avatar.",
+			},
+		],
+		"@react-native-firebase/app",
+		"@react-native-firebase/messaging",
+		[
+			"./plugins/with-notification-icon",
+			{
+				// Provide an all-white, transparent silhouette PNG here (~96x96).
+				icon: "./assets/images/notification-icon.png",
+				color: "#E84393",
+			},
+		],
+		["expo-build-properties", { ios: { useFrameworks: "static" } }],
+		[
+			"expo-location",
+			{
+				locationWhenInUsePermission:
+					"Headpat uses your location to share it with the people and communities you choose.",
+				locationAlwaysAndWhenInUsePermission:
+					"Headpat shares your location in the background only while you have an active share, so others can see you on the map.",
+				isIosBackgroundLocationEnabled: true,
+				isAndroidBackgroundLocationEnabled: true,
+				isAndroidForegroundServiceEnabled: true,
+			},
+		],
+		"@maplibre/maplibre-react-native",
+	],
+});

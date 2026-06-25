@@ -1,63 +1,73 @@
-# Headpat app
+# Minimal Template
 
-How to get started:
+This is a [React Native](https://reactnative.dev/) project built with [Expo](https://expo.dev/) and [React Native Reusables](https://reactnativereusables.com).
 
-First of all, you need to install the dependencies. You can do this by running the following command:
-
-```bash
-pnpm install
-```
-
-Make sure to have an android emulator installed on your machine, like Android Studio or XCode installed on your macOS.
-
-After that, you can start the app, this will run the app in development mode using an android emulator:
+It was initialized using the following command, then the `Minimal (Nativewind)` template was selected when prompted:
 
 ```bash
-pnpm run dev
+npx @react-native-reusables/cli@latest init
 ```
 
-If you want to use iOS (this will only work on macOS), you can run the following command:
+## Getting Started
+
+To run the development server:
 
 ```bash
-pnpm run ios
+    npm run dev
+    # or
+    yarn dev
+    # or
+    pnpm dev
+    # or
+    bun dev
 ```
 
-## Using the API:
+This will start the Expo Dev Server. Open the app in:
 
-### Using functions:
+- **iOS**: press `i` to launch in the iOS simulator _(Mac only)_
+- **Android**: press `a` to launch in the Android emulator
+- **Web**: press `w` to run in a browser
 
-```ts
-const fetchUsers = async () => {
-  try {
-    const data = await functions.createExecution(
-      'user-endpoints',
-      '',
-      false,
-      '/getUsers',
-      ExecutionMethod.GET
-    )
-    setUsers(JSON.parse(data.responseBody))
-  } catch (error) {
-    console.error(error)
-  }
-}
+You can also scan the QR code using the [Expo Go](https://expo.dev/go) app on your device. This project fully supports running in Expo Go for quick testing on physical devices.
+
+## Adding components
+
+You can add more reusable components using the CLI:
+
+```bash
+npx react-native-reusables/cli@latest add [...components]
 ```
 
-### Using databases:
+> e.g. `npx react-native-reusables/cli@latest add input textarea`
 
-```ts
-const fetchEvents = async () => {
-  try {
-    const data: EventsType = await database.listDocuments('hp_db', 'events')
-    setEvents(data)
-  } catch (error) {
-    console.error(error)
-  }
-}
-```
+If you don't specify any component names, you'll be prompted to select which components to add interactively. Use the `--all` flag to install all available components at once.
 
-### Using environment variables
+## Project Features
 
-Please copy .env.example to .env and fill in your data.
+- ⚛️ Built with [Expo Router](https://expo.dev/router)
+- 🎨 Styled with [Tailwind CSS](https://tailwindcss.com/) via [Nativewind](https://www.nativewind.dev/)
+- 📦 UI powered by [React Native Reusables](https://github.com/founded-labs/react-native-reusables)
+- 🚀 New Architecture enabled
+- 🔥 Edge to Edge enabled
+- 📱 Runs on iOS, Android, and Web
 
-Making a production build requires environment variables set in https://expo.dev
+## Learn More
+
+To dive deeper into the technologies used:
+
+- [React Native Docs](https://reactnative.dev/docs/getting-started)
+- [Expo Docs](https://docs.expo.dev/)
+- [Nativewind Docs](https://www.nativewind.dev/)
+- [React Native Reusables](https://reactnativereusables.com)
+
+## Deploy with EAS
+
+The easiest way to deploy your app is with [Expo Application Services (EAS)](https://expo.dev/eas).
+
+- [EAS Build](https://docs.expo.dev/build/introduction/)
+- [EAS Updates](https://docs.expo.dev/eas-update/introduction/)
+- [EAS Submit](https://docs.expo.dev/submit/introduction/)
+
+---
+
+If you enjoy using React Native Reusables, please consider giving it a ⭐ on [GitHub](https://github.com/founded-labs/react-native-reusables). Your support means a lot!
