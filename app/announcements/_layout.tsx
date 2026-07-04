@@ -1,5 +1,6 @@
 import { router, Stack } from "expo-router";
 import { Pressable } from "react-native";
+import { HeaderBack } from "@/components/header-back";
 import { HeaderControls } from "@/components/header-controls";
 import { ChevronLeft } from "@/components/icons";
 import { Icon } from "@/components/ui/icon";
@@ -20,7 +21,6 @@ export default function AnnouncementsLayout() {
 				name="index"
 				options={{
 					title: "",
-					// Root of this nested stack, so no automatic back button.
 					headerLeft: () => (
 						<Pressable
 							onPress={() => router.back()}
@@ -33,7 +33,10 @@ export default function AnnouncementsLayout() {
 					),
 				}}
 			/>
-			<Stack.Screen name="[announcementId]" options={{ title: "" }} />
+			<Stack.Screen
+				name="[announcementId]"
+				options={{ title: "", headerLeft: () => <HeaderBack /> }}
+			/>
 		</Stack>
 	);
 }

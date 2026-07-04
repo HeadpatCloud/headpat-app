@@ -104,7 +104,7 @@ function EventCard({ event, featured }: { event: Event; featured?: boolean }) {
 	const { t } = useI18n();
 	return (
 		<PressableScale
-			onPress={() => router.push(`/events/${event.id}`)}
+			onPress={() => router.push(`/event/${event.id}`)}
 			haptic="selection"
 			accessibilityRole="button"
 			accessibilityLabel={event.title}

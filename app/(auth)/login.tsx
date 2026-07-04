@@ -1,6 +1,12 @@
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Platform, View } from "react-native";
+import {
+	KeyboardAvoidingView,
+	Platform,
+	Pressable,
+	ScrollView,
+	View,
+} from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
@@ -9,12 +15,13 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SocialButtons } from "@/components/auth/social-buttons";
-import { GlowBackdrop } from "@/components/brand/glow-backdrop";
+import { ChevronLeft } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
+import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { signIn } from "@/lib/auth-client";
+import { authClient, signIn } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
@@ -29,6 +36,8 @@ export default function Login() {
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
+	const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+	const [resent, setResent] = useState(false);
 
 	const shakeX = useSharedValue(0);
 	const fieldsStyle = useAnimatedStyle(() => ({
@@ -50,8 +59,33 @@ export default function Login() {
 	const submit = async () => {
 		setBusy(true);
 		setError(null);
+		setUnverifiedEmail(null);
+		setResent(false);
 		const res = await signIn.email({ email: email.trim(), password });
-		if (res.error) setError(humanizeError(res.error));
+		if (res.error) {
+			if (res.error.code === "EMAIL_NOT_VERIFIED") {
+				// the failed sign-in already triggered a fresh verification email
+				setUnverifiedEmail(email.trim());
+				setError(t("auth.login.unverified"));
+			} else {
+				setError(humanizeError(res.error));
+			}
+		}
+		setBusy(false);
+	};
+
+	const resend = async () => {
+		if (!unverifiedEmail) return;
+		setBusy(true);
+		const res = await authClient.sendVerificationEmail({
+			email: unverifiedEmail,
+		});
+		if (res.error) {
+			setError(humanizeError(res.error));
+		} else {
+			setResent(true);
+			setError(null);
+		}
 		setBusy(false);
 	};
 
@@ -60,17 +94,31 @@ export default function Login() {
 			behavior={Platform.OS === "ios" ? "padding" : undefined}
 			className="bg-background flex-1"
 		>
-			<View
-				className="flex-1 justify-center gap-5 px-6"
-				style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+			<ScrollView
+				className="flex-1"
+				contentContainerClassName="gap-5 px-6"
+				contentContainerStyle={{
+					paddingTop: insets.top + 24,
+					paddingBottom: insets.bottom + 24,
+				}}
+				keyboardShouldPersistTaps="handled"
 			>
+				{router.canGoBack() ? (
+					<Pressable
+						onPress={() => router.back()}
+						accessibilityRole="button"
+						accessibilityLabel={t("common.back")}
+						hitSlop={12}
+						className="self-start"
+					>
+						<Icon as={ChevronLeft} size={28} />
+					</Pressable>
+				) : null}
+
 				<AnimatedEntrance index={0} className="gap-2">
-					<View className="self-start">
-						<GlowBackdrop size={220} className="-top-12 -left-8" />
-						<GradientText className="text-4xl font-bold">
-							{t("auth.login.title")}
-						</GradientText>
-					</View>
+					<GradientText className="text-4xl font-bold">
+						{t("auth.login.title")}
+					</GradientText>
 					<Text variant="muted">{t("auth.login.subtitle")}</Text>
 				</AnimatedEntrance>
 
@@ -106,6 +154,23 @@ export default function Login() {
 				{error ? (
 					<Text className="text-destructive" accessibilityRole="alert">
 						{error}
+					</Text>
+				) : null}
+
+				{unverifiedEmail && !resent ? (
+					<Button
+						variant="outline"
+						disabled={busy}
+						onPress={resend}
+						accessibilityRole="button"
+						accessibilityLabel={t("auth.login.resend")}
+					>
+						<Text>{t("auth.login.resend")}</Text>
+					</Button>
+				) : null}
+				{resent ? (
+					<Text variant="muted" accessibilityRole="alert">
+						{t("auth.login.resendSent")}
 					</Text>
 				) : null}
 
@@ -148,7 +213,7 @@ export default function Login() {
 						</Link>
 					</View>
 				</AnimatedEntrance>
-			</View>
+			</ScrollView>
 		</KeyboardAvoidingView>
 	);
 }

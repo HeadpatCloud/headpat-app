@@ -14,7 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
 	name: "Headpat",
 	slug: "headpat-app",
-	version: "0.9.7",
+	version: "0.9.8",
 	orientation: "portrait",
 	icon: "./assets/images/icon.png",
 	scheme: "headpat",

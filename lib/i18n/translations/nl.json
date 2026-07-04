@@ -66,7 +66,10 @@
 			"submitting": "Inloggen…",
 			"forgotPassword": "Wachtwoord vergeten?",
 			"newHere": "Nieuw hier?",
-			"createAccount": "Account aanmaken"
+			"createAccount": "Account aanmaken",
+			"unverified": "Je e-mail is nog niet geverifieerd. We hebben je zojuist een nieuwe verificatielink gestuurd. Controleer je inbox.",
+			"resend": "Verificatie-e-mail opnieuw verzenden",
+			"resendSent": "Verificatie-e-mail verzonden. Controleer je inbox."
 		},
 		"register": {
 			"title": "Account aanmaken",
@@ -81,7 +84,10 @@
 			"submit": "Account aanmaken",
 			"submitting": "Aanmaken…",
 			"haveAccount": "Heb je al een account?",
-			"signIn": "Inloggen"
+			"signIn": "Inloggen",
+			"checkInboxTitle": "Controleer je inbox",
+			"checkInboxBody": "We hebben een verificatielink naar %{email} gestuurd. Klik erop om je account te activeren en log daarna in.",
+			"backToSignIn": "Terug naar inloggen"
 		},
 		"forgotPassword": {
 			"title": "Wachtwoord resetten",
@@ -125,7 +131,9 @@
 			"slide3Title": "Klaar wanneer jij dat bent",
 			"slide3Body": "Spring erin en maak Headpat helemaal van jou.",
 			"continue": "Doorgaan",
-			"haveAccount": "Ik heb al een account"
+			"haveAccount": "Ik heb al een account",
+			"prevA11y": "Vorige",
+			"nextA11y": "Volgende"
 		},
 		"welcome": {
 			"title": "Welkom bij Headpat",

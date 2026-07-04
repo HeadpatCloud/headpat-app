@@ -1,8 +1,4 @@
 import "@/global.css";
-// Register the background-location task at the top of the always-loaded root
-// layout so iOS has a JS handler when it relaunches the app headlessly to deliver
-// background location. Must live here (not in a route screen), but NOT in a
-// custom entry file — a custom main desyncs expo-router's module graph.
 import "@/lib/location/background-task";
 
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
@@ -24,13 +20,8 @@ import { useAgeGate } from "@/lib/use-age-gate";
 import { useEula } from "@/lib/use-eula";
 import { usePushNotifications } from "@/lib/use-push-notifications";
 
-export {
-	// Catch any errors thrown by the Layout component.
-	ErrorBoundary,
-} from "expo-router";
+export { ErrorBoundary } from "expo-router";
 
-// Hold the splash until ThemeProvider has hydrated the stored theme — the
-// first visible frame is then already in the user's colors, not the default.
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function useProtectedRoute() {
@@ -39,9 +30,6 @@ function useProtectedRoute() {
 	const router = useRouter();
 	const [onboarded, setOnboarded] = useState<boolean | null>(null);
 
-	// Re-read on each navigation so finishing onboarding takes effect and a guest
-	// is never bounced back into onboarding once the flag is set.
-	// biome-ignore lint/correctness/useExhaustiveDependencies: segments is the re-read trigger
 	useEffect(() => {
 		AsyncStorage.getItem("hp-onboarded").then((v) => setOnboarded(v === "1"));
 	}, [segments]);
@@ -54,8 +42,6 @@ function useProtectedRoute() {
 		} else if (data && inAuthGroup) {
 			router.replace("/");
 		}
-		// Onboarded but signed-out users roam freely (guest browsing): the (auth)
-		// screens to sign in, or the (tabs) to browse public content.
 	}, [data, isPending, segments, router, onboarded]);
 }
 
@@ -77,11 +63,7 @@ function RootNav() {
 					animation: reduced ? "fade" : "slide_from_right",
 					animationDuration: reduced ? 120 : undefined,
 					gestureEnabled: true,
-					// Detail screens push over the "(tabs)" route; without this the iOS
-					// back button inherits that group name as its label.
 					headerBackButtonDisplayMode: "minimal",
-					// Paint the native screen container — the nav theme only colors the
-					// JS view, so transitions otherwise flash the white window behind.
 					contentStyle: { backgroundColor: colors.background },
 				}}
 			>
@@ -89,7 +71,6 @@ function RootNav() {
 				<Stack.Screen name="(tabs)" />
 				<Stack.Screen
 					name="appearance"
-					// the screen renders its own hero title (spec §12)
 					options={{ headerShown: true, title: "" }}
 				/>
 				<Stack.Screen
@@ -111,6 +92,8 @@ function RootNav() {
 				/>
 				<Stack.Screen name="announcements" />
 				<Stack.Screen name="community" />
+				<Stack.Screen name="event" />
+				<Stack.Screen name="post" />
 				<Stack.Screen
 					name="changelog"
 					options={{ headerShown: true, title: "" }}

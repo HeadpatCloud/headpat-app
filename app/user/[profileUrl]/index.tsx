@@ -118,7 +118,7 @@ function GalleryGrid({ query }: { query: GalleryQuery }) {
 				{items.map((item) => (
 					<View key={item.id} className="w-1/2 p-1.5">
 						<PressableScale
-							onPress={() => router.push(`/gallery/${item.id}`)}
+							onPress={() => router.push(`/post/${item.id}`)}
 							haptic="selection"
 							accessibilityRole="button"
 							accessibilityLabel={item.name}
@@ -430,7 +430,9 @@ export default function UserProfile() {
 								</GradientText>
 							</View>
 							{p.pronouns ? (
-								<Badge variant="outline">{p.pronouns}</Badge>
+								<Badge variant="outline" className="self-center">
+									{p.pronouns}
+								</Badge>
 							) : null}
 						</View>
 						<Text variant="muted">@{p.profileUrl}</Text>

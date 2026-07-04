@@ -38,7 +38,7 @@ export default function Events() {
 				skeleton={<Skeleton className="h-20 w-full rounded-2xl" />}
 				renderItem={(e) => (
 					<PressableScale
-						onPress={() => router.push(`/events/${e.id}`)}
+						onPress={() => router.push(`/event/${e.id}`)}
 						haptic="selection"
 						accessibilityRole="button"
 						accessibilityLabel={e.title}

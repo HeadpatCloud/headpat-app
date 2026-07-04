@@ -66,7 +66,10 @@
 			"submitting": "Signing in…",
 			"forgotPassword": "Forgot password?",
 			"newHere": "New here?",
-			"createAccount": "Create an account"
+			"createAccount": "Create an account",
+			"unverified": "Your email isn't verified yet. We've just sent you a new verification link. Check your inbox.",
+			"resend": "Resend verification email",
+			"resendSent": "Verification email sent. Check your inbox."
 		},
 		"register": {
 			"title": "Create account",
@@ -81,7 +84,10 @@
 			"submit": "Create account",
 			"submitting": "Creating…",
 			"haveAccount": "Already have an account?",
-			"signIn": "Sign in"
+			"signIn": "Sign in",
+			"checkInboxTitle": "Check your inbox",
+			"checkInboxBody": "We've sent a verification link to %{email}. Click it to activate your account, then sign in.",
+			"backToSignIn": "Back to sign in"
 		},
 		"forgotPassword": {
 			"title": "Reset password",
@@ -125,7 +131,9 @@
 			"slide3Title": "Ready when you are",
 			"slide3Body": "Jump in and make Headpat your own.",
 			"continue": "Continue",
-			"haveAccount": "I already have an account"
+			"haveAccount": "I already have an account",
+			"prevA11y": "Previous",
+			"nextA11y": "Next"
 		},
 		"welcome": {
 			"title": "Welcome to Headpat",

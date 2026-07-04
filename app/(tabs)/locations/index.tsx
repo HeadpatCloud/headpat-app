@@ -1,6 +1,7 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import {
 	Camera,
+	type CameraRef,
 	GeoJSONSource,
 	Layer,
 	Map as MapView,
@@ -13,6 +14,7 @@ import * as Location from "expo-location";
 import { router } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
+import Supercluster from "supercluster";
 import { StatusSheet } from "@/components/locations/status-sheet";
 import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
@@ -31,13 +33,13 @@ import { useTheme } from "@/lib/theme/provider";
 
 type LngLat = [number, number];
 type PresenceInfo = { status?: string; customStatus?: string | null };
+type ClusterPoint = { kind: "person" | "event"; id: string };
 
 const MARKER = 44;
 const MARKER_INNER = MARKER - 6;
 const EVENT_COLOR = "#7c3aed";
 const DEFAULT_CENTER: LngLat = [0, 20];
 
-// CARTO's OpenStreetMap raster basemap — the same tiles the web uses, no API key.
 function cartoStyle(dark: boolean): StyleSpecification {
 	const variant = dark ? "dark_all" : "light_all";
 	return {
@@ -86,8 +88,6 @@ function eventCenter(e: MapEvent): LngLat | null {
 	return [sum[0] / pts.length, sum[1] / pts.length];
 }
 
-// Approximate a geographic circle (center + radius in metres) as a polygon ring,
-// so MapLibre can draw circle zones with the same fill/line layers as polygons.
 function circleRing(
 	center: LngLat,
 	radiusMeters: number,
@@ -104,8 +104,6 @@ function circleRing(
 	return ring;
 }
 
-// One FeatureCollection of all event zones (polygons drawn directly, circles
-// approximated). Fed to a single GeoJSONSource + fill/line layers.
 function zoneFeatures(events: MapEvent[]): GeoJSON.FeatureCollection {
 	const features: GeoJSON.Feature[] = [];
 	for (const e of events) {
@@ -126,8 +124,6 @@ function zoneFeatures(events: MapEvent[]): GeoJSON.FeatureCollection {
 	return { type: "FeatureCollection", features };
 }
 
-// A sharer's marker: their avatar (or first initial) in a circle, ringed in their
-// presence color, with their name/status on a pill. Tap opens their profile.
 function PersonMarker({
 	l,
 	presence,
@@ -217,16 +213,75 @@ function PersonMarker({
 	);
 }
 
+function ClusterMarker({
+	id,
+	count,
+	lngLat,
+	color,
+	onPress,
+}: {
+	id: string;
+	count: number;
+	lngLat: LngLat;
+	color: string;
+	onPress: () => void;
+}) {
+	const size = count < 10 ? 40 : count < 100 ? 48 : 56;
+	return (
+		<Marker id={id} lngLat={lngLat} anchor="center" onPress={onPress}>
+			<View
+				style={{
+					width: size,
+					height: size,
+					borderRadius: size / 2,
+					backgroundColor: color,
+					borderWidth: 3,
+					borderColor: "#fff",
+					alignItems: "center",
+					justifyContent: "center",
+				}}
+			>
+				<Text
+					style={{ color: "#fff", fontWeight: "800", fontSize: size * 0.34 }}
+				>
+					{count}
+				</Text>
+			</View>
+		</Marker>
+	);
+}
+
+function EventMarker({ e, lngLat }: { e: MapEvent; lngLat: LngLat }) {
+	return (
+		<Marker
+			id={e.id}
+			lngLat={lngLat}
+			anchor="bottom"
+			onPress={() => router.push(`/event/${e.id}`)}
+		>
+			<View
+				className="rounded-full px-2 py-1"
+				style={{ backgroundColor: EVENT_COLOR }}
+			>
+				<Text
+					className="text-[10px] font-semibold text-white"
+					numberOfLines={1}
+				>
+					{e.title}
+				</Text>
+			</View>
+		</Marker>
+	);
+}
+
 export default function LocationsScreen() {
 	const { t } = useI18n();
-	const { scheme } = useTheme();
+	const { scheme, colors } = useTheme();
 	const qc = useQueryClient();
 	const statusRef = useRef<BottomSheetModal>(null);
-	useLocationSharing(); // starts/stops background updates based on active shares
+	useLocationSharing();
 	const visible = useQuery({
 		...locationQueries.visible(),
-		// Location is real-time-critical: never serve a stale (persisted) seed, so
-		// reopening the map reflects revokes/precision changes immediately.
 		staleTime: 0,
 		refetchOnMount: "always",
 	});
@@ -249,8 +304,6 @@ export default function LocationsScreen() {
 	}, [visible.data]);
 	const { locations, dispatch } = useLiveLocations(seed);
 
-	// Presence (status + ring color) for everyone on the map. Key by the sorted id
-	// set so live position updates don't churn the query.
 	const idsKey = locations
 		.map((l) => l.userId)
 		.sort()
@@ -288,8 +341,48 @@ export default function LocationsScreen() {
 		[events.data],
 	);
 
-	// When-in-use permission for the "you are here" dot + initial centering. The
-	// background disclosure/permission lives on the share screen, not here.
+	const cameraRef = useRef<CameraRef>(null);
+	const [zoom, setZoom] = useState(12);
+	const byId = useMemo(
+		() => new Map(locations.map((l) => [l.userId, l])),
+		[locations],
+	);
+	const eventById = useMemo(
+		() => new Map(eventPins.map((p) => [p.e.id, p])),
+		[eventPins],
+	);
+	const cluster = useMemo(() => {
+		const sc = new Supercluster<ClusterPoint>({ radius: 80, maxZoom: 16 });
+		sc.load([
+			...locations.map(
+				(l): Supercluster.PointFeature<ClusterPoint> => ({
+					type: "Feature",
+					properties: { kind: "person", id: l.userId },
+					geometry: { type: "Point", coordinates: [l.lng, l.lat] },
+				}),
+			),
+			...eventPins.map(
+				({ e, center }): Supercluster.PointFeature<ClusterPoint> => ({
+					type: "Feature",
+					properties: { kind: "event", id: e.id },
+					geometry: { type: "Point", coordinates: center },
+				}),
+			),
+		]);
+		return sc;
+	}, [locations, eventPins]);
+	const clusters = useMemo(
+		() => cluster.getClusters([-180, -85, 180, 85], Math.round(zoom)),
+		[cluster, zoom],
+	);
+	function expandCluster(clusterId: number, center: LngLat) {
+		cameraRef.current?.flyTo({
+			center,
+			zoom: cluster.getClusterExpansionZoom(clusterId),
+			duration: 400,
+		});
+	}
+
 	const [showUser, setShowUser] = useState(false);
 	const [userCenter, setUserCenter] = useState<LngLat | null>(null);
 	useEffect(() => {
@@ -314,7 +407,6 @@ export default function LocationsScreen() {
 		};
 	}, []);
 
-	// Center once on the first available anchor: the user, else a shared person/event.
 	const dataCenter: LngLat | null = locations[0]
 		? [locations[0].lng, locations[0].lat]
 		: (eventPins[0]?.center ?? null);
@@ -333,8 +425,13 @@ export default function LocationsScreen() {
 				mapStyle={cartoStyle(scheme === "dark")}
 				logo={false}
 				attributionPosition={{ bottom: 8, left: 8 }}
+				onRegionDidChange={(e) => {
+					const z = e.nativeEvent.zoom;
+					if (Number.isFinite(z)) setZoom(z);
+				}}
 			>
 				<Camera
+					ref={cameraRef}
 					key={frozenCenter ? "anchored" : "default"}
 					initialViewState={{ center, zoom: frozenCenter ? 12 : 1.5 }}
 				/>
@@ -353,30 +450,36 @@ export default function LocationsScreen() {
 					</GeoJSONSource>
 				) : null}
 				{showUser ? <UserLocation /> : null}
-				{locations.map((l) => (
-					<PersonMarker key={l.userId} l={l} presence={presence[l.userId]} />
-				))}
-				{eventPins.map(({ e, center: c }) => (
-					<Marker
-						key={e.id}
-						id={e.id}
-						lngLat={c}
-						anchor="bottom"
-						onPress={() => router.push(`/events/${e.id}`)}
-					>
-						<View
-							className="rounded-full px-2 py-1"
-							style={{ backgroundColor: EVENT_COLOR }}
-						>
-							<Text
-								className="text-[10px] font-semibold text-white"
-								numberOfLines={1}
-							>
-								{e.title}
-							</Text>
-						</View>
-					</Marker>
-				))}
+				{clusters.map((feature) => {
+					const [lng, lat] = feature.geometry.coordinates;
+					if ("cluster" in feature.properties) {
+						const id = feature.properties.cluster_id;
+						return (
+							<ClusterMarker
+								key={`cluster-${id}`}
+								id={`cluster-${id}`}
+								count={feature.properties.point_count}
+								lngLat={[lng, lat]}
+								color={colors.primary}
+								onPress={() => expandCluster(id, [lng, lat])}
+							/>
+						);
+					}
+					if (feature.properties.kind === "person") {
+						const l = byId.get(feature.properties.id);
+						return l ? (
+							<PersonMarker
+								key={l.userId}
+								l={l}
+								presence={presence[l.userId]}
+							/>
+						) : null;
+					}
+					const ev = eventById.get(feature.properties.id);
+					return ev ? (
+						<EventMarker key={ev.e.id} e={ev.e} lngLat={ev.center} />
+					) : null;
+				})}
 			</MapView>
 
 			{locations.length === 0 ? (

@@ -48,8 +48,6 @@ export default function Community() {
 		orpc.event.listByCommunity.queryOptions({ input: { communityId } }),
 	);
 
-	// Optimistic: flip iFollow + followersCount in the cache immediately, roll
-	// back on error — the tap must not wait on the network.
 	async function toggleFollow() {
 		if (!session) {
 			router.push("/(auth)/login");
@@ -145,8 +143,6 @@ export default function Community() {
 			contentContainerStyle={{ paddingBottom: 32 }}
 		>
 			<AnimatedEntrance index={0} preset="fade">
-				{/* Gradient banner hero: every community gets a vivid header even
-				    without an uploaded image; the scrim fades it into the page. */}
 				<View style={{ height: 160 }}>
 					{c.bannerFileId ? (
 						<StorageImage
@@ -254,7 +250,7 @@ export default function Community() {
 							<PressableScale
 								key={e.id}
 								haptic="selection"
-								onPress={() => router.push(`/events/${e.id}`)}
+								onPress={() => router.push(`/event/${e.id}`)}
 								accessibilityRole="button"
 								accessibilityLabel={e.title}
 							>

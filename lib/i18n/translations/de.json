@@ -66,7 +66,10 @@
 			"submitting": "Anmeldung läuft…",
 			"forgotPassword": "Passwort vergessen?",
 			"newHere": "Neu hier?",
-			"createAccount": "Konto erstellen"
+			"createAccount": "Konto erstellen",
+			"unverified": "Deine E-Mail ist noch nicht bestätigt. Wir haben dir gerade einen neuen Bestätigungslink geschickt. Sieh in dein Postfach.",
+			"resend": "Bestätigungs-E-Mail erneut senden",
+			"resendSent": "Bestätigungs-E-Mail gesendet. Sieh in dein Postfach."
 		},
 		"register": {
 			"title": "Konto erstellen",
@@ -81,7 +84,10 @@
 			"submit": "Konto erstellen",
 			"submitting": "Wird erstellt…",
 			"haveAccount": "Schon ein Konto?",
-			"signIn": "Anmelden"
+			"signIn": "Anmelden",
+			"checkInboxTitle": "Sieh in dein Postfach",
+			"checkInboxBody": "Wir haben einen Bestätigungslink an %{email} geschickt. Klicke darauf, um dein Konto zu aktivieren, und melde dich dann an.",
+			"backToSignIn": "Zurück zur Anmeldung"
 		},
 		"forgotPassword": {
 			"title": "Passwort zurücksetzen",
@@ -125,7 +131,9 @@
 			"slide3Title": "Bereit, wenn du es bist",
 			"slide3Body": "Leg los und mach Headpat zu deinem eigenen.",
 			"continue": "Weiter",
-			"haveAccount": "Ich habe schon ein Konto"
+			"haveAccount": "Ich habe schon ein Konto",
+			"prevA11y": "Zurück",
+			"nextA11y": "Weiter"
 		},
 		"welcome": {
 			"title": "Willkommen bei Headpat",

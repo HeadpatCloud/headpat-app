@@ -1,5 +1,6 @@
 import { router, Stack } from "expo-router";
 import { Pressable } from "react-native";
+import { HeaderBack } from "@/components/header-back";
 import { HeaderControls } from "@/components/header-controls";
 import { ChevronLeft } from "@/components/icons";
 import { Icon } from "@/components/ui/icon";
@@ -20,8 +21,6 @@ export default function CommunityLayout() {
 				name="index"
 				options={{
 					title: t("titles.communities"),
-					// Root of this nested stack (pushed from menu/home), so no automatic
-					// back button — add one that pops back to where it was opened from.
 					headerLeft: () => (
 						<Pressable
 							onPress={() => router.back()}
@@ -34,7 +33,10 @@ export default function CommunityLayout() {
 					),
 				}}
 			/>
-			<Stack.Screen name="[communityId]" options={{ title: "" }} />
+			<Stack.Screen
+				name="[communityId]"
+				options={{ title: "", headerLeft: () => <HeaderBack /> }}
+			/>
 			<Stack.Screen name="new" options={{ title: "", presentation: "modal" }} />
 		</Stack>
 	);

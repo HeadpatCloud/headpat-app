@@ -1,6 +1,10 @@
 import { expoClient } from "@better-auth/expo/client";
 import { twoFactorClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
+// Force expo-network into the main bundle: @better-auth/expo lazy-imports it
+// inside useSession's first render, and Metro's lazy split turns that into a
+// sync require that the dev runtime reports as a fatal "unknown module" error
+import "expo-network";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
@@ -10,8 +14,6 @@ const isWeb = Platform.OS === "web";
 
 export const authClient = createAuthClient({
 	baseURL: env.apiUrl,
-	// On web the browser owns cookies, so send credentials and skip the
-	// SecureStore cookie shim (browsers forbid setting the Cookie header).
 	fetchOptions: isWeb ? { credentials: "include" } : undefined,
 	plugins: [
 		...(isWeb
@@ -24,8 +26,6 @@ export const authClient = createAuthClient({
 					}),
 				]),
 		twoFactorClient({
-			// When sign-in needs a TOTP code, better-auth fires this instead of
-			// completing the session — send the user to the challenge screen.
 			onTwoFactorRedirect() {
 				router.push("/(auth)/mfa");
 			},

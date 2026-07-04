@@ -1,9 +1,10 @@
 import { Stack } from "expo-router";
+import { HeaderBack } from "@/components/header-back";
 import { HeaderControls } from "@/components/header-controls";
 import { useI18n } from "@/lib/i18n/provider";
 import { useTheme } from "@/lib/theme/provider";
 
-export default function GalleryLayout() {
+export default function PostLayout() {
 	const { colors } = useTheme();
 	const { t } = useI18n();
 	return (
@@ -13,10 +14,13 @@ export default function GalleryLayout() {
 				headerRight: () => <HeaderControls />,
 			}}
 		>
-			<Stack.Screen name="index" options={{ title: t("titles.gallery") }} />
 			<Stack.Screen
-				name="upload"
-				options={{ title: t("titles.galleryUpload"), presentation: "modal" }}
+				name="[galleryId]"
+				options={{ title: "", headerLeft: () => <HeaderBack /> }}
+			/>
+			<Stack.Screen
+				name="edit/[galleryId]"
+				options={{ title: t("gallery.editPost") }}
 			/>
 		</Stack>
 	);

@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { Link, router } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	Image,
 	type NativeScrollEvent,
@@ -19,11 +19,13 @@ import Animated, {
 	useAnimatedScrollHandler,
 	useAnimatedStyle,
 	useSharedValue,
+	withRepeat,
+	withSequence,
 	withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Aurora } from "@/components/brand/aurora";
-import { Moon, Sun } from "@/components/icons";
+import { ChevronLeft, ChevronRight, Moon, Sun } from "@/components/icons";
 import { LegalLinks } from "@/components/legal-links";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
@@ -155,15 +157,68 @@ function Dot({
 			[0, 1, 0],
 			Extrapolation.CLAMP,
 		);
-		// No withSpring here: spawning a spring per scroll frame (and animating
-		// layout `width`) janks the swipe on slower phones.
 		return {
 			width: 8 + active * 12,
-			backgroundColor: active > 0.5 ? colors.primary : colors.muted,
-			opacity: 0.4 + active * 0.6,
+			backgroundColor:
+				active > 0.5 ? colors.primary : colors["muted-foreground"],
+			opacity: 0.5 + active * 0.5,
 		};
 	});
 	return <Animated.View style={style} className="h-2 rounded-full" />;
+}
+
+function NavArrow({
+	dir,
+	visible,
+	hint,
+	label,
+	onPress,
+}: {
+	dir: "prev" | "next";
+	visible: boolean;
+	hint: boolean;
+	label: string;
+	onPress: () => void;
+}) {
+	// Loop a small horizontal nudge in the swipe direction so the arrow reads as
+	// "you can also swipe", not just a tap target.
+	const nudge = useSharedValue(0);
+	useEffect(() => {
+		if (!hint) {
+			nudge.value = withTiming(0, { duration: 150 });
+			return;
+		}
+		nudge.value = withRepeat(
+			withSequence(
+				withTiming(dir === "next" ? 5 : -5, { duration: 650 }),
+				withTiming(0, { duration: 650 }),
+			),
+			-1,
+			false,
+		);
+	}, [hint, dir, nudge]);
+	const style = useAnimatedStyle(() => ({
+		transform: [{ translateX: nudge.value }],
+	}));
+
+	if (!visible) return <View className="h-10 w-10" />;
+	return (
+		<Pressable
+			onPress={onPress}
+			accessibilityRole="button"
+			accessibilityLabel={label}
+			hitSlop={12}
+			className="border-border bg-card/80 h-10 w-10 items-center justify-center rounded-full border"
+		>
+			<Animated.View style={style}>
+				<Icon
+					as={dir === "next" ? ChevronRight : ChevronLeft}
+					size={22}
+					className="text-foreground"
+				/>
+			</Animated.View>
+		</Pressable>
+	);
 }
 
 export default function Onboarding() {
@@ -175,7 +230,7 @@ export default function Onboarding() {
 	const { accepted, accept } = useEula();
 	const scrollX = useSharedValue(0);
 	const scrollRef = useRef<Animated.ScrollView>(null);
-	const [, setPage] = useState(0);
+	const [page, setPage] = useState(0);
 	const [veilColor, setVeilColor] = useState<string | null>(null);
 	const veil = useSharedValue(0);
 
@@ -202,6 +257,16 @@ export default function Onboarding() {
 	const onMomentumEnd = useCallback(
 		(e: NativeSyntheticEvent<NativeScrollEvent>) => {
 			setPage(Math.round(e.nativeEvent.contentOffset.x / width));
+		},
+		[width],
+	);
+
+	const goTo = useCallback(
+		(i: number) => {
+			const next = Math.max(0, Math.min(PANELS - 1, i));
+			if (Platform.OS !== "web") Haptics.selectionAsync();
+			scrollRef.current?.scrollTo({ x: next * width, animated: true });
+			setPage(next);
 		},
 		[width],
 	);
@@ -355,10 +420,24 @@ export default function Onboarding() {
 			</AnimatedScrollView>
 
 			<View
-				className="px-6 pt-4"
+				className="flex-row items-center justify-between px-6 pt-4"
 				style={{ paddingBottom: insets.bottom > 0 ? 8 : 24 }}
 			>
+				<NavArrow
+					dir="prev"
+					visible={accepted && page > 0}
+					hint={false}
+					label={t("auth.onboarding.prevA11y")}
+					onPress={() => goTo(page - 1)}
+				/>
 				<Dots scrollX={scrollX} width={width} />
+				<NavArrow
+					dir="next"
+					visible={accepted && page < PANELS - 1}
+					hint={accepted && page < PANELS - 1 && !reduced}
+					label={t("auth.onboarding.nextA11y")}
+					onPress={() => goTo(page + 1)}
+				/>
 			</View>
 
 			{veilColor ? (

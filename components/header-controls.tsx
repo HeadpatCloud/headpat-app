@@ -9,7 +9,6 @@ import { Text } from "@/components/ui/text";
 import { LOCALES, type Locale, useI18n } from "@/lib/i18n/provider";
 import { useTheme } from "@/lib/theme/provider";
 
-// Right side of the main screen headers: light/dark toggle + language picker.
 export function HeaderControls() {
 	const { scheme, setMode } = useTheme();
 	const { locale, setLocale, t } = useI18n();

@@ -569,7 +569,7 @@ export default function GalleryItem() {
 								label={t("gallery.editPost")}
 								onPress={() => {
 									actionsRef.current?.dismiss();
-									router.push(`/gallery/edit/${galleryId}`);
+									router.push(`/post/edit/${galleryId}`);
 								}}
 							/>
 						) : null}

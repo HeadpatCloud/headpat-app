@@ -72,8 +72,6 @@ export default function Event() {
 		]);
 	}
 
-	// Optimistic: toggle the cached attendance + count immediately, roll back
-	// on error — the tap must not wait on the network for visual feedback.
 	async function toggleAttend() {
 		if (!session) {
 			router.push("/(auth)/login");
@@ -301,7 +299,7 @@ export default function Event() {
 								<Button
 									variant="outline"
 									fullWidth
-									onPress={() => router.push(`/events/edit/${eventId}`)}
+									onPress={() => router.push(`/event/edit/${eventId}`)}
 									accessibilityRole="button"
 									accessibilityLabel={t("titles.eventEdit")}
 								>

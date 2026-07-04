@@ -37,8 +37,6 @@ type CommunityItem = {
 	avatarFileId: string | null;
 };
 
-// Trigger + bottom-sheet picker. Keeps the form compact no matter how many
-// communities the caller can host events in.
 function CommunityPicker({
 	communities,
 	selectedId,
@@ -147,13 +145,11 @@ export default function NewEvent() {
 	const [busy, setBusy] = useState(false);
 	const [picking, setPicking] = useState<"start" | "end" | null>(null);
 
-	// Events belong to a community the caller moderates.
 	const [communityId, setCommunityId] = useState<string | null>(null);
 	const mine = useQuery({
 		...orpc.community.mine.queryOptions(),
 		enabled: !!session,
 	});
-	// Only communities where the caller can actually create events (moderator+).
 	const communities = useMemo(
 		() =>
 			(mine.data ?? []).filter(
@@ -248,7 +244,7 @@ export default function NewEvent() {
 			});
 			qc.invalidateQueries({ queryKey: orpc.event.list.key() });
 			qc.invalidateQueries({ queryKey: orpc.event.upcoming.key() });
-			router.replace(`/events/${created.id}`);
+			router.replace(`/event/${created.id}`);
 		} catch (e) {
 			Alert.alert(t("events.form.createFailed"), humanizeError(e));
 		} finally {

@@ -4,7 +4,8 @@
 export function appRoute(link: string | null): string | null {
 	if (!link) return null;
 	if (link === "/account/tickets") return "/tickets";
-	if (/^\/(user|gallery|events|community|announcements)\//.test(link))
-		return link;
+	if (link.startsWith("/events/")) return link.replace("/events/", "/event/");
+	if (link.startsWith("/gallery/")) return link.replace("/gallery/", "/post/");
+	if (/^\/(user|community|announcements)\//.test(link)) return link;
 	return null;
 }

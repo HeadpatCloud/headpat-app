@@ -1,6 +1,12 @@
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Platform, View } from "react-native";
+import {
+	KeyboardAvoidingView,
+	Platform,
+	Pressable,
+	ScrollView,
+	View,
+} from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
@@ -9,10 +15,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SocialButtons } from "@/components/auth/social-buttons";
-import { GlowBackdrop } from "@/components/brand/glow-backdrop";
+import { ChevronLeft } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Gradient } from "@/components/ui/gradient";
 import { GradientText } from "@/components/ui/gradient-text";
+import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { signUp } from "@/lib/auth-client";
@@ -33,6 +40,7 @@ export default function Register() {
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
+	const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
 
 	const canSubmit =
 		name.trim().length > 0 &&
@@ -74,6 +82,10 @@ export default function Register() {
 					withTiming(0, { duration: 40 }),
 				);
 			}
+		} else {
+			// requireEmailVerification: no session is created, so tell the user
+			// to verify instead of leaving the form without feedback
+			setRegisteredEmail(email.trim());
 		}
 		setBusy(false);
 	};
@@ -83,109 +95,143 @@ export default function Register() {
 			behavior={Platform.OS === "ios" ? "padding" : undefined}
 			className="bg-background flex-1"
 		>
-			<View
-				className="flex-1 justify-center gap-6 px-6"
-				style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+			<ScrollView
+				className="flex-1"
+				contentContainerClassName="gap-6 px-6"
+				contentContainerStyle={{
+					paddingTop: insets.top + 24,
+					paddingBottom: insets.bottom + 24,
+				}}
+				keyboardShouldPersistTaps="handled"
 			>
-				<AnimatedEntrance index={0} className="gap-2">
-					<View className="relative">
-						<GlowBackdrop style={{ top: -24, left: -16 }} />
+				{router.canGoBack() ? (
+					<Pressable
+						onPress={() => router.back()}
+						accessibilityRole="button"
+						accessibilityLabel={t("common.back")}
+						hitSlop={12}
+						className="self-start"
+					>
+						<Icon as={ChevronLeft} size={28} />
+					</Pressable>
+				) : null}
+
+				{registeredEmail ? (
+					<AnimatedEntrance index={0} className="gap-4">
 						<GradientText className="text-4xl font-bold">
-							{t("auth.register.title")}
+							{t("auth.register.checkInboxTitle")}
 						</GradientText>
-					</View>
-					<Text variant="muted">{t("auth.register.subtitle")}</Text>
-				</AnimatedEntrance>
-
-				<Animated.View style={shakeStyle} className="gap-5">
-					<View className="gap-3">
-						<AnimatedEntrance index={1}>
-							<Input
-								placeholder={t("auth.register.namePlaceholder")}
-								value={name}
-								onChangeText={setName}
-								editable={!busy}
-								accessibilityLabel={t("auth.register.nameA11y")}
-							/>
-						</AnimatedEntrance>
-						<AnimatedEntrance index={2}>
-							<Input
-								placeholder={t("auth.register.emailPlaceholder")}
-								value={email}
-								onChangeText={setEmail}
-								autoCapitalize="none"
-								autoComplete="email"
-								keyboardType="email-address"
-								textContentType="emailAddress"
-								editable={!busy}
-								accessibilityLabel={t("auth.register.emailA11y")}
-							/>
-						</AnimatedEntrance>
-						<AnimatedEntrance index={3} className="gap-1.5">
-							<Input
-								placeholder={t("auth.register.passwordPlaceholder")}
-								value={password}
-								onChangeText={setPassword}
-								secureTextEntry
-								autoComplete="new-password"
-								textContentType="newPassword"
-								editable={!busy}
-								accessibilityLabel={t("auth.register.passwordA11y")}
-							/>
-							<View className="bg-muted h-1 overflow-hidden rounded-full">
-								<Animated.View style={fillStyle} className="h-full">
-									<Gradient
-										start={{ x: 0, y: 0 }}
-										end={{ x: 1, y: 0 }}
-										borderRadius={999}
-										style={{ flex: 1 }}
-									/>
-								</Animated.View>
-							</View>
-							<Text variant="small" className="text-muted-foreground px-1">
-								{t("auth.register.minChars", { count: MIN_PASSWORD })}
-							</Text>
-						</AnimatedEntrance>
-					</View>
-
-					{error ? (
-						<Text className="text-destructive" accessibilityRole="alert">
-							{error}
+						<Text variant="muted">
+							{t("auth.register.checkInboxBody", { email: registeredEmail })}
 						</Text>
-					) : null}
-
-					<AnimatedEntrance index={4}>
-						<Button
-							size="lg"
-							fullWidth
-							loading={busy}
-							disabled={!canSubmit}
-							onPress={submit}
-							accessibilityRole="button"
-							accessibilityLabel={t("auth.register.submit")}
-							accessibilityState={{ disabled: !canSubmit, busy }}
-						>
-							<Text>
-								{busy
-									? t("auth.register.submitting")
-									: t("auth.register.submit")}
-							</Text>
-						</Button>
-					</AnimatedEntrance>
-				</Animated.View>
-
-				<AnimatedEntrance index={5} className="gap-5">
-					<SocialButtons />
-					<View className="flex-row justify-center gap-1">
-						<Text variant="muted">{t("auth.register.haveAccount")}</Text>
 						<Link href="/(auth)/login" replace>
-							<Text className="text-primary font-medium">
-								{t("auth.register.signIn")}
-							</Text>
+							<View className="min-h-11 justify-center">
+								<Text className="text-primary font-medium">
+									{t("auth.register.backToSignIn")}
+								</Text>
+							</View>
 						</Link>
-					</View>
-				</AnimatedEntrance>
-			</View>
+					</AnimatedEntrance>
+				) : (
+					<>
+						<AnimatedEntrance index={0} className="gap-2">
+							<GradientText className="text-4xl font-bold">
+								{t("auth.register.title")}
+							</GradientText>
+							<Text variant="muted">{t("auth.register.subtitle")}</Text>
+						</AnimatedEntrance>
+
+						<Animated.View style={shakeStyle} className="gap-5">
+							<View className="gap-3">
+								<AnimatedEntrance index={1}>
+									<Input
+										placeholder={t("auth.register.namePlaceholder")}
+										value={name}
+										onChangeText={setName}
+										editable={!busy}
+										accessibilityLabel={t("auth.register.nameA11y")}
+									/>
+								</AnimatedEntrance>
+								<AnimatedEntrance index={2}>
+									<Input
+										placeholder={t("auth.register.emailPlaceholder")}
+										value={email}
+										onChangeText={setEmail}
+										autoCapitalize="none"
+										autoComplete="email"
+										keyboardType="email-address"
+										textContentType="emailAddress"
+										editable={!busy}
+										accessibilityLabel={t("auth.register.emailA11y")}
+									/>
+								</AnimatedEntrance>
+								<AnimatedEntrance index={3} className="gap-1.5">
+									<Input
+										placeholder={t("auth.register.passwordPlaceholder")}
+										value={password}
+										onChangeText={setPassword}
+										secureTextEntry
+										autoComplete="new-password"
+										textContentType="newPassword"
+										editable={!busy}
+										accessibilityLabel={t("auth.register.passwordA11y")}
+									/>
+									<View className="bg-muted h-1 overflow-hidden rounded-full">
+										<Animated.View style={fillStyle} className="h-full">
+											<Gradient
+												start={{ x: 0, y: 0 }}
+												end={{ x: 1, y: 0 }}
+												borderRadius={999}
+												style={{ flex: 1 }}
+											/>
+										</Animated.View>
+									</View>
+									<Text variant="small" className="text-muted-foreground px-1">
+										{t("auth.register.minChars", { count: MIN_PASSWORD })}
+									</Text>
+								</AnimatedEntrance>
+							</View>
+
+							{error ? (
+								<Text className="text-destructive" accessibilityRole="alert">
+									{error}
+								</Text>
+							) : null}
+
+							<AnimatedEntrance index={4}>
+								<Button
+									size="lg"
+									fullWidth
+									loading={busy}
+									disabled={!canSubmit}
+									onPress={submit}
+									accessibilityRole="button"
+									accessibilityLabel={t("auth.register.submit")}
+									accessibilityState={{ disabled: !canSubmit, busy }}
+								>
+									<Text>
+										{busy
+											? t("auth.register.submitting")
+											: t("auth.register.submit")}
+									</Text>
+								</Button>
+							</AnimatedEntrance>
+						</Animated.View>
+
+						<AnimatedEntrance index={5} className="gap-5">
+							<SocialButtons />
+							<View className="flex-row justify-center gap-1">
+								<Text variant="muted">{t("auth.register.haveAccount")}</Text>
+								<Link href="/(auth)/login" replace>
+									<Text className="text-primary font-medium">
+										{t("auth.register.signIn")}
+									</Text>
+								</Link>
+							</View>
+						</AnimatedEntrance>
+					</>
+				)}
+			</ScrollView>
 		</KeyboardAvoidingView>
 	);
 }

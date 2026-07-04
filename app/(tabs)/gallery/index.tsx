@@ -40,7 +40,7 @@ function GalleryCard({
 		<AnimatedEntrance index={index} disabled={seen}>
 			<PressableScale
 				className="p-1.5"
-				onPress={() => router.push(`/gallery/${item.id}`)}
+				onPress={() => router.push(`/post/${item.id}`)}
 				onPressIn={() => setPressed(true)}
 				onPressOut={() => setPressed(false)}
 				android_ripple={{
