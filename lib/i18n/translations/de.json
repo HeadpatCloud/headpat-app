@@ -222,6 +222,8 @@
 			"descriptionPlaceholder": "Beschreibung (optional)",
 			"tagsPlaceholder": "Tags, durch Komma getrennt",
 			"nsfwLabel": "Als NSFW markieren",
+			"aiDeclaration": "Das ist mein eigenes Werk, nicht KI-generiert",
+			"aiDeclarationHint": "Erforderlich. KI-generierte Kunst ist auf Headpat nicht erlaubt.",
 			"post": "In der Galerie posten",
 			"failed": "Upload fehlgeschlagen"
 		}
@@ -284,6 +286,7 @@
 		"following": "Folgt",
 		"gallery": "Galerie",
 		"about": "Über",
+		"birthday": "Geburtstag",
 		"socials": "Soziale Profile",
 		"noPosts": "Noch keine Beiträge",
 		"loadMore": "Mehr laden",
