@@ -27,11 +27,7 @@ export default function TicketsLayout() {
 							accessibilityRole="button"
 							accessibilityLabel={t("common.back")}
 						>
-							<Icon
-								as={ChevronLeft}
-								size={28}
-								className="text-foreground"
-							/>
+							<Icon as={ChevronLeft} size={28} className="text-foreground" />
 						</Pressable>
 					),
 				}}

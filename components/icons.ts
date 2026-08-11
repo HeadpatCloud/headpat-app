@@ -6,6 +6,7 @@ export { default as AtSign } from "lucide-react-native/dist/esm/icons/at-sign.js
 export { default as Bell } from "lucide-react-native/dist/esm/icons/bell.js";
 export { default as BellOff } from "lucide-react-native/dist/esm/icons/bell-off.js";
 export { default as Bug } from "lucide-react-native/dist/esm/icons/bug.js";
+export { default as Cake } from "lucide-react-native/dist/esm/icons/cake.js";
 export { default as CalendarClock } from "lucide-react-native/dist/esm/icons/calendar-clock.js";
 export { default as CalendarDays } from "lucide-react-native/dist/esm/icons/calendar-days.js";
 export { default as CalendarPlus } from "lucide-react-native/dist/esm/icons/calendar-plus.js";

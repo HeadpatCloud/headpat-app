@@ -18,6 +18,7 @@ import {
 	AtSign,
 	Images,
 	type LucideIcon,
+	Cake,
 	MapPin,
 	MessageCircle,
 	Send,
@@ -33,6 +34,7 @@ import { Button } from "@/components/ui/button";
 import { GlowShadow, Gradient } from "@/components/ui/gradient";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
+import { formatBirthday } from "@/lib/birthday";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatPill } from "@/components/ui/stat-pill";
 import { Text } from "@/components/ui/text";
@@ -533,6 +535,22 @@ export default function UserProfile() {
 							<>
 								{p.bio ? (
 									<Text className="text-foreground leading-6">{p.bio}</Text>
+								) : null}
+
+								{p.birthdayVisible !== false && p.birthday ? (
+									<View className="flex-row items-center gap-2">
+										<Icon
+											as={Cake}
+											size={16}
+											className="text-muted-foreground"
+										/>
+										<Text variant="small" className="text-muted-foreground">
+											{formatBirthday(p.birthday, {
+												showDay: p.birthdayShowDay !== false,
+												showYear: p.birthdayShowYear !== false,
+											})}
+										</Text>
+									</View>
 								) : null}
 
 								{p.location ? (

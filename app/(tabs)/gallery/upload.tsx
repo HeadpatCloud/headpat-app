@@ -29,6 +29,7 @@ export default function GalleryUpload() {
 	const [longText, setLongText] = useState("");
 	const [tags, setTags] = useState("");
 	const [nsfw, setNsfw] = useState(false);
+	const [aiDeclaration, setAiDeclaration] = useState(false);
 	const [busy, setBusy] = useState(false);
 
 	const choose = async () => {
@@ -37,7 +38,7 @@ export default function GalleryUpload() {
 	};
 
 	const submit = async () => {
-		if (!asset || name.trim().length === 0) return;
+		if (!asset || name.trim().length === 0 || !aiDeclaration) return;
 		setBusy(true);
 		try {
 			const fileId = await uploadImage("gallery", asset);
@@ -45,6 +46,7 @@ export default function GalleryUpload() {
 				name: name.trim(),
 				longText: longText.trim() || undefined,
 				nsfw,
+				aiDeclaration,
 				tags: tags
 					.split(",")
 					.map((tag) => tag.trim())
@@ -163,11 +165,31 @@ export default function GalleryUpload() {
 			</AnimatedEntrance>
 
 			<AnimatedEntrance index={3}>
+				<View className="gap-2 rounded-xl border border-border p-3">
+					<View className="flex-row items-center justify-between">
+						<Text className="flex-1 pr-3 text-foreground">
+							{t("gallery.upload.aiDeclaration")}
+						</Text>
+						<Toggle
+							value={aiDeclaration}
+							onValueChange={(v) => {
+								if (!busy) setAiDeclaration(v);
+							}}
+							accessibilityLabel={t("gallery.upload.aiDeclaration")}
+						/>
+					</View>
+					<Text variant="muted" className="text-xs">
+						{t("gallery.upload.aiDeclarationHint")}
+					</Text>
+				</View>
+			</AnimatedEntrance>
+
+			<AnimatedEntrance index={4}>
 				<Button
 					size="lg"
 					fullWidth
 					loading={busy}
-					disabled={!asset || name.trim().length === 0}
+					disabled={!asset || name.trim().length === 0 || !aiDeclaration}
 					onPress={submit}
 					accessibilityRole="button"
 					accessibilityLabel={t("gallery.upload.post")}

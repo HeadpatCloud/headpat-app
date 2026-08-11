@@ -215,6 +215,8 @@
 			"descriptionPlaceholder": "Beschrijving (optioneel)",
 			"tagsPlaceholder": "Tags, gescheiden door komma's",
 			"nsfwLabel": "Markeren als NSFW",
+			"aiDeclaration": "Dit is mijn eigen werk, niet door AI gegenereerd",
+			"aiDeclarationHint": "Verplicht. Door AI gegenereerde kunst is niet toegestaan op Headpat.",
 			"post": "Plaatsen in galerij",
 			"failed": "Upload mislukt"
 		}
@@ -276,6 +278,7 @@
 		"following": "Volgend",
 		"gallery": "Galerij",
 		"about": "Over",
+		"birthday": "Verjaardag",
 		"socials": "Sociale profielen",
 		"noPosts": "Nog geen posts",
 		"loadMore": "Meer laden",

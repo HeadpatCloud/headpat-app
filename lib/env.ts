@@ -4,5 +4,8 @@ const required = (name: string, value: string | undefined): string => {
 };
 
 export const env = {
-	apiUrl: required("EXPO_PUBLIC_BACKEND_URL", process.env.EXPO_PUBLIC_BACKEND_URL),
+	apiUrl: required(
+		"EXPO_PUBLIC_BACKEND_URL",
+		process.env.EXPO_PUBLIC_BACKEND_URL,
+	),
 };
