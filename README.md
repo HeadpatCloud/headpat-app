@@ -5,7 +5,7 @@ This is a [React Native](https://reactnative.dev/) project built with [Expo](htt
 It was initialized using the following command, then the `Minimal (Nativewind)` template was selected when prompted:
 
 ```bash
-npx @react-native-reusables/cli@latest init
+bunx @react-native-reusables/cli@latest init
 ```
 
 ## Getting Started
@@ -13,13 +13,7 @@ npx @react-native-reusables/cli@latest init
 To run the development server:
 
 ```bash
-    npm run dev
-    # or
-    yarn dev
-    # or
-    pnpm dev
-    # or
-    bun dev
+bun dev
 ```
 
 This will start the Expo Dev Server. Open the app in:
@@ -35,7 +29,7 @@ You can also scan the QR code using the [Expo Go](https://expo.dev/go) app on yo
 You can add more reusable components using the CLI:
 
 ```bash
-npx react-native-reusables/cli@latest add [...components]
+bunx react-native-reusables/cli@latest add [...components]
 ```
 
 > e.g. `npx react-native-reusables/cli@latest add input textarea`
