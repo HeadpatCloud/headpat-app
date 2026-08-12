@@ -64,7 +64,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		permissions: ["android.permission.RECEIVE_BOOT_COMPLETED"],
 		adaptiveIcon: {
 			foregroundImage: "./assets/images/adaptive-icon.png",
-			backgroundColor: "#ffffff",
+			backgroundColor: "#1D1D1B",
 		},
 	},
 	web: {
@@ -85,7 +85,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 			"expo-splash-screen",
 			{
 				image: "./assets/images/headpat_splash.png",
-				resizeMode: "cover",
+				resizeMode: "contain",
+				// The image is scaled into a box this wide (dp), not to the screen —
+				// without it the mark renders at the 100dp default.
+				imageWidth: 240,
 				backgroundColor: "#000000",
 			},
 		],
@@ -107,7 +110,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 			{
 				// Provide an all-white, transparent silhouette PNG here (~96x96).
 				icon: "./assets/images/notification-icon.png",
-				color: "#E84393",
+				color: "#008055",
 			},
 		],
 		["expo-build-properties", { ios: { useFrameworks: "static" } }],

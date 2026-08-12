@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns/format";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Alert, Linking, ScrollView, View } from "react-native";
+import { Alert, ScrollView, View } from "react-native";
 import { DateBlock } from "@/components/event/date-block";
 import {
 	CalendarClock,
@@ -25,6 +25,7 @@ import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
+import { useOpenLink } from "@/lib/use-open-link";
 import { usePlatformPermissions } from "@/lib/use-permissions";
 
 export default function Event() {
@@ -138,13 +139,7 @@ export default function Event() {
 		}
 	}
 
-	async function openWebsite(url: string) {
-		try {
-			await Linking.openURL(url);
-		} catch (e) {
-			Alert.alert(t("events.linkFailed"), humanizeError(e));
-		}
-	}
+	const openWebsite = useOpenLink();
 
 	if (isLoading) {
 		return (

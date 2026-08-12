@@ -26,6 +26,8 @@ import {
 	UserPen,
 	UserRound,
 } from "@/components/icons";
+import { NsfwToggle } from "@/components/nsfw-toggle";
+import { RichBio } from "@/components/rich-bio";
 import { SegmentedTabs } from "@/components/segmented-tabs";
 import { StorageImage } from "@/components/storage-image";
 import { Avatar } from "@/components/ui/avatar";
@@ -48,6 +50,7 @@ import { humanizeError } from "@/lib/orpc-error";
 import { withAlpha } from "@/lib/theme/color";
 import { RADIUS } from "@/lib/theme/foundations";
 import { useTheme } from "@/lib/theme/provider";
+import { useShowNsfw } from "@/lib/use-show-nsfw";
 
 const BANNER_H = 176;
 
@@ -79,7 +82,13 @@ type GalleryQuery = {
 	refetch: () => void;
 };
 
-function GalleryGrid({ query }: { query: GalleryQuery }) {
+function GalleryGrid({
+	query,
+	showNsfw,
+}: {
+	query: GalleryQuery;
+	showNsfw: boolean;
+}) {
 	const { t } = useI18n();
 
 	if (query.isLoading) {
@@ -108,7 +117,9 @@ function GalleryGrid({ query }: { query: GalleryQuery }) {
 		);
 	}
 
-	const items = query.data?.pages.flatMap((p) => p.items) ?? [];
+	const items = (query.data?.pages.flatMap((p) => p.items) ?? []).filter(
+		(item) => showNsfw || !item.nsfw,
+	);
 
 	if (items.length === 0) {
 		return <EmptyState icon={Images} title={t("profile.noPosts")} />;
@@ -173,6 +184,7 @@ export default function UserProfile() {
 	const { colors, glow } = useTheme();
 	const { t } = useI18n();
 	const reduced = useReducedMotion();
+	const { nsfwAllowed, showNsfw, setShowNsfw } = useShowNsfw();
 	const [pending, setPending] = useState(false);
 	const [tab, setTab] = useState("about");
 
@@ -535,7 +547,9 @@ export default function UserProfile() {
 					<AnimatedEntrance key={tab} preset="fade" className="gap-4">
 						{tab === "about" ? (
 							<>
-								{p.bio ? (
+								{p.bioHtml ? (
+									<RichBio html={p.bioHtml} />
+								) : p.bio ? (
 									<Text className="text-foreground leading-6">{p.bio}</Text>
 								) : null}
 
@@ -592,6 +606,7 @@ export default function UserProfile() {
 								) : null}
 
 								{!p.bio &&
+								!p.bioHtml &&
 								!p.location &&
 								socials.length === 0 &&
 								p.badges.length === 0 ? (
@@ -599,7 +614,12 @@ export default function UserProfile() {
 								) : null}
 							</>
 						) : (
-							<GalleryGrid query={gallery} />
+							<>
+								{nsfwAllowed ? (
+									<NsfwToggle value={showNsfw} onValueChange={setShowNsfw} />
+								) : null}
+								<GalleryGrid query={gallery} showNsfw={showNsfw} />
+							</>
 						)}
 					</AnimatedEntrance>
 				</AnimatedEntrance>

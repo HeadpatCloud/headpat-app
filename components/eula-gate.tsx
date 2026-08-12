@@ -1,6 +1,7 @@
 import { format } from "date-fns/format";
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Aurora } from "@/components/brand/aurora";
+import { HeadpatLogo } from "@/components/brand/logo";
 import { LegalLinks } from "@/components/legal-links";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
@@ -22,11 +23,8 @@ export function EulaGate({
 		>
 			<Aurora />
 			<View className="items-center gap-3">
-				<Image
-					source={require("../assets/images/headpat_logo.png")}
-					style={{ width: 80, height: 80 }}
-					resizeMode="contain"
-					accessibilityRole="image"
+				<HeadpatLogo
+					size={80}
 					accessibilityLabel={t("auth.onboarding.logoA11y")}
 				/>
 				<GradientText className="text-center text-3xl font-extrabold tracking-tight">

@@ -1,7 +1,8 @@
 import { router } from "expo-router";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Aurora } from "@/components/brand/aurora";
+import { HeadpatLogo } from "@/components/brand/logo";
 import {
 	CalendarDays,
 	ChevronRight,
@@ -97,11 +98,8 @@ export default function Welcome() {
 				}}
 			>
 				<AnimatedEntrance index={0} className="items-center gap-3">
-					<Image
-						source={require("../../assets/images/headpat_logo.png")}
-						style={{ width: 84, height: 84 }}
-						resizeMode="contain"
-						accessibilityRole="image"
+					<HeadpatLogo
+						size={84}
 						accessibilityLabel={t("auth.welcome.logoA11y")}
 					/>
 					<GradientText className="text-center text-3xl font-extrabold tracking-tight">

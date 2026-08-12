@@ -226,7 +226,8 @@
 			"aiDeclarationHint": "Erforderlich. KI-generierte Kunst ist auf Headpat nicht erlaubt.",
 			"post": "In der Galerie posten",
 			"failed": "Upload fehlgeschlagen"
-		}
+		},
+		"showNsfw": "NSFW anzeigen"
 	},
 	"events": {
 		"emptyTitle": "Noch keine Events",
@@ -733,5 +734,43 @@
 		"deleteConfirm": "\"%{name}\" löschen?",
 		"deleteError": "Konnte nicht gelöscht werden",
 		"deleteA11y": "Theme löschen"
+	},
+	"richBio": {
+		"preview": "Vorschau",
+		"empty": "Noch nichts hier — füge einen Absatz, einen Link oder einen Button hinzu.",
+		"addText": "Text",
+		"addHeading": "Überschrift",
+		"addSubheading": "Zwischenüberschrift",
+		"addButton": "Button",
+		"addBullets": "Liste",
+		"addNumbers": "Nummeriert",
+		"addQuote": "Zitat",
+		"addImage": "Bild",
+		"addDivider": "Trennlinie",
+		"bold": "Fett",
+		"italic": "Kursiv",
+		"underline": "Unterstrichen",
+		"strikethrough": "Durchgestrichen",
+		"link": "Link",
+		"linkUrl": "Link-URL",
+		"asButton": "Als Button anzeigen",
+		"applyLink": "Übernehmen",
+		"buttonBlock": "Button",
+		"buttonLabel": "Button-Text",
+		"buttonDefault": "Mein Link",
+		"dividerBlock": "Trennlinie",
+		"placeholderText": "Schreib etwas…",
+		"placeholderHeading": "Überschrift",
+		"placeholderSubheading": "Zwischenüberschrift",
+		"placeholderQuote": "Zitat",
+		"placeholderListItem": "Listenpunkt",
+		"addListItem": "Punkt hinzufügen",
+		"removeItem": "Punkt entfernen",
+		"moveUp": "Nach oben",
+		"moveDown": "Nach unten",
+		"remove": "Block entfernen",
+		"tableWebOnly": "Tabelle — bearbeite sie auf der Website",
+		"unsupported": "Dieser Teil der Bio kann nur auf der Website angezeigt werden",
+		"uploadFailed": "Upload fehlgeschlagen"
 	}
 }

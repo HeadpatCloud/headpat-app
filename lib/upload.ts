@@ -24,6 +24,21 @@ export async function pickImage(options?: {
 	return res.assets[0] ?? null;
 }
 
+async function putBinary(
+	uploadUrl: string,
+	uri: string,
+	contentType: string,
+): Promise<void> {
+	const res = await FileSystem.uploadAsync(uploadUrl, uri, {
+		httpMethod: "PUT",
+		uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+		headers: { "Content-Type": contentType },
+	});
+	if (res.status < 200 || res.status >= 300) {
+		throw new Error(`Upload failed (${res.status})`);
+	}
+}
+
 /**
  * Presigned-PUT upload: uploadInit -> binary PUT to S3 -> finalize.
  * Returns the fileId to store on the owning record (gallery item, profile, …).
@@ -39,14 +54,24 @@ export async function uploadImage(
 		fileId,
 		contentType,
 	});
-	const res = await FileSystem.uploadAsync(uploadUrl, asset.uri, {
-		httpMethod: "PUT",
-		uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
-		headers: { "Content-Type": contentType },
-	});
-	if (res.status < 200 || res.status >= 300) {
-		throw new Error(`Upload failed (${res.status})`);
-	}
+	await putBinary(uploadUrl, asset.uri, contentType);
 	await client.storage.finalize({ kind, fileId });
 	return fileId;
+}
+
+/**
+ * Bio images use their own endpoints: they're addressed by a stable public path
+ * embedded in the bio HTML rather than by a fileId on a record.
+ * Returns that path (e.g. /api/files/bio-image/<user>/<id>).
+ */
+export async function uploadBioImage(
+	asset: ImagePicker.ImagePickerAsset,
+): Promise<string> {
+	const contentType = asset.mimeType ?? "image/jpeg";
+	const init = await client.profile.bioImageInit({ contentType });
+	await putBinary(init.uploadUrl, asset.uri, contentType);
+	const { publicPath } = await client.profile.bioImageFinalize({
+		fileId: init.fileId,
+	});
+	return publicPath;
 }

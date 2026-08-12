@@ -11,6 +11,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlowAvatar } from "@/components/glow-avatar";
 import { Camera } from "@/components/icons";
+import { RichBioEditor } from "@/components/rich-bio-editor";
 import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -51,6 +52,8 @@ export default function ProfileEdit() {
 	});
 
 	const [form, setForm] = useState<Record<string, string>>({});
+	const [bioHtml, setBioHtml] = useState("");
+	const [bioUploading, setBioUploading] = useState(false);
 	const [avatarFileId, setAvatarFileId] = useState<string | null>(null);
 	const [bannerFileId, setBannerFileId] = useState<string | null>(null);
 	const [indexing, setIndexing] = useState(true);
@@ -62,7 +65,6 @@ export default function ProfileEdit() {
 		if (!me) return;
 		setForm({
 			displayName: me.displayName ?? "",
-			bio: me.bio ?? "",
 			pronouns: me.pronouns ?? "",
 			location: me.location ?? "",
 			discordName: me.discordName ?? "",
@@ -72,6 +74,7 @@ export default function ProfileEdit() {
 			twitchName: me.twitchName ?? "",
 			blueskyName: me.blueskyName ?? "",
 		});
+		setBioHtml(me.bioHtml ?? "");
 		setAvatarFileId(me.avatarFileId);
 		setBannerFileId(me.bannerFileId);
 		setIndexing(me.indexingEnabled);
@@ -103,7 +106,7 @@ export default function ProfileEdit() {
 		try {
 			await client.profile.update({
 				displayName: form.displayName || null,
-				bio: form.bio || null,
+				bioHtml: bioHtml || null,
 				pronouns: form.pronouns || null,
 				location: form.location || null,
 				discordName: form.discordName || null,
@@ -222,12 +225,13 @@ export default function ProfileEdit() {
 						/>
 					</Field>
 					<Field label={t("account.edit.bio")}>
-						<Input
-							value={form.bio}
-							onChangeText={(v) => set("bio", v)}
-							multiline
-							className="h-24"
-							accessibilityLabel={t("account.edit.bio")}
+						{/* keyed on the profile: the editor seeds its blocks once, so it has
+						    to remount when the profile finally arrives */}
+						<RichBioEditor
+							key={me?.userId ?? "pending"}
+							initialHtml={me?.bioHtml ?? ""}
+							onChange={setBioHtml}
+							onUploadingChange={setBioUploading}
 						/>
 					</Field>
 					<Field label={t("account.edit.pronouns")}>
@@ -290,7 +294,7 @@ export default function ProfileEdit() {
 
 				<AnimatedEntrance index={3}>
 					<Button
-						disabled={busy}
+						disabled={busy || bioUploading}
 						onPress={save}
 						fullWidth
 						accessibilityRole="button"

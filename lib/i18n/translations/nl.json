@@ -226,7 +226,8 @@
 			"aiDeclarationHint": "Verplicht. Door AI gegenereerde kunst is niet toegestaan op Headpat.",
 			"post": "Plaatsen in galerij",
 			"failed": "Upload mislukt"
-		}
+		},
+		"showNsfw": "NSFW tonen"
 	},
 	"events": {
 		"emptyTitle": "Nog geen evenementen",
@@ -733,5 +734,43 @@
 		"deleteConfirm": "\"%{name}\" verwijderen?",
 		"deleteError": "Verwijderen mislukt",
 		"deleteA11y": "Thema verwijderen"
+	},
+	"richBio": {
+		"preview": "Voorbeeld",
+		"empty": "Nog niets — voeg een alinea, een link of een knop toe.",
+		"addText": "Tekst",
+		"addHeading": "Kop",
+		"addSubheading": "Subkop",
+		"addButton": "Knop",
+		"addBullets": "Lijst",
+		"addNumbers": "Genummerd",
+		"addQuote": "Citaat",
+		"addImage": "Afbeelding",
+		"addDivider": "Scheidingslijn",
+		"bold": "Vet",
+		"italic": "Cursief",
+		"underline": "Onderstreept",
+		"strikethrough": "Doorgehaald",
+		"link": "Link",
+		"linkUrl": "Link-URL",
+		"asButton": "Als knop tonen",
+		"applyLink": "Toepassen",
+		"buttonBlock": "Knop",
+		"buttonLabel": "Knoptekst",
+		"buttonDefault": "Mijn link",
+		"dividerBlock": "Scheidingslijn",
+		"placeholderText": "Schrijf iets…",
+		"placeholderHeading": "Kop",
+		"placeholderSubheading": "Subkop",
+		"placeholderQuote": "Citaat",
+		"placeholderListItem": "Lijstitem",
+		"addListItem": "Item toevoegen",
+		"removeItem": "Item verwijderen",
+		"moveUp": "Omhoog",
+		"moveDown": "Omlaag",
+		"remove": "Blok verwijderen",
+		"tableWebOnly": "Tabel — bewerk deze op de website",
+		"unsupported": "Dit deel van de bio kan alleen op de website worden getoond",
+		"uploadFailed": "Uploaden mislukt"
 	}
 }

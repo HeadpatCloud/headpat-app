@@ -3,14 +3,9 @@ import DateTimePicker, {
 	type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { useEffect, useState } from "react";
-import {
-	ActivityIndicator,
-	Image,
-	Platform,
-	StyleSheet,
-	View,
-} from "react-native";
+import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
 import { Aurora } from "@/components/brand/aurora";
+import { HeadpatLogo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Text } from "@/components/ui/text";
@@ -71,11 +66,8 @@ export function AgeGate({ onClear }: { onClear: () => void }) {
 		>
 			<Aurora />
 			<View className="items-center gap-3">
-				<Image
-					source={require("../assets/images/headpat_logo.png")}
-					style={{ width: 80, height: 80 }}
-					resizeMode="contain"
-					accessibilityRole="image"
+				<HeadpatLogo
+					size={80}
 					accessibilityLabel={t("auth.onboarding.logoA11y")}
 				/>
 				<GradientText className="text-center text-3xl font-extrabold tracking-tight">

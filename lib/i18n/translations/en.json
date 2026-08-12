@@ -226,7 +226,8 @@
 			"aiDeclarationHint": "Required. AI-generated art is not allowed on Headpat.",
 			"post": "Post to gallery",
 			"failed": "Upload failed"
-		}
+		},
+		"showNsfw": "Show NSFW"
 	},
 	"events": {
 		"emptyTitle": "No events yet",
@@ -733,5 +734,43 @@
 		"deleteConfirm": "Delete \"%{name}\"?",
 		"deleteError": "Couldn't delete",
 		"deleteA11y": "Delete theme"
+	},
+	"richBio": {
+		"preview": "Preview",
+		"empty": "Nothing here yet — add a paragraph, a link or a button.",
+		"addText": "Text",
+		"addHeading": "Heading",
+		"addSubheading": "Subheading",
+		"addButton": "Button",
+		"addBullets": "List",
+		"addNumbers": "Numbered",
+		"addQuote": "Quote",
+		"addImage": "Image",
+		"addDivider": "Divider",
+		"bold": "Bold",
+		"italic": "Italic",
+		"underline": "Underline",
+		"strikethrough": "Strikethrough",
+		"link": "Link",
+		"linkUrl": "Link URL",
+		"asButton": "Show as a button",
+		"applyLink": "Apply",
+		"buttonBlock": "Button",
+		"buttonLabel": "Button label",
+		"buttonDefault": "My link",
+		"dividerBlock": "Divider",
+		"placeholderText": "Write something…",
+		"placeholderHeading": "Heading",
+		"placeholderSubheading": "Subheading",
+		"placeholderQuote": "Quote",
+		"placeholderListItem": "List item",
+		"addListItem": "Add item",
+		"removeItem": "Remove item",
+		"moveUp": "Move up",
+		"moveDown": "Move down",
+		"remove": "Remove block",
+		"tableWebOnly": "Table — edit it on the website",
+		"unsupported": "This part of the bio can only be shown on the website",
+		"uploadFailed": "Upload failed"
 	}
 }

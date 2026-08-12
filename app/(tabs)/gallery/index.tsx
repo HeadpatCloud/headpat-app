@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { ActivityIndicator, RefreshControl, View } from "react-native";
 import { EmptyState } from "@/components/empty-state";
 import { Inbox, Plus } from "@/components/icons";
+import { NsfwToggle } from "@/components/nsfw-toggle";
 import { StorageImage } from "@/components/storage-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import { PressableScale } from "@/lib/motion/pressable-scale";
 import { type client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 import { useTheme } from "@/lib/theme/provider";
+import { useShowNsfw } from "@/lib/use-show-nsfw";
 
 type GalleryItem = Awaited<
 	ReturnType<typeof client.gallery.list>
@@ -78,6 +80,7 @@ export default function Gallery() {
 	const { data: session } = useSession();
 	const { colors } = useTheme();
 	const { t } = useI18n();
+	const { nsfwAllowed, showNsfw, setShowNsfw } = useShowNsfw();
 	const animated = useRef(new Set<number>());
 	const query = useInfiniteQuery(
 		orpc.gallery.list.infiniteOptions({
@@ -122,7 +125,9 @@ export default function Gallery() {
 		);
 	}
 
-	const items = query.data?.pages.flatMap((p) => p.items) ?? [];
+	const items = (query.data?.pages.flatMap((p) => p.items) ?? []).filter(
+		(item) => showNsfw || !item.nsfw,
+	);
 
 	return (
 		<View className="bg-background flex-1">
@@ -131,6 +136,13 @@ export default function Gallery() {
 				numColumns={2}
 				keyExtractor={(item) => item.id}
 				contentContainerStyle={{ padding: 12 }}
+				ListHeaderComponent={
+					nsfwAllowed ? (
+						<View className="px-1.5 pb-1">
+							<NsfwToggle value={showNsfw} onValueChange={setShowNsfw} />
+						</View>
+					) : null
+				}
 				renderItem={({ item, index }) => {
 					const seen = animated.current.has(index);
 					if (!seen) animated.current.add(index);

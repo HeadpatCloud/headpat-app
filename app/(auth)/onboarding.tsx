@@ -3,7 +3,6 @@ import * as Haptics from "expo-haptics";
 import { Link, router } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-	Image,
 	type NativeScrollEvent,
 	type NativeSyntheticEvent,
 	Platform,
@@ -25,6 +24,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Aurora } from "@/components/brand/aurora";
+import { HeadpatLogo } from "@/components/brand/logo";
 import { ChevronLeft, ChevronRight, Moon, Sun } from "@/components/icons";
 import { LegalLinks } from "@/components/legal-links";
 import { Button } from "@/components/ui/button";
@@ -329,11 +329,8 @@ export default function Onboarding() {
 			>
 				<Panel width={width}>
 					<Animated.View style={logoStyle} className="items-center">
-						<Image
-							source={require("../../assets/images/headpat_logo.png")}
-							style={{ width: 112, height: 112 }}
-							resizeMode="contain"
-							accessibilityRole="image"
+						<HeadpatLogo
+							size={112}
 							accessibilityLabel={t("auth.onboarding.logoA11y")}
 						/>
 					</Animated.View>

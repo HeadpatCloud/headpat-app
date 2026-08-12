@@ -1,20 +1,13 @@
+import { appRoute } from "@/lib/app-route";
+
+// Universal links arrive as web paths (/gallery/123, /de/events/456); route them
+// to the matching screen. Unmapped paths are left alone so the router can decide
+// (custom-scheme links already use app paths).
 export function redirectSystemPath({
 	path,
 }: {
 	path: string;
 	initial: boolean;
 }) {
-	if (path.startsWith("/events/")) {
-		const rest = path.slice("/events/".length);
-		if (rest && rest !== "new" && !rest.startsWith("edit/")) {
-			return `/event/${rest}`;
-		}
-	}
-	if (path.startsWith("/gallery/")) {
-		const rest = path.slice("/gallery/".length);
-		if (rest && rest !== "upload" && !rest.startsWith("edit/")) {
-			return `/post/${rest}`;
-		}
-	}
-	return path;
+	return appRoute(path) ?? path;
 }

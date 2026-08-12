@@ -112,6 +112,7 @@ function RootNav() {
 					options={{ headerShown: true, title: t("titles.users") }}
 				/>
 				<Stack.Screen name="user" />
+				<Stack.Screen name="profile" />
 				<Stack.Screen
 					name="profile-edit"
 					options={{
