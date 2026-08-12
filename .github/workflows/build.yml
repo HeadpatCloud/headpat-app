@@ -38,15 +38,16 @@ jobs:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          version: 9
+          bun-version: latest
 
+      # eas-cli itself runs on Node, so it stays alongside Bun.
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: pnpm
 
       - name: 🏗 Setup Java
         if: ${{ github.event.inputs.platform == 'android' }}
@@ -63,28 +64,7 @@ jobs:
           eas-version: latest
 
       - name: 📦 Install dependencies
-        run: pnpm install
-
-      - name: 🔢 Increment build numbers
-        run: |
-          if [[ "${{ github.event.inputs.platform }}" == "ios" ]]; then
-            # Read and increment iOS build number (as string)
-            IOS_BUILD_NUMBER=$(jq -r '.expo.ios.buildNumber' app.json)
-            NEW_IOS_BUILD_NUMBER=$((IOS_BUILD_NUMBER + 1))
-            jq --arg ios "$NEW_IOS_BUILD_NUMBER" '.expo.ios.buildNumber = $ios' app.json > app.json.tmp && mv app.json.tmp app.json
-          else
-            # Read and increment Android version code (as number)
-            ANDROID_VERSION_CODE=$(jq -r '.expo.android.versionCode' app.json)
-            NEW_ANDROID_VERSION_CODE=$((ANDROID_VERSION_CODE + 1))
-            jq --argjson android $NEW_ANDROID_VERSION_CODE '.expo.android.versionCode = $android' app.json > app.json.tmp && mv app.json.tmp app.json
-          fi
-          
-          # Commit the changes
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add app.json
-          git commit -m "chore: increment ${{ github.event.inputs.platform }} build number [skip ci]"
-          git push
+        run: bun install --frozen-lockfile
 
       - name: 👷 Build app
         run: |
