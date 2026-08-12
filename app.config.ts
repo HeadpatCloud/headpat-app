@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import type { ConfigContext, ExpoConfig } from "expo/config";
+import { withGradleProperties } from "expo/config-plugins";
 
 // Firebase config files (FCM push). Omitted when absent so a build doesn't fail
 // on a missing file before they're added.
@@ -10,7 +11,7 @@ const iosGoogleServices = existsSync("./GoogleService-Info.plist")
 	? "./GoogleService-Info.plist"
 	: undefined;
 
-export default ({ config }: ConfigContext): ExpoConfig => ({
+const buildConfig = ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
 	name: "Headpat",
 	slug: "headpat-app",
@@ -129,3 +130,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		"@maplibre/maplibre-react-native",
 	],
 });
+
+// Prebuild's default jvmargs (2g heap/512m metaspace) GC-thrash the Gradle
+// daemon across the release bundle's 28 lintVitalAnalyzeRelease tasks. Prebuild
+// always writes the default, so drop it before adding ours.
+export default (context: ConfigContext): ExpoConfig =>
+	withGradleProperties(buildConfig(context), (config) => {
+		config.modResults = config.modResults.filter(
+			(item) =>
+				!(item.type === "property" && item.key === "org.gradle.jvmargs"),
+		);
+		config.modResults.push({
+			type: "property",
+			key: "org.gradle.jvmargs",
+			value: "-Xmx4096m -XX:MaxMetaspaceSize=1024m",
+		});
+		return config;
+	});
