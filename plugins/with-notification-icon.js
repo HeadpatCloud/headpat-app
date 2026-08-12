@@ -76,6 +76,16 @@ module.exports = function withNotificationIcon(config, props = {}) {
 			`@color/${COLOR_RES}`,
 			"resource",
 		);
+
+		// @react-native-firebase/messaging declares this same meta-data (defaulting to
+		// @color/white), which fails the manifest merger unless ours claims priority.
+		const colorMeta = app["meta-data"].find(
+			(item) =>
+				item.$["android:name"] ===
+				"com.google.firebase.messaging.default_notification_color",
+		);
+		colorMeta.$["tools:replace"] = "android:resource";
+
 		return cfg;
 	});
 
