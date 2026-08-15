@@ -1,14 +1,13 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { I18n, type TranslateOptions } from "i18n-js";
 import {
 	createContext,
 	type ReactNode,
 	useCallback,
 	useContext,
-	useEffect,
 	useMemo,
 	useState,
 } from "react";
+import { kvGet, kvSet } from "@/lib/db/kv";
 import de from "@/lib/i18n/translations/de.json";
 import en from "@/lib/i18n/translations/en.json";
 import nl from "@/lib/i18n/translations/nl.json";
@@ -54,24 +53,21 @@ export function useI18n(): I18nContextValue {
 
 export function I18nProvider({ children }: { children: ReactNode }) {
 	const [locale, setLocaleState] = useState<Locale>(() => {
-		const initial = deviceLocale();
+		// Stored choice wins over the device language, and both resolve
+		// synchronously so no frame renders in the wrong language.
+		const stored = kvGet(LOCALE_KEY);
+		const initial =
+			stored && LOCALES.some((l) => l.code === stored)
+				? (stored as Locale)
+				: deviceLocale();
 		i18n.locale = initial;
 		return initial;
 	});
 
-	useEffect(() => {
-		AsyncStorage.getItem(LOCALE_KEY).then((stored) => {
-			if (stored && LOCALES.some((l) => l.code === stored)) {
-				i18n.locale = stored;
-				setLocaleState(stored as Locale);
-			}
-		});
-	}, []);
-
 	const setLocale = useCallback((next: Locale) => {
 		i18n.locale = next;
 		setLocaleState(next);
-		AsyncStorage.setItem(LOCALE_KEY, next).catch(() => {});
+		kvSet(LOCALE_KEY, next);
 	}, []);
 
 	// locale drives the mutable i18n singleton — the callback identity must

@@ -1,5 +1,8 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import {
+	BottomSheetModalProvider,
+	BottomSheetTextInput,
+} from "@gorhom/bottom-sheet";
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -7,7 +10,6 @@ import {
 	AccessibilityInfo,
 	Alert,
 	Platform,
-	ScrollView,
 	StyleSheet,
 	View,
 } from "react-native";
@@ -29,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { GlowShadow, Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
@@ -547,264 +550,274 @@ export default function ThemeBuilder() {
 	];
 
 	return (
-		<View className="bg-background flex-1" style={{ paddingTop: insets.top }}>
-			<ScrollView
-				contentContainerStyle={{
-					padding: 16,
-					paddingBottom: insets.bottom + 120,
-					gap: 20,
-				}}
-			>
-				<AnimatedEntrance index={0} className="gap-2">
-					<Text variant="caption" accessibilityRole="header">
-						{t("themeBuilder.name")}
-					</Text>
-					<Input
-						value={name}
-						onChangeText={setName}
-						maxLength={60}
-						accessibilityLabel={t("themeBuilder.nameA11y")}
-					/>
-				</AnimatedEntrance>
-
-				<AnimatedEntrance index={1}>
-					<Animated.View
-						key={variant}
-						entering={reduced ? undefined : FadeIn.duration(durations.base)}
-					>
-						<Preview
-							hex={draft}
-							name={name}
-							scheme={variant}
-							failing={failingSet}
-						/>
-					</Animated.View>
-					<Animated.View
-						pointerEvents="none"
-						style={[StyleSheet.absoluteFill, confirmStyle]}
-					>
-						<GradientSwatch
-							primary={draft.primary}
-							accent={draft.accent}
-							scheme={variant}
-							borderRadius={20}
-							style={StyleSheet.absoluteFill}
-						/>
-					</Animated.View>
-				</AnimatedEntrance>
-
-				<AnimatedEntrance index={2}>
-					<SegmentedTabs
-						tabs={variantTabs}
-						value={variant}
-						onChange={(key) => setVariant(key as "light" | "dark")}
-					/>
-				</AnimatedEntrance>
-
-				{TOKEN_GROUPS.map((group, groupIndex) => (
-					<AnimatedEntrance
-						key={group.label}
-						index={3 + groupIndex}
-						className="gap-2"
-					>
+		// Screen-local sheet host. The root provider (app/_layout.tsx) lives above
+		// the Stack, so on iOS its container sits behind this modally-presented
+		// screen and any sheet opened here would render underneath it.
+		<BottomSheetModalProvider>
+			<View className="bg-background flex-1" style={{ paddingTop: insets.top }}>
+				<KeyboardAwareScrollView
+					contentContainerStyle={{
+						padding: 16,
+						paddingBottom: insets.bottom + 120,
+						gap: 20,
+					}}
+				>
+					<AnimatedEntrance index={0} className="gap-2">
 						<Text variant="caption" accessibilityRole="header">
-							{t(`themeBuilder.groups.${group.label.toLowerCase()}`)}
+							{t("themeBuilder.name")}
 						</Text>
-						{group.label === "Brand" ? (
-							<View className="gap-1.5 pb-1">
-								<GradientSwatch
-									primary={draft.primary}
-									accent={draft.accent}
-									scheme={variant}
-									borderRadius={3}
-									style={{ height: 6 }}
-								/>
-								<Text variant="muted" className="text-xs">
-									{t("themeBuilder.brandHint")}
-								</Text>
-							</View>
-						) : null}
-						{group.keys.map((key) => {
-							const info = contrast.get(key);
-							const fails = info ? info.ratio < info.threshold : false;
-							return (
-								<View key={key} className="gap-1.5">
-									<ColorPickerRow
-										token={key}
-										value={draft[key]}
-										onChangeToken={setToken}
-										onPick={openPicker}
-										contrastBg={info ? draft[info.bg] : undefined}
-										threshold={info?.threshold}
-									/>
-									{info && fails ? (
-										<View className="flex-row items-center gap-2 pl-1">
-											<View
-												className="flex-1 flex-row items-center gap-1.5"
-												accessibilityRole="alert"
-											>
-												<Icon
-													as={TriangleAlert}
-													size={14}
-													className="text-destructive"
-												/>
-												<Text
-													variant="small"
-													className="text-destructive flex-1"
-												>
-													{t("themeBuilder.contrastWarning", {
-														token: info.bg,
-														ratio: info.ratio.toFixed(1),
-														needs: String(info.threshold),
-													})}
-												</Text>
-											</View>
-											<PressableScale
-												onPress={() =>
-													setToken(
-														key,
-														tripletToHex(
-															readableForeground(hexToTriplet(draft[info.bg])),
-														),
-													)
-												}
-												accessibilityRole="button"
-												accessibilityLabel={t("themeBuilder.useReadableA11y", {
-													token: key,
-												})}
-												style={{
-													minHeight: 44,
-													justifyContent: "center",
-													paddingHorizontal: 4,
-												}}
-											>
-												<Text className="text-primary text-sm font-medium">
-													{t("themeBuilder.useReadable")}
-												</Text>
-											</PressableScale>
-										</View>
-									) : null}
-								</View>
-							);
-						})}
+						<Input
+							value={name}
+							onChangeText={setName}
+							maxLength={60}
+							accessibilityLabel={t("themeBuilder.nameA11y")}
+						/>
 					</AnimatedEntrance>
-				))}
-			</ScrollView>
 
-			<View
-				className="border-border bg-background gap-2 border-t p-4"
-				style={{ paddingBottom: insets.bottom + 12 }}
-			>
-				{failingSet.size > 0 ? (
-					<Text variant="muted" accessibilityRole="alert">
-						{t("themeBuilder.contrastSummary", { count: failingSet.size })}
-					</Text>
-				) : null}
-				<View className="flex-row gap-3">
-					{editing ? (
+					<AnimatedEntrance index={1}>
+						<Animated.View
+							key={variant}
+							entering={reduced ? undefined : FadeIn.duration(durations.base)}
+						>
+							<Preview
+								hex={draft}
+								name={name}
+								scheme={variant}
+								failing={failingSet}
+							/>
+						</Animated.View>
+						<Animated.View
+							pointerEvents="none"
+							style={[StyleSheet.absoluteFill, confirmStyle]}
+						>
+							<GradientSwatch
+								primary={draft.primary}
+								accent={draft.accent}
+								scheme={variant}
+								borderRadius={20}
+								style={StyleSheet.absoluteFill}
+							/>
+						</Animated.View>
+					</AnimatedEntrance>
+
+					<AnimatedEntrance index={2}>
+						<SegmentedTabs
+							tabs={variantTabs}
+							value={variant}
+							onChange={(key) => setVariant(key as "light" | "dark")}
+						/>
+					</AnimatedEntrance>
+
+					{TOKEN_GROUPS.map((group, groupIndex) => (
+						<AnimatedEntrance
+							key={group.label}
+							index={3 + groupIndex}
+							className="gap-2"
+						>
+							<Text variant="caption" accessibilityRole="header">
+								{t(`themeBuilder.groups.${group.label.toLowerCase()}`)}
+							</Text>
+							{group.label === "Brand" ? (
+								<View className="gap-1.5 pb-1">
+									<GradientSwatch
+										primary={draft.primary}
+										accent={draft.accent}
+										scheme={variant}
+										borderRadius={3}
+										style={{ height: 6 }}
+									/>
+									<Text variant="muted" className="text-xs">
+										{t("themeBuilder.brandHint")}
+									</Text>
+								</View>
+							) : null}
+							{group.keys.map((key) => {
+								const info = contrast.get(key);
+								const fails = info ? info.ratio < info.threshold : false;
+								return (
+									<View key={key} className="gap-1.5">
+										<ColorPickerRow
+											token={key}
+											value={draft[key]}
+											onChangeToken={setToken}
+											onPick={openPicker}
+											contrastBg={info ? draft[info.bg] : undefined}
+											threshold={info?.threshold}
+										/>
+										{info && fails ? (
+											<View className="flex-row items-center gap-2 pl-1">
+												<View
+													className="flex-1 flex-row items-center gap-1.5"
+													accessibilityRole="alert"
+												>
+													<Icon
+														as={TriangleAlert}
+														size={14}
+														className="text-destructive"
+													/>
+													<Text
+														variant="small"
+														className="text-destructive flex-1"
+													>
+														{t("themeBuilder.contrastWarning", {
+															token: info.bg,
+															ratio: info.ratio.toFixed(1),
+															needs: String(info.threshold),
+														})}
+													</Text>
+												</View>
+												<PressableScale
+													onPress={() =>
+														setToken(
+															key,
+															tripletToHex(
+																readableForeground(
+																	hexToTriplet(draft[info.bg]),
+																),
+															),
+														)
+													}
+													accessibilityRole="button"
+													accessibilityLabel={t(
+														"themeBuilder.useReadableA11y",
+														{
+															token: key,
+														},
+													)}
+													style={{
+														minHeight: 44,
+														justifyContent: "center",
+														paddingHorizontal: 4,
+													}}
+												>
+													<Text className="text-primary text-sm font-medium">
+														{t("themeBuilder.useReadable")}
+													</Text>
+												</PressableScale>
+											</View>
+										) : null}
+									</View>
+								);
+							})}
+						</AnimatedEntrance>
+					))}
+				</KeyboardAwareScrollView>
+
+				<View
+					className="border-border bg-background gap-2 border-t p-4"
+					style={{ paddingBottom: insets.bottom + 12 }}
+				>
+					{failingSet.size > 0 ? (
+						<Text variant="muted" accessibilityRole="alert">
+							{t("themeBuilder.contrastSummary", { count: failingSet.size })}
+						</Text>
+					) : null}
+					<View className="flex-row gap-3">
+						{editing ? (
+							<Button
+								variant="outline"
+								onPress={remove}
+								accessibilityLabel={t("themeBuilder.deleteA11y")}
+								className="aspect-square p-0"
+							>
+								<Icon as={Trash2} size={20} className="text-destructive" />
+							</Button>
+						) : null}
+						<Button
+							disabled={!valid || busy}
+							onPress={save}
+							className="flex-1"
+							accessibilityLabel={t("themeBuilder.save")}
+						>
+							<Text>
+								{busy ? t("themeBuilder.saving") : t("themeBuilder.save")}
+							</Text>
+						</Button>
+					</View>
+				</View>
+
+				<Sheet ref={sheetRef} title={pickerToken ?? ""} accent>
+					<View className="gap-4 pb-2">
+						<View className="flex-row items-center gap-3">
+							<View
+								accessible={false}
+								style={{
+									width: 56,
+									height: 44,
+									borderRadius: 12,
+									backgroundColor: HEX_RE.test(hexField) ? hexField : "#000000",
+									borderWidth: 1,
+									borderColor: colors.border,
+								}}
+							/>
+							<BottomSheetTextInput
+								value={hexField}
+								onChangeText={onHexField}
+								autoCapitalize="none"
+								autoCorrect={false}
+								accessibilityLabel={
+									pickerToken
+										? t("themeBuilder.hexA11y", { token: pickerToken })
+										: undefined
+								}
+								style={{
+									flex: 1,
+									height: 44,
+									borderRadius: 12,
+									borderWidth: 1,
+									borderColor: HEX_RE.test(hexField)
+										? colors.border
+										: colors.destructive,
+									paddingHorizontal: 12,
+									color: colors.foreground,
+									fontSize: 16,
+								}}
+								placeholder="#000000"
+								placeholderTextColor={colors["muted-foreground"]}
+							/>
+						</View>
+						<ChannelSlider
+							label={t("themeBuilder.hue")}
+							value={hsl.h}
+							max={360}
+							trackColors={HUE_TRACK}
+							onChange={onHue}
+						/>
+						<ChannelSlider
+							label={t("themeBuilder.saturation")}
+							value={hsl.s}
+							max={100}
+							trackColors={
+								[
+									tripletToHex(`${hsl.h} 0% ${hsl.l}%`),
+									tripletToHex(`${hsl.h} 100% ${hsl.l}%`),
+								] as const
+							}
+							onChange={onSat}
+						/>
+						<ChannelSlider
+							label={t("themeBuilder.lightness")}
+							value={hsl.l}
+							max={100}
+							trackColors={
+								[
+									"#000000",
+									tripletToHex(`${hsl.h} ${hsl.s}% 50%`),
+									"#ffffff",
+								] as const
+							}
+							onChange={onLight}
+						/>
 						<Button
 							variant="outline"
-							onPress={remove}
-							accessibilityLabel={t("themeBuilder.deleteA11y")}
-							className="aspect-square p-0"
+							onPress={() => sheetRef.current?.dismiss()}
+							accessibilityLabel={t("themeBuilder.done")}
 						>
-							<Icon as={Trash2} size={20} className="text-destructive" />
+							<Text>{t("themeBuilder.done")}</Text>
 						</Button>
-					) : null}
-					<Button
-						disabled={!valid || busy}
-						onPress={save}
-						className="flex-1"
-						accessibilityLabel={t("themeBuilder.save")}
-					>
-						<Text>
-							{busy ? t("themeBuilder.saving") : t("themeBuilder.save")}
-						</Text>
-					</Button>
-				</View>
-			</View>
-
-			<Sheet ref={sheetRef} title={pickerToken ?? ""} accent>
-				<View className="gap-4 pb-2">
-					<View className="flex-row items-center gap-3">
-						<View
-							accessible={false}
-							style={{
-								width: 56,
-								height: 44,
-								borderRadius: 12,
-								backgroundColor: HEX_RE.test(hexField) ? hexField : "#000000",
-								borderWidth: 1,
-								borderColor: colors.border,
-							}}
-						/>
-						<BottomSheetTextInput
-							value={hexField}
-							onChangeText={onHexField}
-							autoCapitalize="none"
-							autoCorrect={false}
-							accessibilityLabel={
-								pickerToken
-									? t("themeBuilder.hexA11y", { token: pickerToken })
-									: undefined
-							}
-							style={{
-								flex: 1,
-								height: 44,
-								borderRadius: 12,
-								borderWidth: 1,
-								borderColor: HEX_RE.test(hexField)
-									? colors.border
-									: colors.destructive,
-								paddingHorizontal: 12,
-								color: colors.foreground,
-								fontSize: 16,
-							}}
-							placeholder="#000000"
-							placeholderTextColor={colors["muted-foreground"]}
-						/>
 					</View>
-					<ChannelSlider
-						label={t("themeBuilder.hue")}
-						value={hsl.h}
-						max={360}
-						trackColors={HUE_TRACK}
-						onChange={onHue}
-					/>
-					<ChannelSlider
-						label={t("themeBuilder.saturation")}
-						value={hsl.s}
-						max={100}
-						trackColors={
-							[
-								tripletToHex(`${hsl.h} 0% ${hsl.l}%`),
-								tripletToHex(`${hsl.h} 100% ${hsl.l}%`),
-							] as const
-						}
-						onChange={onSat}
-					/>
-					<ChannelSlider
-						label={t("themeBuilder.lightness")}
-						value={hsl.l}
-						max={100}
-						trackColors={
-							[
-								"#000000",
-								tripletToHex(`${hsl.h} ${hsl.s}% 50%`),
-								"#ffffff",
-							] as const
-						}
-						onChange={onLight}
-					/>
-					<Button
-						variant="outline"
-						onPress={() => sheetRef.current?.dismiss()}
-						accessibilityLabel={t("themeBuilder.done")}
-					>
-						<Text>{t("themeBuilder.done")}</Text>
-					</Button>
-				</View>
-			</Sheet>
-		</View>
+				</Sheet>
+			</View>
+		</BottomSheetModalProvider>
 	);
 }

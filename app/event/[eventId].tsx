@@ -21,6 +21,7 @@ import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
+import { eventCollection } from "@/lib/db/collections";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { client, orpc } from "@/lib/orpc";
@@ -35,9 +36,12 @@ export default function Event() {
 	const queryClient = useQueryClient();
 	const [pending, setPending] = useState(false);
 
-	const { data, isLoading } = useQuery(
+	const { data: fetched, isLoading } = useQuery(
 		orpc.event.byId.queryOptions({ input: { eventId } }),
 	);
+	// list and byId are the same bare select, so the list collection can stand in
+	// for the detail row when the fetch is paused offline.
+	const data = fetched ?? eventCollection.get(eventId);
 	const myAttending = useQuery({
 		...orpc.event.myAttending.queryOptions(),
 		enabled: !!session,
@@ -141,7 +145,7 @@ export default function Event() {
 
 	const openWebsite = useOpenLink();
 
-	if (isLoading) {
+	if (isLoading && !data) {
 		return (
 			<View className="bg-background flex-1 gap-3 p-4">
 				<Skeleton className="h-8 w-2/3" />

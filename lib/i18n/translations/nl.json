@@ -34,7 +34,8 @@
 		"admin": "Beheerpaneel",
 		"adminReports": "Meldingen",
 		"adminTickets": "Alle tickets",
-		"map": "Kaart"
+		"map": "Kaart",
+		"storage": "Gegevens & opslag"
 	},
 	"header": {
 		"language": "Taal",
@@ -637,7 +638,10 @@
 		"indefinite": "Geen vervaldatum",
 		"expired": "Verlopen",
 		"precisionSwitch": "Nauwkeurigheid wisselen",
-		"errorTitle": "Er ging iets mis"
+		"errorTitle": "Er ging iets mis",
+		"recenter": "Mijn locatie",
+		"recenterDenied": "Locatietoegang staat uit, dus de kaart kan niet op jou centreren. Je kunt dit aanzetten in de systeeminstellingen.",
+		"recenterFailed": "Kon geen locatie bepalen. Probeer het over een moment opnieuw."
 	},
 	"legal": {
 		"subtitle": "De kleine lettertjes, gehost op headpat.place",
@@ -772,5 +776,32 @@
 		"tableWebOnly": "Tabel — bewerk deze op de website",
 		"unsupported": "Dit deel van de bio kan alleen op de website worden getoond",
 		"uploadFailed": "Uploaden mislukt"
+	},
+	"offline": {
+		"lines": {
+			"1": "Geen internet. Hier is de goede oude tijd.",
+			"2": "Offline. De pats zijn in ieder geval bewaard.",
+			"3": "Geen signaal. Draait puur op geheugen.",
+			"4": "Het internet is even uit wandelen. Komt vast terug.",
+			"5": "Offlinemodus: alles wat je ziet is een herhaling.",
+			"6": "Geen verbinding. Geniet van de rust."
+		}
+	},
+	"storage": {
+		"cache": {
+			"title": "Gegevens in cache",
+			"body": "Berichten, profielen en afbeeldingen die op dit apparaat zijn opgeslagen, zodat de app snel opent en offline werkt. Wissen verandert niets aan je account.",
+			"action": "Cache wissen",
+			"confirmTitle": "Gegevens in cache wissen?",
+			"confirmBody": "De app downloadt opnieuw wat nodig is als je de volgende keer een pagina opent. Je account en instellingen blijven ongemoeid."
+		},
+		"offline": {
+			"title": "Offline gegevens",
+			"body": "Op dit apparaat bewaard zodat pagina's ook zonder verbinding werken.",
+			"gallery": "Galerij: %{count} items (%{status})",
+			"posts": "Berichten: %{count} bewaard (%{status})",
+			"events": "Evenementen: %{count} bewaard (%{status})",
+			"profiles": "Profielen: %{count} bewaard (%{status})"
+		}
 	}
 }

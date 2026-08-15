@@ -2,13 +2,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns/format";
 import { useLocalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
-import {
-	Alert,
-	KeyboardAvoidingView,
-	Platform,
-	ScrollView,
-	View,
-} from "react-native";
+import { Alert, ScrollView, View } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/empty-state";
@@ -118,11 +113,10 @@ export default function Ticket() {
 	const isOpen = data.status === "open";
 
 	return (
-		<KeyboardAvoidingView
-			className="bg-background flex-1"
-			behavior={Platform.OS === "ios" ? "padding" : undefined}
-			keyboardVerticalOffset={Platform.OS === "ios" ? 96 : 0}
-		>
+		// Lifting the whole column keeps the reply box above the keyboard. The
+		// KeyboardAvoidingView this replaces only ever worked on iOS: the app is
+		// edge-to-edge, so Android 15+ no longer resizes the window for it.
+		<KeyboardAvoidingView behavior="padding" className="bg-background flex-1">
 			<ScrollView
 				className="flex-1"
 				contentContainerStyle={{ padding: 16, gap: 12 }}

@@ -1,7 +1,8 @@
 import * as Haptics from "expo-haptics";
 import { Link } from "expo-router";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, View } from "react-native";
+import { Platform, View } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import Animated, { FadeOutUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlowBackdrop } from "@/components/brand/glow-backdrop";
@@ -43,10 +44,10 @@ export default function ForgotPassword() {
 	};
 
 	return (
-		<KeyboardAvoidingView
-			behavior={Platform.OS === "ios" ? "padding" : undefined}
-			className="bg-background flex-1"
-		>
+		// Lifting by the keyboard height re-centres the form in the space left
+		// over. Replaces KeyboardAvoidingView, which did nothing on Android: the
+		// app is edge-to-edge, so 15+ no longer resizes the window for it.
+		<KeyboardAvoidingView behavior="padding" className="bg-background flex-1">
 			<GlowBackdrop />
 			<View
 				className="flex-1 justify-center gap-6 px-6"

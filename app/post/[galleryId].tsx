@@ -1,9 +1,10 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
@@ -33,11 +34,19 @@ import { GlowShadow, Gradient } from "@/components/ui/gradient";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
+import {
+	cacheGalleryPost,
+	forgetGalleryPost,
+	type GalleryPostRow,
+	galleryCollection,
+	galleryPostCollection,
+} from "@/lib/db/collections";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
@@ -103,6 +112,24 @@ export default function GalleryItem() {
 	const comments = useQuery(
 		orpc.gallery.comments.queryOptions({ input: { itemId: galleryId } }),
 	);
+
+	// byId carries author + likedByMe, which no list row has, so this is the only
+	// call that can fill a complete mirror row.
+	useEffect(() => {
+		if (item.data) cacheGalleryPost(item.data);
+	}, [item.data]);
+
+	// Mirror first, then the synced feed collection: the feed only holds page 1,
+	// so a post opened from a profile grid is only in the mirror.
+	const cachedPost = useLiveQuery(
+		(q) =>
+			q
+				.from({ g: galleryPostCollection })
+				.where(({ g }) => eq(g.id, galleryId)),
+		[galleryId],
+	).data[0];
+	const post: GalleryPostRow | undefined =
+		item.data ?? cachedPost ?? galleryCollection.get(galleryId);
 
 	const { data: session } = useSession();
 	const { can } = usePlatformPermissions();
@@ -205,8 +232,12 @@ export default function GalleryItem() {
 				onPress: async () => {
 					try {
 						await client.gallery.delete({ itemId: galleryId });
+						forgetGalleryPost(galleryId);
 						queryClient.invalidateQueries({
 							queryKey: orpc.gallery.list.key(),
+						});
+						queryClient.invalidateQueries({
+							queryKey: ["db", "gallery", "recent"],
 						});
 						router.back();
 					} catch (e) {
@@ -284,7 +315,7 @@ export default function GalleryItem() {
 		}
 	}
 
-	if (item.isLoading) {
+	if (item.isLoading && !post) {
 		return (
 			<View className="bg-background flex-1 gap-4 p-4">
 				<Skeleton className="aspect-square w-full rounded-3xl" />
@@ -294,7 +325,7 @@ export default function GalleryItem() {
 		);
 	}
 
-	if (!item.data) {
+	if (!post) {
 		return (
 			<View className="bg-background flex-1 justify-center">
 				<EmptyState icon={ImageOff} title={t("gallery.unavailable")} />
@@ -302,12 +333,12 @@ export default function GalleryItem() {
 		);
 	}
 
-	const { author } = item.data;
+	const { author } = post;
 	const unknown = t("gallery.unknownUser");
 
 	return (
 		<>
-			<ScrollView
+			<KeyboardAwareScrollView
 				className="bg-background flex-1"
 				contentContainerStyle={{ padding: 16, gap: 16 }}
 			>
@@ -315,13 +346,13 @@ export default function GalleryItem() {
 					<View style={[GlowShadow(glow), { borderRadius: 24 }]}>
 						<StorageImage
 							kind="gallery"
-							fileId={item.data.fileId}
+							fileId={post.fileId}
 							variant="1280"
 							priority="high"
-							blurhash={item.data.blurHash}
+							blurhash={post.blurHash}
 							style={{ aspectRatio: 1, width: "100%", borderRadius: 24 }}
 							contentFit="contain"
-							accessibilityLabel={item.data.name}
+							accessibilityLabel={post.name}
 						/>
 					</View>
 				</AnimatedEntrance>
@@ -332,12 +363,12 @@ export default function GalleryItem() {
 							heading
 							className="text-3xl font-extrabold leading-9 tracking-tight"
 						>
-							{item.data.name}
+							{post.name}
 						</GradientText>
 						<View className="flex-row items-center gap-2.5">
 							<Gradient borderRadius={999} style={{ height: 3, width: 40 }} />
 							<Text variant="small" className="text-muted-foreground">
-								{formatDistanceToNow(new Date(item.data.createdAt), {
+								{formatDistanceToNow(new Date(post.createdAt), {
 									addSuffix: true,
 								})}
 							</Text>
@@ -376,16 +407,16 @@ export default function GalleryItem() {
 					</AnimatedEntrance>
 				) : null}
 
-				{item.data.longText || item.data.tags.length > 0 ? (
+				{post.longText || post.tags.length > 0 ? (
 					<AnimatedEntrance index={3} className="gap-3">
-						{item.data.longText ? (
+						{post.longText ? (
 							<Text variant="body" className="text-foreground">
-								{item.data.longText}
+								{post.longText}
 							</Text>
 						) : null}
-						{item.data.tags.length > 0 ? (
+						{post.tags.length > 0 ? (
 							<View className="flex-row flex-wrap gap-2">
-								{item.data.tags.map((tag) => (
+								{post.tags.map((tag) => (
 									<Badge key={tag} variant="secondary">
 										{tag}
 									</Badge>
@@ -416,18 +447,18 @@ export default function GalleryItem() {
 									fill={liked ? colors["primary-foreground"] : "transparent"}
 								/>
 							</Animated.View>
-							<Text>{item.data.likesCount}</Text>
+							<Text>{post.likesCount}</Text>
 						</Button>
 						<View
 							className="border-border bg-background h-11 flex-row items-center gap-1.5 rounded-xl border px-4"
-							accessibilityLabel={`${item.data.commentsCount} ${t("gallery.comments")}`}
+							accessibilityLabel={`${post.commentsCount} ${t("gallery.comments")}`}
 						>
 							<Icon
 								as={MessageCircle}
 								size={18}
 								className="text-muted-foreground"
 							/>
-							<Text>{item.data.commentsCount}</Text>
+							<Text>{post.commentsCount}</Text>
 						</View>
 						{session ? (
 							<View className="ml-auto">
@@ -519,7 +550,7 @@ export default function GalleryItem() {
 						<Text variant="muted">{t("gallery.noComments")}</Text>
 					)}
 				</AnimatedEntrance>
-			</ScrollView>
+			</KeyboardAwareScrollView>
 
 			<Sheet ref={sheetRef} title={t("gallery.comment")} accent>
 				<View className="gap-1">

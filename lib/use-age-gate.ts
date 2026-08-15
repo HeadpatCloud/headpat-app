@@ -1,29 +1,25 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { AGE_CLEARED_KEY } from "@/lib/age-gate";
+import { kvGet, kvSet } from "@/lib/db/kv";
 
 export function useAgeGate() {
-	const [clearedAt, setClearedAt] = useState<string | null>(null);
-	const [loaded, setLoaded] = useState(false);
-
-	useEffect(() => {
-		AsyncStorage.getItem(AGE_CLEARED_KEY).then((v) => {
-			// Don't overwrite a stamp clear() already set this session.
-			setClearedAt((current) => current ?? v);
-			setLoaded(true);
-		});
-	}, []);
+	// Read synchronously in the initialiser: an async read would render one frame
+	// with no stamp, which for a compliance gate means flashing content before
+	// gating it.
+	const [clearedAt, setClearedAt] = useState<string | null>(() =>
+		kvGet(AGE_CLEARED_KEY),
+	);
 
 	const clear = useCallback(() => {
 		const stamp = new Date().toISOString();
 		setClearedAt(stamp);
-		AsyncStorage.setItem(AGE_CLEARED_KEY, stamp).catch(() => {});
+		kvSet(AGE_CLEARED_KEY, stamp);
 	}, []);
 
 	return {
-		// Gate until AsyncStorage has loaded AND no cleared stamp exists. One-time:
-		// once cleared we never re-ask (age only increases).
-		needsAgeCheck: loaded && clearedAt == null,
+		// One-time: once cleared we never re-ask (age only increases). A read that
+		// throws leaves this null, so the gate fails closed.
+		needsAgeCheck: clearedAt == null,
 		clear,
 	};
 }

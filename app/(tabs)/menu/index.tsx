@@ -9,6 +9,7 @@ import {
 	CalendarDays,
 	ChevronRight,
 	FileClock,
+	HardDrive,
 	Images,
 	LifeBuoy,
 	Link2,
@@ -34,30 +35,33 @@ import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { signOut, useSession } from "@/lib/auth-client";
+import { clearCollections } from "@/lib/db/collections";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
 import { unregisterPushToken } from "@/lib/push";
+import { persister, queryClient } from "@/lib/query";
 import { usePlatformPermissions } from "@/lib/use-permissions";
 
 type Row = { href: Href; icon: LucideIcon; titleKey: string };
 type T = ReturnType<typeof useI18n>["t"];
 
 const BROWSE_ROWS: Row[] = [
+	{ href: "/users", icon: UserRound, titleKey: "titles.users" },
 	{ href: "/gallery", icon: Images, titleKey: "titles.gallery" },
 	{ href: "/community", icon: UsersRound, titleKey: "titles.communities" },
 	{ href: "/events", icon: CalendarDays, titleKey: "titles.events" },
 	{ href: "/locations", icon: MapPin, titleKey: "titles.map" },
-	{ href: "/users", icon: UserRound, titleKey: "titles.users" },
+	{ href: "/notifications", icon: Bell, titleKey: "titles.notifications" },
 ];
 
 const SETTINGS_ROWS: Row[] = [
-	{ href: "/notifications", icon: Bell, titleKey: "titles.notifications" },
 	{ href: "/profile-edit", icon: UserPen, titleKey: "titles.profileEdit" },
 	{ href: "/appearance", icon: Palette, titleKey: "titles.appearance" },
 	{ href: "/security", icon: ShieldCheck, titleKey: "titles.security" },
 	{ href: "/connections", icon: Link2, titleKey: "titles.connections" },
+	{ href: "/storage", icon: HardDrive, titleKey: "titles.storage" },
 ];
 
 const SUPPORT_ROWS: Row[] = [
@@ -70,6 +74,12 @@ const SUPPORT_ROWS: Row[] = [
 
 // Tickets needs a session; everything else in the group is public.
 const GUEST_SUPPORT_ROWS = SUPPORT_ROWS.filter((r) => r.href !== "/tickets");
+
+// Neither needs an account. Clearing the cache especially has to work signed
+// out, since a wedged cache is a reason someone ends up signed out.
+const GUEST_SETTINGS_ROWS: Row[] = SETTINGS_ROWS.filter(
+	(r) => r.href === "/appearance" || r.href === "/storage",
+);
 
 function GroupLabel({ index, children }: { index: number; children: string }) {
 	return (
@@ -165,19 +175,18 @@ export default function Menu() {
 					</Button>
 				</AnimatedEntrance>
 				<GroupLabel index={2}>{t("menu.groups.settings")}</GroupLabel>
-				<SettingsRow
-					icon={Palette}
-					label={t("titles.appearance")}
-					index={3}
-					onPress={() => router.push("/appearance")}
-					accessibilityLabel={t("account.hub.rowA11y", {
-						label: t("titles.appearance"),
-					})}
+				<RowGroup
+					rows={GUEST_SETTINGS_ROWS}
+					startIndex={3}
+					unreadCount={0}
+					t={t}
 				/>
-				<GroupLabel index={4}>{t("menu.groups.support")}</GroupLabel>
+				<GroupLabel index={3 + GUEST_SETTINGS_ROWS.length}>
+					{t("menu.groups.support")}
+				</GroupLabel>
 				<RowGroup
 					rows={GUEST_SUPPORT_ROWS}
-					startIndex={5}
+					startIndex={4 + GUEST_SETTINGS_ROWS.length}
 					unreadCount={0}
 					t={t}
 				/>
@@ -320,6 +329,13 @@ export default function Menu() {
 								// Drop this device's push token while the session is still
 								// alive — unregister is an authed call.
 								await unregisterPushToken();
+								// Persisted per-account data has no user dimension: SQLite
+								// collections and the query blob hold NSFW gallery rows and
+								// private community events for whoever was signed in, so both
+								// have to go before the next account arrives.
+								clearCollections();
+								queryClient.clear();
+								persister.removeClient();
 								signOut();
 							}}
 							accessibilityRole="button"

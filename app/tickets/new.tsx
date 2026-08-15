@@ -1,12 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
 import { Gradient } from "@/components/ui/gradient";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Text } from "@/components/ui/text";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
@@ -105,7 +106,7 @@ export default function NewTicket() {
 	};
 
 	return (
-		<ScrollView
+		<KeyboardAwareScrollView
 			className="bg-background flex-1"
 			contentContainerStyle={{
 				padding: 16,
@@ -193,6 +194,6 @@ export default function NewTicket() {
 					<Text>{t("tickets.new.submit")}</Text>
 				</Button>
 			</AnimatedEntrance>
-		</ScrollView>
+		</KeyboardAwareScrollView>
 	);
 }

@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { Link, router } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -31,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { kvSet } from "@/lib/db/kv";
 import { useI18n } from "@/lib/i18n/provider";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { tripletToHex } from "@/lib/theme/color";
@@ -54,7 +54,7 @@ function commaHsl(hsl: string): string {
 }
 
 function finishOnboarding() {
-	AsyncStorage.setItem(ONBOARDED_KEY, "1").catch(() => {});
+	kvSet(ONBOARDED_KEY, "1");
 	router.replace("/(auth)/welcome");
 }
 
@@ -404,7 +404,7 @@ export default function Onboarding() {
 							<Button
 								variant="link"
 								onPress={() => {
-									AsyncStorage.setItem(ONBOARDED_KEY, "1").catch(() => {});
+									kvSet(ONBOARDED_KEY, "1");
 								}}
 								accessibilityRole="link"
 								accessibilityLabel={t("auth.onboarding.haveAccount")}

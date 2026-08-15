@@ -34,7 +34,8 @@
 		"admin": "Admin-Bereich",
 		"adminReports": "Meldungen",
 		"adminTickets": "Alle Tickets",
-		"map": "Karte"
+		"map": "Karte",
+		"storage": "Daten & Speicher"
 	},
 	"header": {
 		"language": "Sprache",
@@ -637,7 +638,10 @@
 		"indefinite": "Kein Ablauf",
 		"expired": "Abgelaufen",
 		"precisionSwitch": "Genauigkeit wechseln",
-		"errorTitle": "Ein Fehler ist aufgetreten"
+		"errorTitle": "Ein Fehler ist aufgetreten",
+		"recenter": "Mein Standort",
+		"recenterDenied": "Der Standortzugriff ist aus, daher kann die Karte nicht auf dich zentrieren. Du kannst ihn in den Systemeinstellungen aktivieren.",
+		"recenterFailed": "Standort konnte nicht ermittelt werden. Versuch es gleich noch einmal."
 	},
 	"legal": {
 		"subtitle": "Das Kleingedruckte, gehostet auf headpat.place",
@@ -772,5 +776,32 @@
 		"tableWebOnly": "Tabelle — bearbeite sie auf der Website",
 		"unsupported": "Dieser Teil der Bio kann nur auf der Website angezeigt werden",
 		"uploadFailed": "Upload fehlgeschlagen"
+	},
+	"offline": {
+		"lines": {
+			"1": "Kein Internet. Hier sind die guten alten Zeiten.",
+			"2": "Offline. Die Pats sind aber gespeichert.",
+			"3": "Kein Signal. Läuft nur noch aus dem Gedächtnis.",
+			"4": "Das Internet ist spazieren. Kommt bestimmt wieder.",
+			"5": "Offline-Modus: alles hier ist eine Wiederholung.",
+			"6": "Keine Verbindung. Genieß die Ruhe."
+		}
+	},
+	"storage": {
+		"cache": {
+			"title": "Zwischengespeicherte Daten",
+			"body": "Beiträge, Profile und Bilder, die auf diesem Gerät gespeichert sind, damit die App schnell startet und offline funktioniert. Das Löschen ändert nichts an deinem Konto.",
+			"action": "Cache löschen",
+			"confirmTitle": "Zwischengespeicherte Daten löschen?",
+			"confirmBody": "Die App lädt beim nächsten Öffnen einer Seite neu, was sie braucht. Dein Konto und deine Einstellungen bleiben unberührt."
+		},
+		"offline": {
+			"title": "Offline-Daten",
+			"body": "Auf diesem Gerät gespeichert, damit Seiten auch ohne Verbindung funktionieren.",
+			"gallery": "Galerie: %{count} Beiträge (%{status})",
+			"posts": "Beiträge: %{count} gespeichert (%{status})",
+			"events": "Events: %{count} gespeichert (%{status})",
+			"profiles": "Profile: %{count} gespeichert (%{status})"
+		}
 	}
 }

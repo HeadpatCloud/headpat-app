@@ -14,6 +14,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
@@ -243,6 +244,7 @@ export default function NewEvent() {
 					.filter(Boolean),
 			});
 			qc.invalidateQueries({ queryKey: orpc.event.list.key() });
+			qc.invalidateQueries({ queryKey: ["db", "event", "upcoming"] });
 			qc.invalidateQueries({ queryKey: orpc.event.upcoming.key() });
 			router.replace(`/event/${created.id}`);
 		} catch (e) {
@@ -253,7 +255,7 @@ export default function NewEvent() {
 	};
 
 	return (
-		<ScrollView
+		<KeyboardAwareScrollView
 			className="bg-background flex-1"
 			contentContainerStyle={{
 				padding: 16,
@@ -417,7 +419,7 @@ export default function NewEvent() {
 					</Text>
 				</Button>
 			</AnimatedEntrance>
-		</ScrollView>
+		</KeyboardAwareScrollView>
 	);
 }
 

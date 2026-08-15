@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type LiveLocation = {
 	userId: string;
@@ -55,7 +55,12 @@ export function useLiveLocations(seed: LiveLocation[]) {
 	useEffect(() => {
 		setState(applyLocationEvent({}, { type: "seed", items: seed }));
 	}, [seed]);
-	const dispatch = (evt: LiveEvent) =>
-		setState((s) => applyLocationEvent(s, evt));
+	// Stable identity matters: the map screen feeds this into a WebSocket effect's
+	// dependency list, so a fresh closure per render tore down and reopened the
+	// socket on every render, dropping live events across the gap.
+	const dispatch = useCallback(
+		(evt: LiveEvent) => setState((s) => applyLocationEvent(s, evt)),
+		[],
+	);
 	return { locations: Object.values(state), dispatch };
 }

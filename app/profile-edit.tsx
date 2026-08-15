@@ -1,13 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-	ActivityIndicator,
-	Alert,
-	ScrollView,
-	StyleSheet,
-	View,
-} from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlowAvatar } from "@/components/glow-avatar";
 import { Camera } from "@/components/icons";
@@ -18,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
@@ -148,7 +143,7 @@ export default function ProfileEdit() {
 	}
 
 	return (
-		<ScrollView
+		<KeyboardAwareScrollView
 			className="bg-background flex-1"
 			contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
 			keyboardShouldPersistTaps="handled"
@@ -305,7 +300,7 @@ export default function ProfileEdit() {
 					</Button>
 				</AnimatedEntrance>
 			</View>
-		</ScrollView>
+		</KeyboardAwareScrollView>
 	);
 }
 

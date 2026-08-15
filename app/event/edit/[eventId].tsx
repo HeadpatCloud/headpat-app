@@ -6,12 +6,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns/format";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, Platform, ScrollView, View } from "react-native";
+import { Alert, Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CalendarClock } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
@@ -136,6 +137,7 @@ export default function EditEvent() {
 				queryKey: orpc.event.byId.key({ input: { eventId } }),
 			});
 			qc.invalidateQueries({ queryKey: orpc.event.list.key() });
+			qc.invalidateQueries({ queryKey: ["db", "event", "upcoming"] });
 			qc.invalidateQueries({ queryKey: orpc.event.upcoming.key() });
 			router.back();
 		} catch (e) {
@@ -156,7 +158,7 @@ export default function EditEvent() {
 	}
 
 	return (
-		<ScrollView
+		<KeyboardAwareScrollView
 			className="bg-background flex-1"
 			contentContainerStyle={{
 				padding: 16,
@@ -303,7 +305,7 @@ export default function EditEvent() {
 					<Text>{t("common.save")}</Text>
 				</Button>
 			</AnimatedEntrance>
-		</ScrollView>
+		</KeyboardAwareScrollView>
 	);
 }
 

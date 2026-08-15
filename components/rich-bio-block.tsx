@@ -1,3 +1,4 @@
+import { Image } from "expo-image";
 import { Pressable, TextInput, View } from "react-native";
 import {
 	ChevronDown,
@@ -14,7 +15,6 @@ import { replaceText, runsToText } from "@/lib/rich-bio/runs";
 import type { Block, TextBlockType } from "@/lib/rich-bio/types";
 import { useTheme } from "@/lib/theme/provider";
 import { cn } from "@/lib/utils";
-import { Image } from "expo-image";
 
 const TEXT_CLASS: Record<TextBlockType, string> = {
 	p: "text-foreground text-base leading-6",

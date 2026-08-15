@@ -12,12 +12,14 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Location from "expo-location";
 import { router } from "expo-router";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Alert, StyleSheet, View } from "react-native";
 import Supercluster from "supercluster";
+import { LocateFixed } from "@/components/icons";
 import { StatusSheet } from "@/components/locations/status-sheet";
 import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useI18n } from "@/lib/i18n/provider";
 import { locationQueries } from "@/lib/location/api";
@@ -385,6 +387,9 @@ export default function LocationsScreen() {
 
 	const [showUser, setShowUser] = useState(false);
 	const [userCenter, setUserCenter] = useState<LngLat | null>(null);
+	// Tracks whether a fix is still pending, so the data-pin fallback below
+	// doesn't anchor the camera on a stranger while we're still locating.
+	const [locating, setLocating] = useState(true);
 	useEffect(() => {
 		let cancelled = false;
 		(async () => {
@@ -393,19 +398,54 @@ export default function LocationsScreen() {
 					?.granted ?? false;
 			if (cancelled) return;
 			setShowUser(granted);
-			if (granted) {
-				const pos = await Location.getLastKnownPositionAsync().catch(
-					() => null,
-				);
-				if (pos && !cancelled) {
-					setUserCenter([pos.coords.longitude, pos.coords.latitude]);
-				}
+			if (!granted) {
+				setLocating(false);
+				return;
 			}
+			// Last known paints the camera immediately; the live fix follows and
+			// corrects it. Without the second call, a device with no cached fix
+			// never resolves a position at all.
+			const last = await Location.getLastKnownPositionAsync().catch(() => null);
+			if (last && !cancelled) {
+				setUserCenter([last.coords.longitude, last.coords.latitude]);
+			}
+			const pos = await Location.getCurrentPositionAsync({
+				accuracy: Location.Accuracy.Balanced,
+			}).catch(() => null);
+			if (cancelled) return;
+			setLocating(false);
+			if (!pos) return;
+			const live: LngLat = [pos.coords.longitude, pos.coords.latitude];
+			setUserCenter(live);
+			// frozenCenter latches its first value, so a late fix has to move the
+			// camera itself.
+			cameraRef.current?.flyTo({ center: live, zoom: 14, duration: 500 });
 		})();
 		return () => {
 			cancelled = true;
 		};
 	}, []);
+
+	const recenter = useCallback(async () => {
+		const perm = await Location.requestForegroundPermissionsAsync().catch(
+			() => null,
+		);
+		if (!perm?.granted) {
+			Alert.alert(t("locations.errorTitle"), t("locations.recenterDenied"));
+			return;
+		}
+		setShowUser(true);
+		const pos = await Location.getCurrentPositionAsync({
+			accuracy: Location.Accuracy.Balanced,
+		}).catch(() => null);
+		if (!pos) {
+			Alert.alert(t("locations.errorTitle"), t("locations.recenterFailed"));
+			return;
+		}
+		const live: LngLat = [pos.coords.longitude, pos.coords.latitude];
+		setUserCenter(live);
+		cameraRef.current?.flyTo({ center: live, zoom: 14, duration: 500 });
+	}, [t]);
 
 	const dataCenter: LngLat | null = locations[0]
 		? [locations[0].lng, locations[0].lat]
@@ -413,9 +453,14 @@ export default function LocationsScreen() {
 	const [frozenCenter, setFrozenCenter] = useState<LngLat | null>(null);
 	useEffect(() => {
 		if (frozenCenter) return;
-		const c = userCenter ?? dataCenter;
-		if (c) setFrozenCenter(c);
-	}, [userCenter, dataCenter, frozenCenter]);
+		// The device position always wins; a data pin is only an anchor once we
+		// know no fix is coming (permission denied, or the lookup failed).
+		if (userCenter) {
+			setFrozenCenter(userCenter);
+			return;
+		}
+		if (!locating && dataCenter) setFrozenCenter(dataCenter);
+	}, [userCenter, dataCenter, frozenCenter, locating]);
 	const center = frozenCenter ?? DEFAULT_CENTER;
 
 	return (
@@ -505,6 +550,17 @@ export default function LocationsScreen() {
 					onPress={() => router.push("/locations/share" as never)}
 				>
 					<Text>{t("locations.manageTitle")}</Text>
+				</Button>
+			</View>
+			<View className="absolute bottom-24 right-4">
+				<Button
+					size="sm"
+					variant="secondary"
+					onPress={recenter}
+					accessibilityRole="button"
+					accessibilityLabel={t("locations.recenter")}
+				>
+					<Icon as={LocateFixed} size={18} />
 				</Button>
 			</View>
 

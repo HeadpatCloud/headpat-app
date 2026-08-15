@@ -1,11 +1,12 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
@@ -58,6 +59,7 @@ export default function EditGalleryPost() {
 				queryKey: orpc.gallery.byId.key({ input: { itemId: galleryId } }),
 			});
 			qc.invalidateQueries({ queryKey: orpc.gallery.list.key() });
+			qc.invalidateQueries({ queryKey: ["db", "gallery", "recent"] });
 			router.back();
 		} catch (e) {
 			Alert.alert(t("gallery.saveFailed"), humanizeError(e));
@@ -77,7 +79,7 @@ export default function EditGalleryPost() {
 	}
 
 	return (
-		<ScrollView
+		<KeyboardAwareScrollView
 			className="bg-background flex-1"
 			contentContainerStyle={{
 				padding: 16,
@@ -158,6 +160,6 @@ export default function EditGalleryPost() {
 					<Text>{t("common.save")}</Text>
 				</Button>
 			</AnimatedEntrance>
-		</ScrollView>
+		</KeyboardAwareScrollView>
 	);
 }

@@ -2,16 +2,18 @@ import "@/global.css";
 import "@/lib/location/background-task";
 
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PortalHost } from "@rn-primitives/portal";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AgeGate } from "@/components/age-gate";
 import { EulaGate } from "@/components/eula-gate";
+import { OfflineBadge } from "@/components/offline-badge";
 import { useSession } from "@/lib/auth-client";
+import { kvGet, useKvReady } from "@/lib/db/kv";
 import { I18nProvider, useI18n } from "@/lib/i18n/provider";
 import { MotionProvider, useReducedMotion } from "@/lib/motion/reduced-motion";
 import { AppProviders } from "@/lib/providers";
@@ -28,14 +30,14 @@ function useProtectedRoute() {
 	const { data, isPending } = useSession();
 	const segments = useSegments();
 	const router = useRouter();
-	const [onboarded, setOnboarded] = useState<boolean | null>(null);
+	// Navigating is how this learns onboarding finished: finishOnboarding writes
+	// the key, then replaces the route. The read is synchronous now, so this is a
+	// cheap re-check rather than an AsyncStorage round trip plus a root re-render.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: segments is the re-check trigger, not a value read here
+	const onboarded = useMemo(() => kvGet("hp-onboarded") === "1", [segments]);
 
 	useEffect(() => {
-		AsyncStorage.getItem("hp-onboarded").then((v) => setOnboarded(v === "1"));
-	}, [segments]);
-
-	useEffect(() => {
-		if (isPending || onboarded === null) return;
+		if (isPending) return;
 		const inAuthGroup = segments[0] === "(auth)";
 		if (!data && !onboarded && !inAuthGroup) {
 			router.replace("/(auth)/onboarding");
@@ -90,6 +92,10 @@ function RootNav() {
 					name="connections"
 					options={{ headerShown: true, title: t("titles.connections") }}
 				/>
+				<Stack.Screen
+					name="storage"
+					options={{ headerShown: true, title: t("titles.storage") }}
+				/>
 				<Stack.Screen name="announcements" />
 				<Stack.Screen name="community" />
 				<Stack.Screen name="event" />
@@ -138,22 +144,31 @@ function RootNav() {
 }
 
 export default function RootLayout() {
+	// Gates the whole tree: providers read preferences synchronously on their first
+	// render, so nothing may mount before the one-time migration has run. The
+	// splash is still up, and this is instant on every launch after the first.
+	const kvReady = useKvReady();
+	if (!kvReady) return null;
+
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
-			<SafeAreaProvider>
-				<AppProviders>
-					<ThemeProvider>
-						<I18nProvider>
-							<MotionProvider>
-								<BottomSheetModalProvider>
-									<RootNav />
-									<PortalHost />
-								</BottomSheetModalProvider>
-							</MotionProvider>
-						</I18nProvider>
-					</ThemeProvider>
-				</AppProviders>
-			</SafeAreaProvider>
+			<KeyboardProvider>
+				<SafeAreaProvider>
+					<AppProviders>
+						<ThemeProvider>
+							<I18nProvider>
+								<MotionProvider>
+									<BottomSheetModalProvider>
+										<RootNav />
+										<OfflineBadge />
+										<PortalHost />
+									</BottomSheetModalProvider>
+								</MotionProvider>
+							</I18nProvider>
+						</ThemeProvider>
+					</AppProviders>
+				</SafeAreaProvider>
+			</KeyboardProvider>
 		</GestureHandlerRootView>
 	);
 }

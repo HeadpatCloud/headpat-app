@@ -1,3 +1,4 @@
+import { useLiveQuery } from "@tanstack/react-db";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { router } from "expo-router";
@@ -12,6 +13,7 @@ import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
+import { eventCollection } from "@/lib/db/collections";
 import { useI18n } from "@/lib/i18n/provider";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 import { orpc } from "@/lib/orpc";
@@ -28,10 +30,26 @@ export default function Events() {
 		}),
 	);
 
+	// Spread the real query so fetchNextPage/refetch stay callable — PaginatedList
+	// invokes both, and a hand-built stub would throw on scroll.
+	const cachedEvents = useLiveQuery((q) =>
+		q.from({ e: eventCollection }).orderBy(({ e }) => e.startsAt, "asc"),
+	).data;
+	const fetchedEvents = query.data?.pages.flatMap((page) => page.items);
+
 	return (
 		<View className="flex-1">
 			<PaginatedList
-				query={query}
+				query={
+					fetchedEvents
+						? query
+						: {
+								...query,
+								data: { pages: [{ items: cachedEvents }] },
+								isLoading: query.isLoading && !cachedEvents.length,
+								isError: query.isError && !cachedEvents.length,
+							}
+				}
 				keyExtractor={(e) => e.id}
 				emptyTitle={t("events.emptyTitle")}
 				emptySubtitle={t("events.emptySubtitle")}

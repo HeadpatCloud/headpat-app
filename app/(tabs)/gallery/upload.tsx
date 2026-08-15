@@ -4,13 +4,14 @@ import { Image } from "expo-image";
 import type { ImagePickerAsset } from "expo-image-picker";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Platform, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ImagePlus } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
 import { useI18n } from "@/lib/i18n/provider";
@@ -55,6 +56,7 @@ export default function GalleryUpload() {
 				fileId,
 			});
 			qc.invalidateQueries({ queryKey: orpc.gallery.list.key() });
+			qc.invalidateQueries({ queryKey: ["db", "gallery", "recent"] });
 			if (Platform.OS !== "web")
 				Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 			router.back();
@@ -66,7 +68,7 @@ export default function GalleryUpload() {
 	};
 
 	return (
-		<ScrollView
+		<KeyboardAwareScrollView
 			className="bg-background flex-1"
 			contentContainerStyle={{
 				padding: 16,
@@ -197,6 +199,6 @@ export default function GalleryUpload() {
 					<Text>{t("gallery.upload.post")}</Text>
 				</Button>
 			</AnimatedEntrance>
-		</ScrollView>
+		</KeyboardAwareScrollView>
 	);
 }

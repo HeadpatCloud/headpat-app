@@ -34,7 +34,8 @@
 		"admin": "Admin panel",
 		"adminReports": "Reports",
 		"adminTickets": "All tickets",
-		"map": "Map"
+		"map": "Map",
+		"storage": "Data & storage"
 	},
 	"header": {
 		"language": "Language",
@@ -637,7 +638,10 @@
 		"indefinite": "No expiry",
 		"expired": "Expired",
 		"precisionSwitch": "Switch precision",
-		"errorTitle": "Something went wrong"
+		"errorTitle": "Something went wrong",
+		"recenter": "My location",
+		"recenterDenied": "Location access is off, so the map can't centre on you. You can turn it on in system settings.",
+		"recenterFailed": "Couldn't get a location fix. Try again in a moment."
 	},
 	"legal": {
 		"subtitle": "The fine print, hosted on headpat.place",
@@ -772,5 +776,32 @@
 		"tableWebOnly": "Table — edit it on the website",
 		"unsupported": "This part of the bio can only be shown on the website",
 		"uploadFailed": "Upload failed"
+	},
+	"offline": {
+		"lines": {
+			"1": "No internet. Showing you the good old days.",
+			"2": "Offline. The pats are cached, at least.",
+			"3": "No signal. Running on memory alone.",
+			"4": "Internet's gone walkies. Back soon, probably.",
+			"5": "Offline mode: everything you see is a rerun.",
+			"6": "No connection. Enjoy the peace and quiet."
+		}
+	},
+	"storage": {
+		"cache": {
+			"title": "Cached data",
+			"body": "Posts, profiles and images saved on this device so the app opens fast and works offline. Clearing it changes nothing about your account.",
+			"action": "Clear cache",
+			"confirmTitle": "Clear cached data?",
+			"confirmBody": "The app re-downloads what it needs next time you open a page. Your account and settings are untouched."
+		},
+		"offline": {
+			"title": "Offline data",
+			"body": "Kept on this device so pages still work without a connection.",
+			"gallery": "Gallery: %{count} items (%{status})",
+			"posts": "Posts: %{count} saved (%{status})",
+			"events": "Events: %{count} saved (%{status})",
+			"profiles": "Profiles: %{count} saved (%{status})"
+		}
 	}
 }

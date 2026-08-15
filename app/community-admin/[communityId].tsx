@@ -1,13 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-	ActivityIndicator,
-	Alert,
-	ScrollView,
-	StyleSheet,
-	View,
-} from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/empty-state";
 import { GlowAvatar } from "@/components/glow-avatar";
@@ -18,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
@@ -151,7 +146,7 @@ export default function CommunityAdmin() {
 	}
 
 	return (
-		<ScrollView
+		<KeyboardAwareScrollView
 			className="bg-background flex-1"
 			contentContainerStyle={{
 				paddingBottom: insets.bottom + 24,
@@ -274,7 +269,7 @@ export default function CommunityAdmin() {
 			) : null}
 
 			<Channels communityId={communityId} />
-		</ScrollView>
+		</KeyboardAwareScrollView>
 	);
 }
 

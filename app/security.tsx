@@ -1,18 +1,23 @@
 import * as Haptics from "expo-haptics";
-import { useState } from "react";
-import { Alert, Platform, ScrollView, View } from "react-native";
-import QRCode from "react-native-qrcode-svg";
+import { lazy, Suspense, useState } from "react";
+import { Alert, Platform, View } from "react-native";
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GlowCard } from "@/components/ui/card";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Text } from "@/components/ui/text";
 import { twoFactor, useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { humanizeError } from "@/lib/orpc-error";
+
+// The qrcode encoder graph is only needed during 2FA enrollment, so keep it out
+// of this route's mount cost.
+const QRCode = lazy(() => import("react-native-qrcode-svg"));
 
 export default function Security() {
 	const insets = useSafeAreaInsets();
@@ -80,7 +85,7 @@ export default function Security() {
 	};
 
 	return (
-		<ScrollView
+		<KeyboardAwareScrollView
 			className="bg-background flex-1"
 			contentContainerStyle={{
 				padding: 16,
@@ -116,7 +121,9 @@ export default function Security() {
 						</Text>
 						{/* White stays hard-coded: QR scanners need a real white quiet zone. */}
 						<View className="items-center rounded-xl bg-white p-4">
-							<QRCode value={setup.totpURI} size={180} />
+							<Suspense fallback={<View style={{ height: 180, width: 180 }} />}>
+								<QRCode value={setup.totpURI} size={180} />
+							</Suspense>
 						</View>
 						<View className="bg-muted gap-1.5 rounded-xl p-3">
 							<Text variant="caption">{t("account.security.backupCodes")}</Text>
@@ -184,6 +191,6 @@ export default function Security() {
 					)}
 				</AnimatedEntrance>
 			)}
-		</ScrollView>
+		</KeyboardAwareScrollView>
 	);
 }

@@ -32,7 +32,7 @@ on:
           - production
       should_submit:
         type: boolean
-        description: Whether to perform the submit step
+        description: Submit to the store
         required: true
         default: true
 jobs:
@@ -116,9 +116,9 @@ jobs:
           path: app-build
 
       - name: 🚢 Submit cloud build
-        if: ${{ inputs.should_submit && inputs.build_mode == 'cloud' }}
+        if: ${{ inputs.should_submit && inputs.profile == 'production' && inputs.build_mode == 'cloud' }}
         run: eas submit --non-interactive --latest -p ${{ inputs.platform }} --profile ${{ inputs.profile }}
 
       - name: 🚢 Submit runner build
-        if: ${{ inputs.should_submit && inputs.build_mode == 'local' }}
+        if: ${{ inputs.should_submit && inputs.profile == 'production' && inputs.build_mode == 'local' }}
         run: eas submit --non-interactive -p ${{ inputs.platform }} --profile ${{ inputs.profile }} --path app-build/${{ steps.version.outputs.value }}-headpat.${{ inputs.platform == 'ios' && 'ipa' || 'aab' }}

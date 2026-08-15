@@ -1,6 +1,6 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { kvGet, kvSet } from "@/lib/db/kv";
 import { EULA_ACCEPTED_KEY, eulaNeedsAcceptance } from "@/lib/eula";
 import { orpc } from "@/lib/orpc";
 
@@ -10,16 +10,11 @@ export function useEula() {
 		staleTime: 5 * 60 * 1000,
 		retry: 1,
 	});
-	const [acceptedAt, setAcceptedAt] = useState<string | null>(null);
-	const [loaded, setLoaded] = useState(false);
-
-	useEffect(() => {
-		AsyncStorage.getItem(EULA_ACCEPTED_KEY).then((v) => {
-			// Don't overwrite a stamp accept() already set
-			setAcceptedAt((current) => current ?? v);
-			setLoaded(true);
-		});
-	}, []);
+	// Read synchronously so the gate decides on the first frame rather than after
+	// an async hop.
+	const [acceptedAt, setAcceptedAt] = useState<string | null>(() =>
+		kvGet(EULA_ACCEPTED_KEY),
+	);
 
 	const serverUpdatedAt = info.data?.eulaUpdatedAt
 		? new Date(info.data.eulaUpdatedAt).toISOString()
@@ -30,14 +25,14 @@ export function useEula() {
 		// can complete; a newer server date will re-gate on a later launch.
 		const stamp = serverUpdatedAt ?? new Date().toISOString();
 		setAcceptedAt(stamp);
-		AsyncStorage.setItem(EULA_ACCEPTED_KEY, stamp).catch(() => {});
+		kvSet(EULA_ACCEPTED_KEY, stamp);
 	}, [serverUpdatedAt]);
 
 	return {
 		// Onboarding lock: has this device EVER accepted anything?
 		accepted: acceptedAt != null,
 		// Update gate: is the device's acceptance stale vs a KNOWN server date?
-		needsAcceptance: loaded && eulaNeedsAcceptance(acceptedAt, serverUpdatedAt),
+		needsAcceptance: eulaNeedsAcceptance(acceptedAt, serverUpdatedAt),
 		serverUpdatedAt,
 		accept,
 	};

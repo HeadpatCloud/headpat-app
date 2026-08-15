@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
 	DarkTheme,
 	DefaultTheme,
@@ -19,6 +18,7 @@ import {
 } from "react";
 import { useColorScheme as useDeviceScheme, View } from "react-native";
 import { authClient } from "@/lib/auth-client";
+import { kvGet, kvSet } from "@/lib/db/kv";
 import { client } from "@/lib/orpc";
 import { hexToTriplet, tokensToVars, tripletToHex } from "@/lib/theme/color";
 import { resolveThemeVisuals, type ThemeVisuals } from "@/lib/theme/derive";
@@ -96,48 +96,41 @@ function buildNavTheme(triplets: TokenMap, scheme: "light" | "dark"): NavTheme {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
 	const device = useDeviceScheme();
-	const [mode, setModeState] = useState<ThemeMode>("system");
-	const [activeTheme, setActiveThemeState] = useState<string>("headpat");
-	const [customThemes, setCustomThemes] = useState<CustomTheme[]>([]);
-	const [hydrated, setHydrated] = useState(false);
+	// Read in the initialisers: the store is synchronous, so the first frame is
+	// already the user's theme and the splash needs no hydration wait.
+	const [mode, setModeState] = useState<ThemeMode>(() => {
+		const stored = kvGet(MODE_KEY);
+		return stored === "light" || stored === "dark" || stored === "system"
+			? stored
+			: "system";
+	});
+	const [activeTheme, setActiveThemeState] = useState<string>(
+		() => kvGet(ACTIVE_KEY) ?? "headpat",
+	);
+	const [customThemes, setCustomThemes] = useState<CustomTheme[]>(() => {
+		const raw = kvGet(CUSTOM_KEY);
+		if (!raw) return [];
+		try {
+			return JSON.parse(raw) as CustomTheme[];
+		} catch {
+			return [];
+		}
+	});
 	const { data: session } = authClient.useSession();
 	// Effects key on the user id, not the session object — better-auth emits a
 	// fresh session object on every refetch (app focus, token refresh).
 	const userId = session?.user?.id ?? null;
 
-	// Hydrate cached prefs once; the splash stays up until the first frame is
-	// painted with the user's theme (no default-theme flash).
 	useEffect(() => {
-		(async () => {
-			try {
-				const [[, m], [, a], [, c]] = await AsyncStorage.multiGet([
-					MODE_KEY,
-					ACTIVE_KEY,
-					CUSTOM_KEY,
-				]);
-				if (m === "light" || m === "dark" || m === "system") setModeState(m);
-				if (a) setActiveThemeState(a);
-				if (c) {
-					try {
-						setCustomThemes(JSON.parse(c));
-					} catch {}
-				}
-			} finally {
-				setHydrated(true);
-			}
-		})();
+		SplashScreen.hideAsync().catch(() => {});
 	}, []);
-
-	useEffect(() => {
-		if (hydrated) SplashScreen.hideAsync().catch(() => {});
-	}, [hydrated]);
 
 	const refreshCustomThemes = useCallback(async () => {
 		try {
 			const rows = (await client.theme.myThemes({})) as CustomTheme[];
 			const next = JSON.stringify(rows);
 			setCustomThemes((prev) => (JSON.stringify(prev) === next ? prev : rows));
-			await AsyncStorage.setItem(CUSTOM_KEY, next);
+			kvSet(CUSTOM_KEY, next);
 		} catch {}
 	}, []);
 
@@ -149,7 +142,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 				const me = await client.profile.me({});
 				if (me?.activeTheme) {
 					setActiveThemeState(me.activeTheme);
-					await AsyncStorage.setItem(ACTIVE_KEY, me.activeTheme);
+					kvSet(ACTIVE_KEY, me.activeTheme);
 				}
 			} catch {}
 			await refreshCustomThemes();
@@ -176,13 +169,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
 	const setMode = useCallback((next: ThemeMode) => {
 		setModeState(next);
-		AsyncStorage.setItem(MODE_KEY, next).catch(() => {});
+		kvSet(MODE_KEY, next);
 	}, []);
 
 	const setActiveTheme = useCallback(
 		(value: string) => {
 			setActiveThemeState(value);
-			AsyncStorage.setItem(ACTIVE_KEY, value).catch(() => {});
+			kvSet(ACTIVE_KEY, value);
 			if (userId) client.theme.setActive({ theme: value }).catch(() => {});
 		},
 		[userId],
@@ -229,8 +222,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 		],
 		[triplets],
 	);
-
-	if (!hydrated) return null;
 
 	return (
 		<ThemeContext.Provider value={ctx}>

@@ -1,4 +1,5 @@
 import { FlashList } from "@shopify/flash-list";
+import { useLiveQuery } from "@tanstack/react-db";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
@@ -14,6 +15,7 @@ import { GlowShadow } from "@/components/ui/gradient";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
+import { galleryCollection } from "@/lib/db/collections";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
@@ -21,6 +23,7 @@ import { type client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 import { useTheme } from "@/lib/theme/provider";
 import { useShowNsfw } from "@/lib/use-show-nsfw";
+import { useStorageUrls } from "@/lib/use-storage-urls";
 
 type GalleryItem = Awaited<
 	ReturnType<typeof client.gallery.list>
@@ -91,7 +94,23 @@ export default function Gallery() {
 		}),
 	);
 
-	if (query.isLoading) {
+	// Above the early returns: a hook here must not be conditional. Offline the
+	// fetch is paused rather than failed, so isLoading and isError are both false
+	// and the screen would otherwise render "no posts yet" over a full cache.
+	const cached = useLiveQuery((q) =>
+		q.from({ g: galleryCollection }).orderBy(({ g }) => g.createdAt, "desc"),
+	).data;
+	const fetched = query.data?.pages.flatMap((page) => page.items);
+	const rows = fetched ?? cached;
+
+	// One presign request for the page instead of one per cell.
+	useStorageUrls(
+		"gallery",
+		rows.map((item) => item.fileId),
+		"640",
+	);
+
+	if (query.isLoading && !rows.length) {
 		return (
 			<View className="bg-background flex-1" style={{ padding: 12 }}>
 				<View className="flex-row flex-wrap">
@@ -105,7 +124,7 @@ export default function Gallery() {
 		);
 	}
 
-	if (query.isError) {
+	if (query.isError && !rows.length) {
 		return (
 			<View className="bg-background flex-1 items-center justify-center">
 				<EmptyState
@@ -125,9 +144,10 @@ export default function Gallery() {
 		);
 	}
 
-	const items = (query.data?.pages.flatMap((p) => p.items) ?? []).filter(
-		(item) => showNsfw || !item.nsfw,
-	);
+	// The collection legitimately holds NSFW rows for an NSFW-enabled account (the
+	// server filters per caller), so the cosmetic toggle has to be re-applied to
+	// cached reads too.
+	const items = rows.filter((item) => showNsfw || !item.nsfw);
 
 	return (
 		<View className="bg-background flex-1">

@@ -1,11 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
 import { Gradient } from "@/components/ui/gradient";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
 import { useI18n } from "@/lib/i18n/provider";
@@ -51,7 +52,7 @@ export default function NewCommunity() {
 	};
 
 	return (
-		<ScrollView
+		<KeyboardAwareScrollView
 			className="bg-background flex-1"
 			contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
 			keyboardShouldPersistTaps="handled"
@@ -167,6 +168,6 @@ export default function NewCommunity() {
 					</Button>
 				</AnimatedEntrance>
 			</View>
-		</ScrollView>
+		</KeyboardAwareScrollView>
 	);
 }

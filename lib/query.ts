@@ -1,11 +1,14 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import {
 	focusManager,
 	onlineManager,
 	QueryClient,
 } from "@tanstack/react-query";
+import type {
+	PersistedClient,
+	Persister,
+} from "@tanstack/react-query-persist-client";
 import { AppState, type AppStateStatus, Platform } from "react-native";
+import { kvGet, kvRemove, kvSet } from "@/lib/db/kv";
 
 export const queryClient = new QueryClient({
 	defaultOptions: {
@@ -44,7 +47,53 @@ if (Platform.OS !== "web") {
 	}
 }
 
-export const persister = createAsyncStoragePersister({
-	storage: AsyncStorage,
-	key: "headpat-cache-v2",
-});
+// Exported so the storage screen clears the same key the persister writes.
+export const CACHE_KEY = "headpat-cache-v2";
+
+export function cacheSize(): number {
+	return kvGet(CACHE_KEY)?.length ?? 0;
+}
+
+// persistQueryClientSubscribe calls persistClient on every cache event and does
+// no throttling of its own — createAsyncStoragePersister used to supply that. A
+// trailing throttle is therefore required, not an optimisation: without it every
+// query event would JSON.stringify the whole cache on the JS thread.
+const WRITE_THROTTLE_MS = 10_000;
+let pending: ReturnType<typeof setTimeout> | null = null;
+let latest: PersistedClient | null = null;
+
+function flush() {
+	pending = null;
+	if (!latest) return;
+	const client = latest;
+	latest = null;
+	kvSet(CACHE_KEY, JSON.stringify(client));
+}
+
+// Backed by the same synchronous store as preferences, so restore happens without
+// an async hop on startup.
+export const persister: Persister = {
+	persistClient: (client: PersistedClient) => {
+		latest = client;
+		if (pending) return;
+		pending = setTimeout(flush, WRITE_THROTTLE_MS);
+	},
+	restoreClient: () => {
+		const raw = kvGet(CACHE_KEY);
+		if (!raw) return undefined;
+		try {
+			return JSON.parse(raw) as PersistedClient;
+		} catch {
+			// A truncated or half-written blob must not wedge startup.
+			kvRemove(CACHE_KEY);
+			return undefined;
+		}
+	},
+	removeClient: () => {
+		// Drop any queued write, or a stale snapshot would land after the clear.
+		if (pending) clearTimeout(pending);
+		pending = null;
+		latest = null;
+		kvRemove(CACHE_KEY);
+	},
+};

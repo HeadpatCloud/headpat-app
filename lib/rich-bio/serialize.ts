@@ -1,8 +1,8 @@
 import { runsToText } from "@/lib/rich-bio/runs";
 import {
 	type Block,
-	type Mark,
 	MARK_TAGS,
+	type Mark,
 	type Run,
 } from "@/lib/rich-bio/types";
 

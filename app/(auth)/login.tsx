@@ -1,12 +1,6 @@
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-	KeyboardAvoidingView,
-	Platform,
-	Pressable,
-	ScrollView,
-	View,
-} from "react-native";
+import { Pressable, View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
@@ -20,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Text } from "@/components/ui/text";
 import { authClient, signIn } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
@@ -90,130 +85,125 @@ export default function Login() {
 	};
 
 	return (
-		<KeyboardAvoidingView
-			behavior={Platform.OS === "ios" ? "padding" : undefined}
-			className="bg-background flex-1"
+		<KeyboardAwareScrollView
+			className="flex-1"
+			contentContainerClassName="gap-5 px-6"
+			contentContainerStyle={{
+				paddingTop: insets.top + 24,
+				paddingBottom: insets.bottom + 24,
+			}}
+			keyboardShouldPersistTaps="handled"
 		>
-			<ScrollView
-				className="flex-1"
-				contentContainerClassName="gap-5 px-6"
-				contentContainerStyle={{
-					paddingTop: insets.top + 24,
-					paddingBottom: insets.bottom + 24,
-				}}
-				keyboardShouldPersistTaps="handled"
-			>
-				{router.canGoBack() ? (
-					<Pressable
-						onPress={() => router.back()}
-						accessibilityRole="button"
-						accessibilityLabel={t("common.back")}
-						hitSlop={12}
-						className="self-start"
-					>
-						<Icon as={ChevronLeft} size={28} />
-					</Pressable>
-				) : null}
+			{router.canGoBack() ? (
+				<Pressable
+					onPress={() => router.back()}
+					accessibilityRole="button"
+					accessibilityLabel={t("common.back")}
+					hitSlop={12}
+					className="self-start"
+				>
+					<Icon as={ChevronLeft} size={28} />
+				</Pressable>
+			) : null}
 
-				<AnimatedEntrance index={0} className="gap-2">
-					<GradientText className="text-4xl font-bold">
-						{t("auth.login.title")}
-					</GradientText>
-					<Text variant="muted">{t("auth.login.subtitle")}</Text>
+			<AnimatedEntrance index={0} className="gap-2">
+				<GradientText className="text-4xl font-bold">
+					{t("auth.login.title")}
+				</GradientText>
+				<Text variant="muted">{t("auth.login.subtitle")}</Text>
+			</AnimatedEntrance>
+
+			<Animated.View style={fieldsStyle} className="gap-3">
+				<AnimatedEntrance index={1}>
+					<Input
+						placeholder={t("auth.login.emailPlaceholder")}
+						value={email}
+						onChangeText={setEmail}
+						autoCapitalize="none"
+						autoComplete="email"
+						keyboardType="email-address"
+						textContentType="emailAddress"
+						editable={!busy}
+						accessibilityLabel={t("auth.login.emailA11y")}
+					/>
 				</AnimatedEntrance>
+				<AnimatedEntrance index={2}>
+					<Input
+						placeholder={t("auth.login.passwordPlaceholder")}
+						value={password}
+						onChangeText={setPassword}
+						secureTextEntry
+						autoComplete="current-password"
+						textContentType="password"
+						editable={!busy}
+						accessibilityLabel={t("auth.login.passwordA11y")}
+						onSubmitEditing={() => canSubmit && submit()}
+					/>
+				</AnimatedEntrance>
+			</Animated.View>
 
-				<Animated.View style={fieldsStyle} className="gap-3">
-					<AnimatedEntrance index={1}>
-						<Input
-							placeholder={t("auth.login.emailPlaceholder")}
-							value={email}
-							onChangeText={setEmail}
-							autoCapitalize="none"
-							autoComplete="email"
-							keyboardType="email-address"
-							textContentType="emailAddress"
-							editable={!busy}
-							accessibilityLabel={t("auth.login.emailA11y")}
-						/>
-					</AnimatedEntrance>
-					<AnimatedEntrance index={2}>
-						<Input
-							placeholder={t("auth.login.passwordPlaceholder")}
-							value={password}
-							onChangeText={setPassword}
-							secureTextEntry
-							autoComplete="current-password"
-							textContentType="password"
-							editable={!busy}
-							accessibilityLabel={t("auth.login.passwordA11y")}
-							onSubmitEditing={() => canSubmit && submit()}
-						/>
-					</AnimatedEntrance>
-				</Animated.View>
+			{error ? (
+				<Text className="text-destructive" accessibilityRole="alert">
+					{error}
+				</Text>
+			) : null}
 
-				{error ? (
-					<Text className="text-destructive" accessibilityRole="alert">
-						{error}
+			{unverifiedEmail && !resent ? (
+				<Button
+					variant="outline"
+					disabled={busy}
+					onPress={resend}
+					accessibilityRole="button"
+					accessibilityLabel={t("auth.login.resend")}
+				>
+					<Text>{t("auth.login.resend")}</Text>
+				</Button>
+			) : null}
+			{resent ? (
+				<Text variant="muted" accessibilityRole="alert">
+					{t("auth.login.resendSent")}
+				</Text>
+			) : null}
+
+			<AnimatedEntrance index={3}>
+				<Button
+					variant="default"
+					size="lg"
+					fullWidth
+					loading={busy}
+					disabled={!canSubmit}
+					onPress={submit}
+					accessibilityRole="button"
+					accessibilityLabel={t("auth.login.submit")}
+					accessibilityState={{ disabled: !canSubmit, busy }}
+				>
+					<Text>
+						{busy ? t("auth.login.submitting") : t("auth.login.submit")}
 					</Text>
-				) : null}
+				</Button>
+			</AnimatedEntrance>
 
-				{unverifiedEmail && !resent ? (
-					<Button
-						variant="outline"
-						disabled={busy}
-						onPress={resend}
-						accessibilityRole="button"
-						accessibilityLabel={t("auth.login.resend")}
-					>
-						<Text>{t("auth.login.resend")}</Text>
-					</Button>
-				) : null}
-				{resent ? (
-					<Text variant="muted" accessibilityRole="alert">
-						{t("auth.login.resendSent")}
-					</Text>
-				) : null}
+			<AnimatedEntrance index={4}>
+				<SocialButtons />
+			</AnimatedEntrance>
 
-				<AnimatedEntrance index={3}>
-					<Button
-						variant="default"
-						size="lg"
-						fullWidth
-						loading={busy}
-						disabled={!canSubmit}
-						onPress={submit}
-						accessibilityRole="button"
-						accessibilityLabel={t("auth.login.submit")}
-						accessibilityState={{ disabled: !canSubmit, busy }}
-					>
-						<Text>
-							{busy ? t("auth.login.submitting") : t("auth.login.submit")}
+			<AnimatedEntrance index={5} className="items-center gap-3">
+				<Link href="/(auth)/forgot-password">
+					<View className="min-h-11 justify-center">
+						<Text className="text-muted-foreground">
+							{t("auth.login.forgotPassword")}
 						</Text>
-					</Button>
-				</AnimatedEntrance>
-
-				<AnimatedEntrance index={4}>
-					<SocialButtons />
-				</AnimatedEntrance>
-
-				<AnimatedEntrance index={5} className="items-center gap-3">
-					<Link href="/(auth)/forgot-password">
-						<View className="min-h-11 justify-center">
-							<Text className="text-muted-foreground">
-								{t("auth.login.forgotPassword")}
-							</Text>
-						</View>
-					</Link>
-					<View className="min-h-11 flex-row items-center gap-1">
-						<Text variant="muted">{t("auth.login.newHere")}</Text>
-						<Link href="/(auth)/register">
-							<Text className="text-primary font-medium">
-								{t("auth.login.createAccount")}
-							</Text>
-						</Link>
 					</View>
-				</AnimatedEntrance>
-			</ScrollView>
-		</KeyboardAvoidingView>
+				</Link>
+				<View className="min-h-11 flex-row items-center gap-1">
+					<Text variant="muted">{t("auth.login.newHere")}</Text>
+					<Link href="/(auth)/register">
+						<Text className="text-primary font-medium">
+							{t("auth.login.createAccount")}
+						</Text>
+					</Link>
+				</View>
+			</AnimatedEntrance>
+		</KeyboardAwareScrollView>
 	);
 }

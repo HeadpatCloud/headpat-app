@@ -1,7 +1,7 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSession } from "@/lib/auth-client";
+import { kvGet, kvSet } from "@/lib/db/kv";
 import { orpc } from "@/lib/orpc";
 
 const KEY = "hp-show-nsfw";
@@ -17,18 +17,22 @@ export function useShowNsfw() {
 		...orpc.profile.me.queryOptions({ input: {} }),
 		enabled: !!session,
 	});
-	const [showNsfw, setShow] = useState(true);
+	const [showNsfw, setShow] = useState(() => kvGet(KEY) !== "false");
 
-	useEffect(() => {
-		AsyncStorage.getItem(KEY).then((value) => setShow(value !== "false"));
-	}, []);
+	// `enabled` only stops the fetch; it does not drop already-cached data, and
+	// profile.me is persisted on purpose. Without the session check a signed-out
+	// user rehydrates someone's nsfwEnabled and gets the toggle.
+	const nsfwAllowed = !!session && !!me.data?.nsfwEnabled;
 
 	return {
-		nsfwAllowed: !!me.data?.nsfwEnabled,
-		showNsfw,
+		nsfwAllowed,
+		// Never report "show" when it isn't allowed: the API withholds NSFW from
+		// guests, but the persisted collections can still hold rows fetched while
+		// signed in, and this flag is what filters them.
+		showNsfw: nsfwAllowed && showNsfw,
 		setShowNsfw: (value: boolean) => {
 			setShow(value);
-			AsyncStorage.setItem(KEY, String(value));
+			kvSet(KEY, String(value));
 		},
 	};
 }

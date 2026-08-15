@@ -1,10 +1,12 @@
+import { FlashList } from "@shopify/flash-list";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import {
 	useInfiniteQuery,
 	useQuery,
 	useQueryClient,
 } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import Animated, {
 	Extrapolation,
@@ -16,9 +18,9 @@ import Animated, {
 import { EmptyState } from "@/components/empty-state";
 import {
 	AtSign,
+	Cake,
 	Images,
 	type LucideIcon,
-	Cake,
 	MapPin,
 	MessageCircle,
 	Send,
@@ -36,11 +38,17 @@ import { Button } from "@/components/ui/button";
 import { GlowShadow, Gradient } from "@/components/ui/gradient";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
-import { formatBirthday } from "@/lib/birthday";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatPill } from "@/components/ui/stat-pill";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
+import { formatBirthday } from "@/lib/birthday";
+import {
+	cacheGalleryPosts,
+	cacheProfile,
+	galleryPostCollection,
+	profileCollection,
+} from "@/lib/db/collections";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
@@ -51,8 +59,14 @@ import { withAlpha } from "@/lib/theme/color";
 import { RADIUS } from "@/lib/theme/foundations";
 import { useTheme } from "@/lib/theme/provider";
 import { useShowNsfw } from "@/lib/use-show-nsfw";
+import { useStorageUrls } from "@/lib/use-storage-urls";
 
 const BANNER_H = 176;
+
+// Reanimated needs the animated variant to drive the parallax scroll handler.
+const AnimatedFlashList = Animated.createAnimatedComponent(
+	FlashList<GalleryItem>,
+);
 
 function SocialRow({ icon, label }: { icon: LucideIcon; label: string }) {
 	return (
@@ -71,27 +85,22 @@ type GalleryItem = {
 	nsfw: boolean;
 };
 
-type GalleryQuery = {
+function GalleryStatus({
+	isLoading,
+	isError,
+	error,
+	isEmpty,
+	onRetry,
+}: {
 	isLoading: boolean;
 	isError: boolean;
 	error: unknown;
-	data?: { pages: { items: GalleryItem[] }[] };
-	hasNextPage: boolean;
-	isFetchingNextPage: boolean;
-	fetchNextPage: () => void;
-	refetch: () => void;
-};
-
-function GalleryGrid({
-	query,
-	showNsfw,
-}: {
-	query: GalleryQuery;
-	showNsfw: boolean;
+	isEmpty: boolean;
+	onRetry: () => void;
 }) {
 	const { t } = useI18n();
 
-	if (query.isLoading) {
+	if (isLoading) {
 		return (
 			<View className="-mx-1.5 flex-row flex-wrap">
 				{[0, 1, 2, 3].map((i) => (
@@ -105,76 +114,18 @@ function GalleryGrid({
 			</View>
 		);
 	}
-
-	if (query.isError) {
+	if (isError) {
 		return (
 			<EmptyState
 				icon={Images}
 				title={t("common.couldntLoad")}
-				subtitle={humanizeError(query.error)}
-				action={{ label: t("common.retry"), onPress: () => query.refetch() }}
+				subtitle={humanizeError(error)}
+				action={{ label: t("common.retry"), onPress: onRetry }}
 			/>
 		);
 	}
-
-	const items = (query.data?.pages.flatMap((p) => p.items) ?? []).filter(
-		(item) => showNsfw || !item.nsfw,
-	);
-
-	if (items.length === 0) {
-		return <EmptyState icon={Images} title={t("profile.noPosts")} />;
-	}
-
-	return (
-		<View className="gap-3">
-			<View className="-mx-1.5 flex-row flex-wrap">
-				{items.map((item) => (
-					<View key={item.id} className="w-1/2 p-1.5">
-						<PressableScale
-							onPress={() => router.push(`/post/${item.id}`)}
-							haptic="selection"
-							accessibilityRole="button"
-							accessibilityLabel={item.name}
-						>
-							<View
-								className="bg-card border-border overflow-hidden border"
-								style={{ borderRadius: RADIUS.lg }}
-							>
-								<StorageImage
-									kind="gallery"
-									fileId={item.fileId}
-									variant="640"
-									transition={0}
-									blurhash={item.blurHash}
-									style={{ aspectRatio: 1, width: "100%" }}
-									accessibilityLabel={item.name}
-								/>
-								{item.nsfw ? (
-									<Badge
-										variant="destructive"
-										className="absolute right-2 top-2"
-									>
-										{t("profile.nsfw")}
-									</Badge>
-								) : null}
-							</View>
-						</PressableScale>
-					</View>
-				))}
-			</View>
-			{query.hasNextPage ? (
-				<Button
-					variant="outline"
-					onPress={() => query.fetchNextPage()}
-					loading={query.isFetchingNextPage}
-					accessibilityRole="button"
-					accessibilityLabel={t("profile.loadMore")}
-				>
-					<Text>{t("profile.loadMore")}</Text>
-				</Button>
-			) : null}
-		</View>
-	);
+	if (isEmpty) return <EmptyState icon={Images} title={t("profile.noPosts")} />;
+	return null;
 }
 
 export default function UserProfile() {
@@ -192,7 +143,21 @@ export default function UserProfile() {
 		orpc.profile.byUrl.queryOptions({ input: { profileUrl } }),
 	);
 
-	const targetUserId = profile.data?.userId;
+	// Mirror this profile into SQLite on every successful fetch — the write path
+	// is the only thing that fills the offline store.
+	useEffect(() => {
+		if (profile.data) cacheProfile(profile.data);
+	}, [profile.data]);
+
+	const cachedProfiles = useLiveQuery(
+		(q) =>
+			q
+				.from({ p: profileCollection })
+				.where(({ p }) => eq(p.profileUrl, profileUrl)),
+		[profileUrl],
+	);
+
+	const targetUserId = profile.data?.userId ?? cachedProfiles.data?.[0]?.userId;
 	const isOwn = !!session && session.user.id === targetUserId;
 	const follow = useQuery({
 		...orpc.follow.status.queryOptions({
@@ -214,6 +179,34 @@ export default function UserProfile() {
 		}),
 		enabled: !!targetUserId,
 	});
+
+	// Only per-user pages feed the mirror. The global feed has its own synced
+	// collection, and writing its rows here would give one post two homes.
+	useEffect(() => {
+		const rows = gallery.data?.pages.flatMap((page) => page.items);
+		if (rows?.length) cacheGalleryPosts(rows);
+	}, [gallery.data]);
+
+	const cachedPosts = useLiveQuery(
+		(q) =>
+			q
+				.from({ g: galleryPostCollection })
+				.where(({ g }) => eq(g.userId, targetUserId ?? ""))
+				.orderBy(({ g }) => g.createdAt, "desc"),
+		[targetUserId],
+	).data;
+
+	const fetchedPosts = gallery.data?.pages.flatMap((page) => page.items);
+	// Only the gallery tab feeds the list; the about tab renders header-only.
+	const gridItems = (
+		tab === "gallery" ? (fetchedPosts ?? cachedPosts) : []
+	).filter((item) => showNsfw || !item.nsfw);
+
+	useStorageUrls(
+		"gallery",
+		gridItems.map((item) => item.fileId),
+		"640",
+	);
 
 	const scrollY = useSharedValue(0);
 	const onScroll = useAnimatedScrollHandler((e) => {
@@ -243,7 +236,13 @@ export default function UserProfile() {
 		};
 	});
 
-	if (profile.isLoading) {
+	// Offline fallback comes from the SQLite mirror, keyed by profileUrl. Branching
+	// on data presence rather than connectivity: onlineManager tracks isConnected,
+	// not reachability, so it flaps on captive portals and cell handoff.
+	const cachedProfile = cachedProfiles.data?.[0];
+	const row = profile.data ?? cachedProfile;
+
+	if (profile.isLoading && !row) {
 		return (
 			<View className="bg-background flex-1">
 				<Skeleton
@@ -267,7 +266,7 @@ export default function UserProfile() {
 		);
 	}
 
-	if (profile.isError) {
+	if (profile.isError && !row) {
 		return (
 			<View className="bg-background flex-1 justify-center">
 				<EmptyState
@@ -283,7 +282,7 @@ export default function UserProfile() {
 		);
 	}
 
-	if (!profile.data) {
+	if (!row) {
 		return (
 			<View className="bg-background flex-1 justify-center">
 				<EmptyState icon={UserRound} title={t("profile.unavailable")} />
@@ -291,7 +290,7 @@ export default function UserProfile() {
 		);
 	}
 
-	const p = profile.data;
+	const p = row;
 
 	// Optimistic: flip iFollow + followersCount in the cache immediately, roll
 	// back on error — the tap must not wait on the network.
@@ -371,259 +370,334 @@ export default function UserProfile() {
 	const galleryTotal = gallery.data?.pages[0]?.total;
 
 	return (
-		<Animated.ScrollView
+		// The grid used to be items.map() inside a ScrollView, so every "load more"
+		// mounted another 24 cells and never unmounted any. Inverting it — list owns
+		// the screen, everything above becomes the header — is what makes the cells
+		// recycle. The 10px inset is cancelled on the header so the banner stays
+		// full-bleed, and reproduces the old -mx-1.5/p-1.5 gutter on the grid.
+		<AnimatedFlashList
 			className="bg-background flex-1"
-			contentContainerStyle={{ paddingBottom: 32 }}
+			data={gridItems}
+			numColumns={2}
+			keyExtractor={(item: GalleryItem) => item.id}
+			contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 32 }}
 			onScroll={onScroll}
 			scrollEventThrottle={16}
-		>
-			<AnimatedEntrance index={0} preset="fade">
-				<View className="w-full overflow-hidden" style={{ height: BANNER_H }}>
-					<Animated.View style={[StyleSheet.absoluteFill, bannerStyle]}>
-						{p.bannerFileId ? (
+			renderItem={({ item }: { item: GalleryItem }) => (
+				<View className="p-1.5">
+					<PressableScale
+						onPress={() => router.push(`/post/${item.id}`)}
+						haptic="selection"
+						accessibilityRole="button"
+						accessibilityLabel={item.name}
+					>
+						<View
+							className="bg-card border-border overflow-hidden border"
+							style={{ borderRadius: RADIUS.lg }}
+						>
 							<StorageImage
-								kind="banner"
-								fileId={p.bannerFileId}
-								variant="1600"
-								style={StyleSheet.absoluteFill}
-								accessibilityLabel={t("profile.banner", {
-									name: p.displayName ?? p.profileUrl,
-								})}
+								kind="gallery"
+								fileId={item.fileId}
+								variant="640"
+								transition={0}
+								blurhash={item.blurHash}
+								style={{ aspectRatio: 1, width: "100%" }}
+								accessibilityLabel={item.name}
 							/>
-						) : (
-							<Gradient style={StyleSheet.absoluteFill} />
-						)}
-					</Animated.View>
-					<Gradient
-						colors={[
-							withAlpha(colors.background, 0),
-							withAlpha(colors.background, 0.9),
-						]}
-						start={{ x: 0, y: 0 }}
-						end={{ x: 0, y: 1 }}
-						pointerEvents="none"
-						style={{
-							position: "absolute",
-							left: 0,
-							right: 0,
-							bottom: 0,
-							height: 64,
-						}}
-					/>
-				</View>
-			</AnimatedEntrance>
-
-			<View className="-mt-12 gap-4 px-4">
-				<AnimatedEntrance index={1} preset="fadeUp">
-					<View className="self-start rounded-full" style={GlowShadow(glow)}>
-						<Gradient borderRadius={RADIUS.pill} style={{ padding: 3 }}>
-							<View
-								className="bg-background rounded-full"
-								style={{ padding: 3 }}
-							>
-								<Avatar
-									fileId={p.avatarFileId}
-									name={p.displayName ?? p.name}
-									kind="avatar"
-									size={96}
-								/>
-							</View>
-						</Gradient>
-					</View>
-				</AnimatedEntrance>
-
-				<AnimatedEntrance index={2}>
-					<View className="gap-1">
-						<View className="flex-row flex-wrap items-center gap-2">
-							<View className="shrink">
-								<GradientText
-									heading
-									className="text-4xl font-extrabold leading-[44px] tracking-tight"
-								>
-									{p.displayName ?? p.profileUrl}
-								</GradientText>
-							</View>
-							{p.pronouns ? (
-								<Badge variant="outline" className="self-center">
-									{p.pronouns}
+							{item.nsfw ? (
+								<Badge variant="destructive" className="absolute right-2 top-2">
+									{t("profile.nsfw")}
 								</Badge>
 							) : null}
 						</View>
-						<Text variant="muted">@{p.profileUrl}</Text>
-						{p.status ? (
-							<Text
-								variant="small"
-								className="text-primary italic"
-								numberOfLines={1}
-							>
-								{p.status}
-							</Text>
-						) : null}
-					</View>
-				</AnimatedEntrance>
-
-				<AnimatedEntrance index={3}>
-					{isOwn ? (
-						<Button
-							variant="outline"
-							onPress={() => router.push("/profile-edit")}
-							accessibilityRole="button"
-							accessibilityLabel={t("profile.editProfile")}
+					</PressableScale>
+				</View>
+			)}
+			ListHeaderComponent={
+				<View style={{ marginHorizontal: -10 }}>
+					<AnimatedEntrance index={0} preset="fade">
+						<View
+							className="w-full overflow-hidden"
+							style={{ height: BANNER_H }}
 						>
-							<Icon as={UserPen} size={16} className="text-foreground" />
-							<Text>{t("profile.editProfile")}</Text>
-						</Button>
-					) : follow.data ? (
-						<View className="flex-row items-center gap-3">
-							<View className="flex-1">
-								<Button
-									variant={follow.data.iFollow ? "outline" : "default"}
-									onPress={toggleFollow}
-									accessibilityRole="button"
-									accessibilityLabel={
-										follow.data.iFollow
-											? t("profile.unfollow")
-											: t("profile.follow")
-									}
-								>
-									<Text>
-										{follow.data.iFollow
-											? t("profile.followingAction")
-											: t("profile.follow")}
-									</Text>
-								</Button>
-							</View>
-							{follow.data.followsMe ? (
-								<Badge variant="secondary">{t("profile.followsYou")}</Badge>
-							) : null}
-						</View>
-					) : !session ? (
-						<Button
-							variant="outline"
-							onPress={() => router.push("/(auth)/login")}
-							accessibilityRole="button"
-							accessibilityLabel={t("profile.signInToFollow")}
-						>
-							<Text>{t("profile.signInToFollow")}</Text>
-						</Button>
-					) : null}
-				</AnimatedEntrance>
-
-				<AnimatedEntrance index={4}>
-					<View className="flex-row gap-3">
-						<View className="flex-1">
-							<StatPill
-								label={t("profile.followers")}
-								value={p.followersCount}
-								onPress={() => router.push(`/user/${p.profileUrl}/followers`)}
+							<Animated.View style={[StyleSheet.absoluteFill, bannerStyle]}>
+								{p.bannerFileId ? (
+									<StorageImage
+										kind="banner"
+										fileId={p.bannerFileId}
+										variant="1600"
+										style={StyleSheet.absoluteFill}
+										accessibilityLabel={t("profile.banner", {
+											name: p.displayName ?? p.profileUrl,
+										})}
+									/>
+								) : (
+									<Gradient style={StyleSheet.absoluteFill} />
+								)}
+							</Animated.View>
+							<Gradient
+								colors={[
+									withAlpha(colors.background, 0),
+									withAlpha(colors.background, 0.9),
+								]}
+								start={{ x: 0, y: 0 }}
+								end={{ x: 0, y: 1 }}
+								pointerEvents="none"
+								style={{
+									position: "absolute",
+									left: 0,
+									right: 0,
+									bottom: 0,
+									height: 64,
+								}}
 							/>
 						</View>
-						<View className="flex-1">
-							<StatPill
-								label={t("profile.following")}
-								value={p.followingCount}
-								onPress={() => router.push(`/user/${p.profileUrl}/following`)}
-							/>
-						</View>
-						<View className="flex-1">
-							<StatPill
-								label={t("profile.gallery")}
-								value={galleryTotal ?? "—"}
-							/>
-						</View>
-					</View>
-				</AnimatedEntrance>
-
-				<AnimatedEntrance index={5} className="gap-4">
-					<SegmentedTabs
-						tabs={[
-							{ key: "about", label: t("profile.about") },
-							{ key: "gallery", label: t("profile.gallery") },
-						]}
-						value={tab}
-						onChange={setTab}
-					/>
-
-					<AnimatedEntrance key={tab} preset="fade" className="gap-4">
-						{tab === "about" ? (
-							<>
-								{p.bioHtml ? (
-									<RichBio html={p.bioHtml} />
-								) : p.bio ? (
-									<Text className="text-foreground leading-6">{p.bio}</Text>
-								) : null}
-
-								{p.birthdayVisible !== false && p.birthday ? (
-									<View className="flex-row items-center gap-2">
-										<Icon
-											as={Cake}
-											size={16}
-											className="text-muted-foreground"
-										/>
-										<Text variant="small" className="text-muted-foreground">
-											{formatBirthday(p.birthday, {
-												showDay: p.birthdayShowDay !== false,
-												showYear: p.birthdayShowYear !== false,
-											})}
-										</Text>
-									</View>
-								) : null}
-
-								{p.location ? (
-									<View className="flex-row items-center gap-2">
-										<Icon
-											as={MapPin}
-											size={16}
-											className="text-muted-foreground"
-										/>
-										<Text variant="small" className="text-muted-foreground">
-											{p.location}
-										</Text>
-									</View>
-								) : null}
-
-								{socials.length > 0 ? (
-									<View className="gap-2">
-										<Text variant="caption">{t("profile.socials")}</Text>
-										{socials.map((s) => (
-											<SocialRow
-												key={s.platform}
-												icon={s.icon}
-												label={s.label}
-											/>
-										))}
-									</View>
-								) : null}
-
-								{p.badges.length > 0 ? (
-									<View className="flex-row flex-wrap gap-2">
-										{p.badges.map((b) => (
-											<Badge key={b} variant="secondary">
-												{b}
-											</Badge>
-										))}
-									</View>
-								) : null}
-
-								{!p.bio &&
-								!p.bioHtml &&
-								!p.location &&
-								socials.length === 0 &&
-								p.badges.length === 0 ? (
-									<Text variant="muted">{t("profile.nothingShared")}</Text>
-								) : null}
-							</>
-						) : (
-							<>
-								{nsfwAllowed ? (
-									<NsfwToggle value={showNsfw} onValueChange={setShowNsfw} />
-								) : null}
-								<GalleryGrid query={gallery} showNsfw={showNsfw} />
-							</>
-						)}
 					</AnimatedEntrance>
-				</AnimatedEntrance>
-			</View>
-		</Animated.ScrollView>
+
+					<View className="-mt-12 gap-4 px-4">
+						<AnimatedEntrance index={1} preset="fadeUp">
+							<View
+								className="self-start rounded-full"
+								style={GlowShadow(glow)}
+							>
+								<Gradient borderRadius={RADIUS.pill} style={{ padding: 3 }}>
+									<View
+										className="bg-background rounded-full"
+										style={{ padding: 3 }}
+									>
+										<Avatar
+											fileId={p.avatarFileId}
+											name={p.displayName ?? p.name}
+											kind="avatar"
+											size={96}
+										/>
+									</View>
+								</Gradient>
+							</View>
+						</AnimatedEntrance>
+
+						<AnimatedEntrance index={2}>
+							<View className="gap-1">
+								<View className="flex-row flex-wrap items-center gap-2">
+									<View className="shrink">
+										<GradientText
+											heading
+											className="text-4xl font-extrabold leading-[44px] tracking-tight"
+										>
+											{p.displayName ?? p.profileUrl}
+										</GradientText>
+									</View>
+									{p.pronouns ? (
+										<Badge variant="outline" className="self-center">
+											{p.pronouns}
+										</Badge>
+									) : null}
+								</View>
+								<Text variant="muted">@{p.profileUrl}</Text>
+								{p.status ? (
+									<Text
+										variant="small"
+										className="text-primary italic"
+										numberOfLines={1}
+									>
+										{p.status}
+									</Text>
+								) : null}
+							</View>
+						</AnimatedEntrance>
+
+						<AnimatedEntrance index={3}>
+							{isOwn ? (
+								<Button
+									variant="outline"
+									onPress={() => router.push("/profile-edit")}
+									accessibilityRole="button"
+									accessibilityLabel={t("profile.editProfile")}
+								>
+									<Icon as={UserPen} size={16} className="text-foreground" />
+									<Text>{t("profile.editProfile")}</Text>
+								</Button>
+							) : follow.data ? (
+								<View className="flex-row items-center gap-3">
+									<View className="flex-1">
+										<Button
+											variant={follow.data.iFollow ? "outline" : "default"}
+											onPress={toggleFollow}
+											accessibilityRole="button"
+											accessibilityLabel={
+												follow.data.iFollow
+													? t("profile.unfollow")
+													: t("profile.follow")
+											}
+										>
+											<Text>
+												{follow.data.iFollow
+													? t("profile.followingAction")
+													: t("profile.follow")}
+											</Text>
+										</Button>
+									</View>
+									{follow.data.followsMe ? (
+										<Badge variant="secondary">{t("profile.followsYou")}</Badge>
+									) : null}
+								</View>
+							) : !session ? (
+								<Button
+									variant="outline"
+									onPress={() => router.push("/(auth)/login")}
+									accessibilityRole="button"
+									accessibilityLabel={t("profile.signInToFollow")}
+								>
+									<Text>{t("profile.signInToFollow")}</Text>
+								</Button>
+							) : null}
+						</AnimatedEntrance>
+
+						<AnimatedEntrance index={4}>
+							<View className="flex-row gap-3">
+								<View className="flex-1">
+									<StatPill
+										label={t("profile.followers")}
+										value={p.followersCount}
+										onPress={() =>
+											router.push(`/user/${p.profileUrl}/followers`)
+										}
+									/>
+								</View>
+								<View className="flex-1">
+									<StatPill
+										label={t("profile.following")}
+										value={p.followingCount}
+										onPress={() =>
+											router.push(`/user/${p.profileUrl}/following`)
+										}
+									/>
+								</View>
+								<View className="flex-1">
+									<StatPill
+										label={t("profile.gallery")}
+										value={galleryTotal ?? "—"}
+									/>
+								</View>
+							</View>
+						</AnimatedEntrance>
+
+						<AnimatedEntrance index={5} className="gap-4">
+							<SegmentedTabs
+								tabs={[
+									{ key: "about", label: t("profile.about") },
+									{ key: "gallery", label: t("profile.gallery") },
+								]}
+								value={tab}
+								onChange={setTab}
+							/>
+
+							<AnimatedEntrance key={tab} preset="fade" className="gap-4">
+								{tab === "about" ? (
+									<>
+										{p.bioHtml ? (
+											<RichBio html={p.bioHtml} />
+										) : p.bio ? (
+											<Text className="text-foreground leading-6">{p.bio}</Text>
+										) : null}
+
+										{p.birthday ? (
+											<View className="flex-row items-center gap-2">
+												<Icon
+													as={Cake}
+													size={16}
+													className="text-muted-foreground"
+												/>
+												<Text variant="small" className="text-muted-foreground">
+													{formatBirthday(p.birthday, {
+														showDay: p.birthdayShowDay !== false,
+														showYear: p.birthdayShowYear !== false,
+													})}
+												</Text>
+											</View>
+										) : null}
+
+										{p.location ? (
+											<View className="flex-row items-center gap-2">
+												<Icon
+													as={MapPin}
+													size={16}
+													className="text-muted-foreground"
+												/>
+												<Text variant="small" className="text-muted-foreground">
+													{p.location}
+												</Text>
+											</View>
+										) : null}
+
+										{socials.length > 0 ? (
+											<View className="gap-2">
+												<Text variant="caption">{t("profile.socials")}</Text>
+												{socials.map((s) => (
+													<SocialRow
+														key={s.platform}
+														icon={s.icon}
+														label={s.label}
+													/>
+												))}
+											</View>
+										) : null}
+
+										{p.badges.length > 0 ? (
+											<View className="flex-row flex-wrap gap-2">
+												{p.badges.map((b) => (
+													<Badge key={b} variant="secondary">
+														{b}
+													</Badge>
+												))}
+											</View>
+										) : null}
+
+										{!p.bio &&
+										!p.bioHtml &&
+										!p.location &&
+										socials.length === 0 &&
+										p.badges.length === 0 ? (
+											<Text variant="muted">{t("profile.nothingShared")}</Text>
+										) : null}
+									</>
+								) : (
+									<>
+										{nsfwAllowed ? (
+											<NsfwToggle
+												value={showNsfw}
+												onValueChange={setShowNsfw}
+											/>
+										) : null}
+										<GalleryStatus
+											isLoading={gallery.isLoading && !cachedPosts.length}
+											isError={gallery.isError && !cachedPosts.length}
+											error={gallery.error}
+											isEmpty={gridItems.length === 0 && !gallery.hasNextPage}
+											onRetry={() => gallery.refetch()}
+										/>
+									</>
+								)}
+							</AnimatedEntrance>
+						</AnimatedEntrance>
+					</View>
+				</View>
+			}
+			ListFooterComponent={
+				tab === "gallery" && gallery.hasNextPage ? (
+					<View style={{ marginHorizontal: -10 }} className="px-4 pt-4">
+						<Button
+							variant="outline"
+							onPress={() => gallery.fetchNextPage()}
+							loading={gallery.isFetchingNextPage}
+							accessibilityRole="button"
+							accessibilityLabel={t("profile.loadMore")}
+						>
+							<Text>{t("profile.loadMore")}</Text>
+						</Button>
+					</View>
+				) : null
+			}
+		/>
 	);
 }

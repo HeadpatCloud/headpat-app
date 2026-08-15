@@ -54,6 +54,11 @@ export const Sheet = forwardRef<
 	return (
 		<BottomSheetModal
 			ref={ref}
+			// Without adjustResize the sheet doesn't move for the keyboard on
+			// Android, which matters for the sheets that contain a text field.
+			android_keyboardInputMode="adjustResize"
+			keyboardBehavior="interactive"
+			keyboardBlurBehavior="restore"
 			enableDynamicSizing
 			animationConfigs={reduced ? timing : spring}
 			backgroundComponent={SheetBackground}

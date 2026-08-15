@@ -3,7 +3,6 @@ import {
 	ActivityIndicator,
 	Alert,
 	Pressable,
-	ScrollView,
 	TextInput,
 	View,
 } from "react-native";
@@ -32,6 +31,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
+import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
 import { useI18n } from "@/lib/i18n/provider";
@@ -413,7 +413,7 @@ export function RichBioEditor({
 				<Text variant="muted">{t("richBio.empty")}</Text>
 			)}
 
-			<ScrollView
+			<KeyboardAwareScrollView
 				horizontal
 				showsHorizontalScrollIndicator={false}
 				keyboardShouldPersistTaps="handled"
@@ -476,7 +476,7 @@ export function RichBioEditor({
 					label={t("richBio.addDivider")}
 					onPress={() => insert({ type: "hr" })}
 				/>
-			</ScrollView>
+			</KeyboardAwareScrollView>
 
 			{blocks.length ? (
 				<View className="gap-2">
