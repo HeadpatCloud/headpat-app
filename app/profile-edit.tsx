@@ -1,10 +1,21 @@
+import DateTimePicker, {
+	DateTimePickerAndroid,
+	type DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns/format";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
+import {
+	ActivityIndicator,
+	Alert,
+	Platform,
+	StyleSheet,
+	View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlowAvatar } from "@/components/glow-avatar";
-import { Camera } from "@/components/icons";
+import { Cake, Camera, Trash2 } from "@/components/icons";
 import { RichBioEditor } from "@/components/rich-bio-editor";
 import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
@@ -16,7 +27,9 @@ import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-v
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
+import { AGE_DOB_KEY } from "@/lib/age-gate";
 import { useSession } from "@/lib/auth-client";
+import { kvGet } from "@/lib/db/kv";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { PressableScale } from "@/lib/motion/pressable-scale";
@@ -53,6 +66,8 @@ export default function ProfileEdit() {
 	const [bannerFileId, setBannerFileId] = useState<string | null>(null);
 	const [indexing, setIndexing] = useState(true);
 	const [nsfw, setNsfw] = useState(false);
+	const [birthday, setBirthday] = useState<Date | null>(null);
+	const [pickingBirthday, setPickingBirthday] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [uploading, setUploading] = useState<"avatar" | "banner" | null>(null);
 
@@ -74,6 +89,13 @@ export default function ProfileEdit() {
 		setBannerFileId(me.bannerFileId);
 		setIndexing(me.indexingEnabled);
 		setNsfw(me.nsfwEnabled);
+		// No birthday on the profile yet: offer the one given at the launch age
+		// gate, so enabling NSFW doesn't dead-end on a date the app already has.
+		// Still unsaved until Save, so it stays the user's choice to publish it.
+		const gateDob = kvGet(AGE_DOB_KEY);
+		setBirthday(
+			me.birthday ? new Date(me.birthday) : gateDob ? new Date(gateDob) : null,
+		);
 	}, [me]);
 
 	const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
@@ -96,6 +118,35 @@ export default function ProfileEdit() {
 		}
 	};
 
+	// Opening at 18 years ago keeps the spinner near the ages people actually
+	// pick, instead of today's date.
+	const birthdayOrDefault = () => {
+		if (birthday) return birthday;
+		const d = new Date();
+		d.setFullYear(d.getFullYear() - 18);
+		return d;
+	};
+
+	const pickBirthday = () => {
+		if (Platform.OS === "android") {
+			DateTimePickerAndroid.open({
+				value: birthdayOrDefault(),
+				mode: "date",
+				maximumDate: new Date(),
+				onValueChange: (_e, date) => {
+					if (date) setBirthday(date);
+				},
+			});
+			return;
+		}
+		setPickingBirthday((p) => !p);
+	};
+
+	const onPickBirthday = (e: DateTimePickerEvent, date?: Date) => {
+		if (e.type === "dismissed" || !date) return;
+		setBirthday(date);
+	};
+
 	const save = async () => {
 		setBusy(true);
 		try {
@@ -104,6 +155,7 @@ export default function ProfileEdit() {
 				bioHtml: bioHtml || null,
 				pronouns: form.pronouns || null,
 				location: form.location || null,
+				birthday,
 				discordName: form.discordName || null,
 				telegramName: form.telegramName || null,
 				furaffinityName: form.furaffinityName || null,
@@ -242,6 +294,56 @@ export default function ProfileEdit() {
 							onChangeText={(v) => set("location", v)}
 							accessibilityLabel={t("account.edit.location")}
 						/>
+					</Field>
+					<Field label={t("account.edit.birthday")}>
+						<View className="flex-row items-center gap-2">
+							<Button
+								variant="outline"
+								onPress={pickBirthday}
+								className="flex-1"
+								accessibilityRole="button"
+								accessibilityLabel={t("account.edit.pickBirthday")}
+							>
+								<Icon as={Cake} size={18} className="text-foreground" />
+								<Text>
+									{birthday
+										? format(birthday, "PPP")
+										: t("account.edit.pickBirthday")}
+								</Text>
+							</Button>
+							{birthday ? (
+								<Button
+									variant="ghost"
+									size="icon"
+									onPress={() => {
+										setBirthday(null);
+										setPickingBirthday(false);
+									}}
+									accessibilityRole="button"
+									accessibilityLabel={t("account.edit.clearBirthday")}
+								>
+									<Icon
+										as={Trash2}
+										size={18}
+										className="text-muted-foreground"
+									/>
+								</Button>
+							) : null}
+						</View>
+						{pickingBirthday ? (
+							<AnimatedEntrance>
+								<DateTimePicker
+									value={birthdayOrDefault()}
+									mode="date"
+									display="spinner"
+									maximumDate={new Date()}
+									onChange={onPickBirthday}
+								/>
+							</AnimatedEntrance>
+						) : null}
+						<Text variant="small" className="text-muted-foreground">
+							{t("account.edit.birthdayHint")}
+						</Text>
 					</Field>
 				</AnimatedEntrance>
 

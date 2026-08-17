@@ -173,9 +173,16 @@ export function cacheProfile(row: ProfileRow) {
  */
 export function clearCollections() {
 	// writeDelete goes straight to the synced store, so no delete is sent to the
-	// server the way collection.delete() would for a synced collection.
-	galleryCollection.utils.writeDelete([...galleryCollection.keys()]);
-	eventCollection.utils.writeDelete([...eventCollection.keys()]);
+	// server the way collection.delete() would for a synced collection. It also
+	// throws SyncNotInitializedError on a collection whose sync never started —
+	// which is every collection when the user signs out without having opened the
+	// gallery or events tab — so only call it when there is actually something to
+	// delete. Rows can only reach the synced store through sync, so a non-empty
+	// key set means sync is up.
+	const galleryKeys = [...galleryCollection.keys()];
+	if (galleryKeys.length) galleryCollection.utils.writeDelete(galleryKeys);
+	const eventKeys = [...eventCollection.keys()];
+	if (eventKeys.length) eventCollection.utils.writeDelete(eventKeys);
 
 	// Local-only mirrors have no server to notify.
 	for (const key of [...galleryPostCollection.keys()]) {

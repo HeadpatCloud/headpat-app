@@ -23,7 +23,7 @@ function defaultDob(): Date {
 	return d;
 }
 
-export function AgeGate({ onClear }: { onClear: () => void }) {
+export function AgeGate({ onClear }: { onClear: (dob?: Date) => void }) {
 	const { t } = useI18n();
 	const [state, setState] = useState<GateState>("checking");
 	const [dob, setDob] = useState<Date>(defaultDob);
@@ -42,7 +42,7 @@ export function AgeGate({ onClear }: { onClear: () => void }) {
 	}, [onClear]);
 
 	const onConfirmDob = () => {
-		if (isAdultDob(dob, new Date())) onClear();
+		if (isAdultDob(dob, new Date())) onClear(dob);
 		else setState("blocked");
 	};
 

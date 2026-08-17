@@ -1,4 +1,8 @@
 export const AGE_CLEARED_KEY = "hp-age-cleared-at";
+// The gate is the only place we ask for a date of birth before sign-in, so we
+// keep what was entered — the profile editor offers it as the profile birthday
+// rather than asking for the same date twice.
+export const AGE_DOB_KEY = "hp-age-dob";
 
 // Full years between dob and now, decremented if this year's birthday hasn't
 // happened yet. Correct across month/day boundaries and leap-day birthdays.

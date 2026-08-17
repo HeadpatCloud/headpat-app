@@ -15,7 +15,7 @@ const buildConfig = ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
 	name: "Headpat",
 	slug: "headpat-app",
-	version: "0.10.0",
+	version: "0.10.1",
 	orientation: "portrait",
 	icon: "./assets/images/icon.png",
 	scheme: "headpat",
