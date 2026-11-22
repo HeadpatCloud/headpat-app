@@ -117,11 +117,8 @@ export default function Ticket() {
 		// KeyboardAvoidingView this replaces only ever worked on iOS: the app is
 		// edge-to-edge, so Android 15+ no longer resizes the window for it.
 		<KeyboardAvoidingView behavior="padding" className="bg-background flex-1">
-			<ScrollView
-				className="flex-1"
-				contentContainerStyle={{ padding: 16, gap: 12 }}
-				keyboardShouldPersistTaps="handled"
-			>
+			{/* Subject, status and meta stay pinned above the conversation. */}
+			<View className="border-border bg-background border-b px-4 pb-3 pt-2">
 				<AnimatedEntrance index={0} className="gap-3">
 					<View className="flex-row items-start justify-between gap-2">
 						<Text variant="h3" className="flex-1">
@@ -143,8 +140,13 @@ export default function Ticket() {
 						})}
 					</Text>
 				</AnimatedEntrance>
-
-				<View className="gap-3 pt-2">
+			</View>
+			<ScrollView
+				className="flex-1"
+				contentContainerStyle={{ padding: 16, gap: 12 }}
+				keyboardShouldPersistTaps="handled"
+			>
+				<View className="gap-3">
 					{data.messages.map((m, i) => {
 						const isNew = i >= initialCount.current;
 						return (

@@ -1,6 +1,11 @@
 import type * as React from "react";
 import { useEffect } from "react";
-import { TextInput, type TextInputProps, View } from "react-native";
+import {
+	TextInput,
+	type TextInputInstance,
+	type TextInputProps,
+	View,
+} from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
@@ -14,7 +19,7 @@ import { useTheme } from "@/lib/theme/provider";
 import { cn } from "@/lib/utils";
 
 type InputProps = TextInputProps &
-	React.RefAttributes<TextInput> & {
+	React.RefAttributes<TextInputInstance> & {
 		error?: string;
 		containerClassName?: string;
 	};
@@ -48,7 +53,7 @@ function Input({
 				<TextInput
 					ref={ref}
 					className={cn(
-						"border-input bg-background text-foreground h-12 rounded-xl border px-3 text-base",
+						"border-input bg-background text-foreground font-sans h-12 rounded-2xl border px-4 text-base",
 						props.editable === false && "opacity-50",
 						className,
 					)}
@@ -74,7 +79,7 @@ function Input({
 				/>
 				<Animated.View
 					pointerEvents="none"
-					className="absolute inset-0 rounded-xl border-2"
+					className="absolute inset-0 rounded-2xl border-2"
 					style={[{ borderColor: ringColor }, GlowShadow(ringColor), ringStyle]}
 				/>
 			</View>

@@ -26,7 +26,7 @@ export function SectionHeader({
 					/>
 				) : null}
 				<View className="flex-1">
-					<Text className="text-xl font-semibold tracking-tight">{title}</Text>
+					<Text className="font-display text-xl font-semibold">{title}</Text>
 					{subtitle ? (
 						<Text variant="muted" className="mt-0.5">
 							{subtitle}
@@ -41,7 +41,9 @@ export function SectionHeader({
 					accessibilityLabel={action.label}
 					style={{ minHeight: 44, justifyContent: "center" }}
 				>
-					<Text className="text-primary font-medium">{action.label}</Text>
+					<Text className="text-primary text-sm font-extrabold">
+						{action.label}
+					</Text>
 				</PressableScale>
 			) : null}
 		</View>

@@ -10,7 +10,6 @@ import {
 	StyleSheet,
 	View,
 } from "react-native";
-import { Gradient } from "@/components/ui/gradient";
 import { TextClassContext } from "@/components/ui/text";
 import { useTheme } from "@/lib/theme/provider";
 import { cn } from "@/lib/utils";
@@ -25,7 +24,7 @@ const buttonVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: "active:opacity-95",
+				default: "bg-primary active:opacity-90",
 				destructive: cn(
 					"bg-destructive active:bg-destructive/90 dark:bg-destructive/60",
 					Platform.select({
@@ -50,15 +49,15 @@ const buttonVariants = cva(
 			},
 			size: {
 				default: cn(
-					"h-12 rounded-2xl px-5 py-2",
+					"h-12 rounded-full px-6 py-2",
 					Platform.select({ web: "has-[>svg]:px-3" }),
 				),
 				sm: cn(
-					"h-11 gap-1.5 rounded-xl px-4",
+					"h-11 gap-1.5 rounded-full px-5",
 					Platform.select({ web: "has-[>svg]:px-2.5" }),
 				),
 				lg: cn(
-					"h-14 rounded-2xl px-7",
+					"h-14 rounded-full px-8",
 					Platform.select({ web: "has-[>svg]:px-4" }),
 				),
 				icon: "h-12 w-12 rounded-full",
@@ -73,7 +72,7 @@ const buttonVariants = cva(
 
 const buttonTextVariants = cva(
 	cn(
-		"text-foreground text-sm font-medium",
+		"text-foreground text-base font-extrabold",
 		Platform.select({ web: "pointer-events-none transition-colors" }),
 	),
 	{
@@ -111,14 +110,6 @@ const buttonTextVariants = cva(
 type ButtonVariant = NonNullable<
 	VariantProps<typeof buttonVariants>["variant"]
 >;
-type ButtonSize = NonNullable<VariantProps<typeof buttonVariants>["size"]>;
-
-const RADIUS_BY_SIZE: Record<ButtonSize, number> = {
-	default: 16,
-	sm: 12,
-	lg: 16,
-	icon: 999,
-};
 
 const SPINNER_TOKEN: Record<
 	ButtonVariant,
@@ -155,10 +146,7 @@ function Button({
 }: ButtonProps) {
 	const { colors } = useTheme();
 	const resolvedVariant = variant ?? "default";
-	const resolvedSize = size ?? "default";
 	const isDisabled = disabled || loading;
-	const isGradient = resolvedVariant === "default";
-	const radius = RADIUS_BY_SIZE[resolvedSize];
 
 	const handlePressIn = (e: GestureResponderEvent) => {
 		if (Platform.OS !== "web")
@@ -189,45 +177,6 @@ function Button({
 		</>
 	);
 
-	// Gradient (default) variant: the fill lives in an outer box BEHIND a
-	// transparent Pressable, so it covers the whole button while the Pressable
-	// keeps a full-size touch target and lays its children out as a row.
-	if (isGradient) {
-		return (
-			<TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
-				<View
-					className={cn(
-						isDisabled && "opacity-50",
-						fullWidth && "self-stretch",
-						"overflow-hidden",
-						className,
-					)}
-					style={{ borderRadius: radius }}
-				>
-					<Gradient
-						glow={!isDisabled}
-						borderRadius={radius}
-						style={StyleSheet.absoluteFill}
-						pointerEvents="none"
-						accessibilityElementsHidden
-						importantForAccessibility="no-hide-descendants"
-					/>
-					<Pressable
-						className={buttonVariants({ variant, size })}
-						role="button"
-						disabled={isDisabled}
-						accessibilityState={{ disabled: !!isDisabled, busy: loading }}
-						onPressIn={handlePressIn}
-						android_ripple={{ color: "rgba(255,255,255,0.2)" }}
-						{...props}
-					>
-						{content}
-					</Pressable>
-				</View>
-			</TextClassContext.Provider>
-		);
-	}
-
 	return (
 		<TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
 			<Pressable
@@ -241,6 +190,11 @@ function Button({
 				disabled={isDisabled}
 				accessibilityState={{ disabled: !!isDisabled, busy: loading }}
 				onPressIn={handlePressIn}
+				android_ripple={
+					resolvedVariant === "default"
+						? { color: "rgba(255,255,255,0.2)", foreground: true }
+						: undefined
+				}
 				{...props}
 			>
 				{content}

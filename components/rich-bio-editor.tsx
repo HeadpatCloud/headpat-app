@@ -349,7 +349,7 @@ export function RichBioEditor({
 						autoCapitalize="none"
 						autoCorrect={false}
 						keyboardType="url"
-						className="border-input bg-background text-foreground h-11 rounded-xl border px-3"
+						className="border-input bg-background text-foreground font-sans h-11 rounded-xl border px-3"
 					/>
 					<View className="min-h-11 flex-row items-center justify-between">
 						<Text className="text-foreground flex-1">

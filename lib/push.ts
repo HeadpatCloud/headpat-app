@@ -1,5 +1,6 @@
 import { isRunningInExpoGo } from "expo";
-import { PermissionsAndroid, Platform } from "react-native";
+import { Platform } from "react-native";
+import { requestAndroidNotificationPermission } from "@/lib/notification-permission";
 import { client } from "@/lib/orpc";
 
 type MessagingApi = typeof import("@react-native-firebase/messaging");
@@ -38,13 +39,8 @@ export async function registerPushToken(): Promise<void> {
 			// Auto-registration is on (firebase.json default), so Firebase registers
 			// with APNs itself — calling registerDeviceForRemoteMessages is redundant.
 			if (!(await ensurePermission(api))) return;
-		} else if (Number(Platform.Version) >= 33) {
-			// rnfirebase's requestPermission() is a no-op on Android; the runtime
-			// POST_NOTIFICATIONS prompt (Android 13+) goes via PermissionsAndroid.
-			const res = await PermissionsAndroid.request(
-				PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-			);
-			if (res !== PermissionsAndroid.RESULTS.GRANTED) return;
+		} else if (!(await requestAndroidNotificationPermission())) {
+			return;
 		}
 		const token = await api.getToken(api.getMessaging());
 		lastToken = token;

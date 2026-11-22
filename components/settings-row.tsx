@@ -40,14 +40,11 @@ export function SettingsRow({
 				accessibilityRole="button"
 				accessibilityLabel={accessibilityLabel ?? label}
 			>
-				<Card className="h-14 flex-row items-center gap-3 px-3">
+				<Card className="h-14 flex-row items-center gap-3 rounded-2xl px-3">
 					<View className="bg-primary/10 h-9 w-9 items-center justify-center rounded-2xl">
-						<Icon as={icon} size={18} className="text-primary" />
+						<Icon as={icon} size={18} className="text-link" />
 					</View>
-					<Text
-						className="text-foreground flex-1 font-medium"
-						numberOfLines={1}
-					>
+					<Text className="text-foreground flex-1 font-bold" numberOfLines={1}>
 						{label}
 					</Text>
 					{value ? (

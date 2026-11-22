@@ -1,5 +1,4 @@
 import { StyleSheet, View, type ViewProps } from "react-native";
-import { GlowShadow, Gradient } from "@/components/ui/gradient";
 import { useTheme } from "@/lib/theme/provider";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +11,7 @@ function Card({ className, style, ...props }: ViewProps) {
 	return (
 		<View
 			className={cn(
-				"bg-card border-border overflow-hidden rounded-2xl border",
+				"bg-card border-border overflow-hidden rounded-3xl border",
 				className,
 			)}
 			style={[scheme === "light" ? styles.lightShadow : undefined, style]}
@@ -26,53 +25,15 @@ type GlowCardProps = ViewProps & {
 	glow?: boolean;
 };
 
-function GlowCard({
-	accent = "edge",
-	glow = true,
-	className,
-	style,
-	children,
-	...props
-}: GlowCardProps) {
-	const { glow: glowColor } = useTheme();
-	return (
-		<View style={glow ? GlowShadow(glowColor) : undefined}>
-			<Card
-				className={cn(accent === "wash" && "bg-transparent", className)}
-				style={style}
-				{...props}
-			>
-				{accent === "wash" ? (
-					<Gradient
-						opacity={0.08}
-						style={StyleSheet.absoluteFill}
-						pointerEvents="none"
-					/>
-				) : null}
-				{accent === "edge" ? (
-					<Gradient
-						style={styles.edge}
-						start={{ x: 0, y: 0 }}
-						end={{ x: 1, y: 0 }}
-						pointerEvents="none"
-					/>
-				) : null}
-				{children}
-			</Card>
-		</View>
-	);
+// Formerly a glowing card with a gradient edge. The website's cards are flat, so
+// this is now a plain card; the extra props are accepted for existing callers.
+function GlowCard({ accent: _accent, glow: _glow, ...props }: GlowCardProps) {
+	return <Card {...props} />;
 }
 
 const styles = StyleSheet.create({
 	lightShadow: {
-		boxShadow: "0 2 8 rgba(0, 0, 0, 0.08)",
-	},
-	edge: {
-		position: "absolute",
-		top: 0,
-		left: 0,
-		right: 0,
-		height: 3,
+		boxShadow: "0 1 3 rgba(23, 51, 42, 0.08)",
 	},
 });
 

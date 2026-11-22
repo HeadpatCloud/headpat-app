@@ -214,8 +214,14 @@ describe("resolveThemeVisuals", () => {
 	const v = resolveThemeVisuals(PRESETS.ocean.dark, "dark");
 	it("colors are parseable hex strings", () =>
 		expect(v.colors.primary).toBe(tripletToHex(PRESETS.ocean.dark.primary)));
-	it("exposes all 22 color keys", () =>
-		expect(Object.keys(v.colors)).toHaveLength(22));
+	it("exposes the 22 token colors plus the derived link color", () =>
+		expect(Object.keys(v.colors)).toHaveLength(23));
+	it("lifts a dim dark-mode primary to a readable link color", () => {
+		const headpat = resolveThemeVisuals(PRESETS.headpat.dark, "dark");
+		expect(headpat.colors.link).toBe(tripletToHex("155 100% 35%"));
+		const light = resolveThemeVisuals(PRESETS.headpat.light, "light");
+		expect(light.colors.link).toBe(light.colors.primary);
+	});
 	it("gradient has two hex stops + start/end", () => {
 		expect(v.gradient.colors).toHaveLength(2);
 		expect(v.gradient.colors[0]).toMatch(/^#[0-9a-f]{6}$/);

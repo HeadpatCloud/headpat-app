@@ -1,36 +1,19 @@
-import { router, Stack } from "expo-router";
-import { Pressable } from "react-native";
+import { Stack } from "expo-router";
 import { HeaderBack } from "@/components/header-back";
-import { HeaderControls } from "@/components/header-controls";
-import { ChevronLeft } from "@/components/icons";
-import { Icon } from "@/components/ui/icon";
+import { DETAIL_STACK_OPTIONS } from "@/components/header-controls";
 import { useI18n } from "@/lib/i18n/provider";
-import { useTheme } from "@/lib/theme/provider";
+import { useStackScreenOptions } from "@/lib/navigation/stack-options";
 
 export default function CommunityLayout() {
-	const { colors } = useTheme();
+	const screenOptions = useStackScreenOptions(DETAIL_STACK_OPTIONS);
 	const { t } = useI18n();
 	return (
-		<Stack
-			screenOptions={{
-				contentStyle: { backgroundColor: colors.background },
-				headerRight: () => <HeaderControls />,
-			}}
-		>
+		<Stack screenOptions={screenOptions}>
 			<Stack.Screen
 				name="index"
 				options={{
 					title: t("titles.communities"),
-					headerLeft: () => (
-						<Pressable
-							onPress={() => router.back()}
-							accessibilityRole="button"
-							accessibilityLabel={t("common.back")}
-							hitSlop={12}
-						>
-							<Icon as={ChevronLeft} size={28} />
-						</Pressable>
-					),
+					headerLeft: () => <HeaderBack />,
 				}}
 			/>
 			<Stack.Screen

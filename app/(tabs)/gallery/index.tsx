@@ -2,7 +2,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useLiveQuery } from "@tanstack/react-db";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { ActivityIndicator, RefreshControl, View } from "react-native";
 import { EmptyState } from "@/components/empty-state";
 import { Inbox, Plus } from "@/components/icons";
@@ -10,8 +10,7 @@ import { NsfwToggle } from "@/components/nsfw-toggle";
 import { StorageImage } from "@/components/storage-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Fab } from "@/components/ui/fab";
-import { GlowShadow } from "@/components/ui/gradient";
+import { PageTitle } from "@/components/ui/page-title";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
@@ -29,7 +28,13 @@ type GalleryItem = Awaited<
 	ReturnType<typeof client.gallery.list>
 >["items"][number];
 
-function GalleryCard({
+// Natural aspect ratios, remembered across recycled cells so a tile never
+// jumps back to square when it scrolls into view again.
+const aspects = new Map<string, number>();
+const clampAspect = (w: number, h: number) =>
+	Math.min(2, Math.max(0.5, w / Math.max(1, h)));
+
+const GalleryCard = memo(function GalleryCard({
 	item,
 	index,
 	seen,
@@ -38,16 +43,13 @@ function GalleryCard({
 	index: number;
 	seen: boolean;
 }) {
-	const { glow } = useTheme();
 	const { t } = useI18n();
-	const [pressed, setPressed] = useState(false);
+	const [aspect, setAspect] = useState(() => aspects.get(item.id) ?? 1);
 	return (
 		<AnimatedEntrance index={index} disabled={seen}>
 			<PressableScale
 				className="p-1.5"
 				onPress={() => router.push(`/post/${item.id}`)}
-				onPressIn={() => setPressed(true)}
-				onPressOut={() => setPressed(false)}
 				android_ripple={{
 					color: "rgba(255,255,255,0.15)",
 					foreground: true,
@@ -55,18 +57,20 @@ function GalleryCard({
 				accessibilityRole="button"
 				accessibilityLabel={item.name}
 			>
-				<View
-					className="bg-card border-border overflow-hidden rounded-2xl border"
-					style={pressed ? GlowShadow(glow) : undefined}
-				>
+				<View className="bg-muted overflow-hidden rounded-2xl">
 					<StorageImage
 						kind="gallery"
 						fileId={item.fileId}
 						variant="640"
 						transition={0}
 						blurhash={item.blurHash}
-						style={{ aspectRatio: 1, width: "100%" }}
+						style={{ aspectRatio: aspect, width: "100%" }}
 						accessibilityLabel={item.name}
+						onLoad={(e) => {
+							const next = clampAspect(e.source.width, e.source.height);
+							aspects.set(item.id, next);
+							if (Math.abs(next - aspect) > 0.01) setAspect(next);
+						}}
 					/>
 					{item.nsfw ? (
 						<Badge variant="destructive" className="absolute right-2 top-2">
@@ -77,7 +81,7 @@ function GalleryCard({
 			</PressableScale>
 		</AnimatedEntrance>
 	);
-}
+});
 
 export default function Gallery() {
 	const { data: session } = useSession();
@@ -154,14 +158,29 @@ export default function Gallery() {
 			<FlashList
 				data={items}
 				numColumns={2}
+				masonry
 				keyExtractor={(item) => item.id}
-				contentContainerStyle={{ padding: 12 }}
+				contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 12 }}
 				ListHeaderComponent={
-					nsfwAllowed ? (
-						<View className="px-1.5 pb-1">
-							<NsfwToggle value={showNsfw} onValueChange={setShowNsfw} />
-						</View>
-					) : null
+					<View className="px-1.5">
+						<PageTitle
+							title={t("titles.gallery")}
+							action={
+								session
+									? {
+											label: t("gallery.uploadButton"),
+											icon: Plus,
+											onPress: () => router.push("/gallery/upload"),
+										}
+									: undefined
+							}
+						/>
+						{nsfwAllowed ? (
+							<View className="pb-1">
+								<NsfwToggle value={showNsfw} onValueChange={setShowNsfw} />
+							</View>
+						) : null}
+					</View>
 				}
 				renderItem={({ item, index }) => {
 					const seen = animated.current.has(index);
@@ -176,7 +195,9 @@ export default function Gallery() {
 				refreshControl={
 					<RefreshControl
 						refreshing={query.isRefetching && !query.isFetchingNextPage}
-						onRefresh={() => query.refetch()}
+						onRefresh={() => {
+							void query.refetch();
+						}}
 						tintColor={colors.primary}
 						colors={[colors.primary]}
 					/>
@@ -200,14 +221,6 @@ export default function Gallery() {
 					) : null
 				}
 			/>
-			{session ? (
-				<Fab
-					icon={Plus}
-					bottom={24}
-					onPress={() => router.push("/gallery/upload")}
-					accessibilityLabel={t("gallery.newPost")}
-				/>
-			) : null}
 		</View>
 	);
 }

@@ -21,7 +21,7 @@ describe("appRoute", () => {
 		expect(appRoute("/")).toBe("/");
 		expect(appRoute("/gallery")).toBe("/(tabs)/gallery");
 		expect(appRoute("/events")).toBe("/(tabs)/events");
-		expect(appRoute("/map")).toBe("/(tabs)/locations");
+		expect(appRoute("/map")).toBe("/locations");
 		expect(appRoute("/account")).toBe("/profile-edit");
 		expect(appRoute("/account/tickets")).toBe("/tickets");
 		expect(appRoute("/login")).toBe("/(auth)/login");

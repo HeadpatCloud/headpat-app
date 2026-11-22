@@ -127,11 +127,8 @@ export default function Communities() {
 								</View>
 								{c.tags.length > 0 ? (
 									<View className="flex-row flex-wrap gap-1.5 pt-1">
-										{c.tags.slice(0, 3).map((tag, i) => (
-											<Badge
-												key={tag}
-												variant={i === 0 ? "tonal" : "secondary"}
-											>
+										{c.tags.slice(0, 3).map((tag) => (
+											<Badge key={tag} variant="tonal">
 												{tag}
 											</Badge>
 										))}

@@ -133,6 +133,9 @@ export default function ProfileEdit() {
 				value: birthdayOrDefault(),
 				mode: "date",
 				maximumDate: new Date(),
+				// Birthdays are years back: open on the year list instead of
+				// making people page back month by month.
+				startOnYearSelection: true,
 				onValueChange: (_e, date) => {
 					if (date) setBirthday(date);
 				},

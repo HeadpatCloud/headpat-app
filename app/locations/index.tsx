@@ -6,7 +6,6 @@ import {
 	Layer,
 	Map as MapView,
 	Marker,
-	type StyleSpecification,
 	UserLocation,
 } from "@maplibre/maplibre-react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,7 +13,7 @@ import * as Location from "expo-location";
 import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
-import Supercluster from "supercluster";
+import Supercluster, { type PointFeature } from "supercluster";
 import { LocateFixed } from "@/components/icons";
 import { StatusSheet } from "@/components/locations/status-sheet";
 import { StorageImage } from "@/components/storage-image";
@@ -42,27 +41,13 @@ const MARKER_INNER = MARKER - 6;
 const EVENT_COLOR = "#7c3aed";
 const DEFAULT_CENTER: LngLat = [0, 20];
 
-function cartoStyle(dark: boolean): StyleSpecification {
-	const variant = dark ? "dark_all" : "light_all";
-	return {
-		version: 8,
-		sources: {
-			carto: {
-				type: "raster",
-				tiles: [
-					`https://a.basemaps.cartocdn.com/${variant}/{z}/{x}/{y}@2x.png`,
-					`https://b.basemaps.cartocdn.com/${variant}/{z}/{x}/{y}@2x.png`,
-					`https://c.basemaps.cartocdn.com/${variant}/{z}/{x}/{y}@2x.png`,
-					`https://d.basemaps.cartocdn.com/${variant}/{z}/{x}/{y}@2x.png`,
-				],
-				tileSize: 512,
-				attribution:
-					'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
-			},
-		},
-		layers: [{ id: "carto", type: "raster", source: "carto" }],
-	};
-}
+// Same vector basemap as the website (OpenFreeMap "liberty"), with its dark
+// sibling for dark mode. Carto's raster tiles now need an API key. Plain URLs
+// also keep the style prop stable, so the map never reloads its style on render.
+const MAP_STYLE = {
+	light: "https://tiles.openfreemap.org/styles/liberty",
+	dark: "https://tiles.openfreemap.org/styles/dark",
+} as const;
 
 type MapEvent = {
 	id: string;
@@ -357,14 +342,14 @@ export default function LocationsScreen() {
 		const sc = new Supercluster<ClusterPoint>({ radius: 80, maxZoom: 16 });
 		sc.load([
 			...locations.map(
-				(l): Supercluster.PointFeature<ClusterPoint> => ({
+				(l): PointFeature<ClusterPoint> => ({
 					type: "Feature",
 					properties: { kind: "person", id: l.userId },
 					geometry: { type: "Point", coordinates: [l.lng, l.lat] },
 				}),
 			),
 			...eventPins.map(
-				({ e, center }): Supercluster.PointFeature<ClusterPoint> => ({
+				({ e, center }): PointFeature<ClusterPoint> => ({
 					type: "Feature",
 					properties: { kind: "event", id: e.id },
 					geometry: { type: "Point", coordinates: center },
@@ -467,7 +452,7 @@ export default function LocationsScreen() {
 		<View style={StyleSheet.absoluteFill}>
 			<MapView
 				style={StyleSheet.absoluteFill}
-				mapStyle={cartoStyle(scheme === "dark")}
+				mapStyle={MAP_STYLE[scheme]}
 				logo={false}
 				attributionPosition={{ bottom: 8, left: 8 }}
 				onRegionDidChange={(e) => {

@@ -60,7 +60,7 @@ function UserSearch({ onSelect }: { onSelect: (t: Target) => void }) {
 				autoCapitalize="none"
 				autoCorrect={false}
 				returnKeyType="search"
-				className="border-border bg-input h-11 rounded-xl border px-3 text-foreground"
+				className="border-border bg-input h-11 rounded-xl border px-3 text-foreground font-sans"
 				accessibilityLabel={t("users.searchPlaceholder")}
 			/>
 			<ScrollView className="max-h-64" showsVerticalScrollIndicator={false}>

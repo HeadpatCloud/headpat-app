@@ -5,8 +5,10 @@ import {
 	Platform,
 	Text as RNText,
 	type Role,
+	StyleSheet,
 	type TextStyle,
 } from "react-native";
+import { fontFamilyFor } from "@/lib/theme/fonts";
 import { TYPE } from "@/lib/theme/foundations";
 import { cn } from "@/lib/utils";
 
@@ -49,8 +51,8 @@ const textVariants = cva(
 					"bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold",
 				),
 				lead: "text-muted-foreground text-xl",
-				large: "text-lg font-semibold",
-				small: "text-sm font-medium",
+				large: "text-lg font-extrabold",
+				small: "text-sm font-semibold",
 				caption: "text-muted-foreground text-xs uppercase tracking-wide",
 				muted: "text-muted-foreground text-sm",
 			},
@@ -72,6 +74,16 @@ const STYLE_VARIANTS: Partial<Record<TextVariant, TextStyle>> = {
 	h1: TYPE.h1,
 	h2: TYPE.h2,
 };
+
+// Headings use the display face (Fredoka), like h1-h3 on the website.
+const DISPLAY_VARIANTS = new Set<TextVariant>([
+	"display",
+	"h1",
+	"h2",
+	"h3",
+	"h4",
+	"title",
+]);
 
 const ROLE: Partial<Record<TextVariant, Role>> = {
 	display: "heading",
@@ -107,12 +119,32 @@ function Text({
 	const textClass = React.useContext(TextClassContext);
 	const Component = asChild ? Slot : RNText;
 	const variantStyle = variant ? STYLE_VARIANTS[variant] : undefined;
+	const merged = cn(textVariants({ variant }), textClass, className);
+	const flat = StyleSheet.flatten([variantStyle, style]);
+	// Custom fonts carry their weight in the family name, so the weight from the
+	// classes or style picks the family. Android would fake-bold an already bold
+	// face, so the weight itself is reset there.
+	const fontStyle: TextStyle | undefined =
+		flat?.fontFamily || variant === "code"
+			? undefined
+			: {
+					fontFamily: fontFamilyFor({
+						className: merged,
+						weight: flat?.fontWeight,
+						display: variant ? DISPLAY_VARIANTS.has(variant) : false,
+						italic:
+							flat?.fontStyle === "italic" || /(^|\s)italic(\s|$)/.test(merged),
+					}),
+					...(Platform.OS === "android"
+						? { fontWeight: "normal" as const }
+						: null),
+				};
 	return (
 		<Component
-			className={cn(textVariants({ variant }), textClass, className)}
+			className={merged}
 			role={variant ? ROLE[variant] : undefined}
 			aria-level={variant ? ARIA_LEVEL[variant] : undefined}
-			style={variantStyle ? [variantStyle, style] : style}
+			style={[variantStyle, style, fontStyle]}
 			{...props}
 		/>
 	);

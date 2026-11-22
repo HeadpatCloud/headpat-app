@@ -7,10 +7,17 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
+      // Static weight families (see lib/theme/fonts.ts); the Text component
+      // swaps in the family that matches the weight class.
+      fontFamily: {
+        sans: ['Nunito_400Regular'],
+        display: ['Fredoka_600SemiBold'],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
+        link: 'hsl(var(--link))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {

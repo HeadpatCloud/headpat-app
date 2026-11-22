@@ -2,6 +2,7 @@ import { format } from "date-fns/format";
 import { StyleSheet, View, type ViewProps } from "react-native";
 import { Gradient } from "@/components/ui/gradient";
 import { Text } from "@/components/ui/text";
+import { useI18n } from "@/lib/i18n/provider";
 import { withAlpha } from "@/lib/theme/color";
 import { useTheme } from "@/lib/theme/provider";
 import { cn } from "@/lib/utils";
@@ -23,27 +24,20 @@ export function DateBlock({
 	...props
 }: DateBlockProps) {
 	const { colors } = useTheme();
+	const { locale } = useI18n();
 	if (size === "sm") {
 		return (
 			<View
 				className={cn(
-					"w-14 items-center justify-center overflow-hidden rounded-xl py-2",
+					"bg-primary/10 h-14 w-14 items-center justify-center rounded-2xl",
 					className,
 				)}
 				{...props}
 			>
-				<Gradient
-					opacity={0.12}
-					style={StyleSheet.absoluteFill}
-					pointerEvents="none"
-				/>
-				<Text variant="caption" className="text-primary">
-					{format(date, "MMM")}
+				<Text className="text-link text-xs font-extrabold tracking-wider">
+					{date.toLocaleDateString(locale, { month: "short" }).toUpperCase()}
 				</Text>
-				<Text
-					className="text-foreground text-xl font-extrabold"
-					style={{ letterSpacing: -0.4 }}
-				>
+				<Text className="font-display text-2xl font-semibold leading-7">
 					{format(date, "d")}
 				</Text>
 			</View>

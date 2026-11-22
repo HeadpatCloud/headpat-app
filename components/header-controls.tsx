@@ -1,16 +1,18 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useRef } from "react";
 import { Pressable, View } from "react-native";
-import { Check, Languages, Moon, Sun } from "@/components/icons";
+import { Check, Globe, Moon, Sun } from "@/components/icons";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
 import { LOCALES, type Locale, useI18n } from "@/lib/i18n/provider";
 import { useTheme } from "@/lib/theme/provider";
+import { useThemeToggle } from "@/lib/theme/theme-reveal";
 
 export function HeaderControls() {
-	const { scheme, setMode } = useTheme();
+	const { scheme } = useTheme();
+	const toggleTheme = useThemeToggle();
 	const { locale, setLocale, t } = useI18n();
 	const sheetRef = useRef<BottomSheetModal>(null);
 
@@ -21,29 +23,32 @@ export function HeaderControls() {
 
 	return (
 		<>
-			<View className="flex-row items-center gap-1 pr-1">
+			<View className="flex-row items-center">
 				<NotificationsBell />
 				<Pressable
-					onPress={() => setMode(scheme === "dark" ? "light" : "dark")}
+					onPress={() => sheetRef.current?.present()}
+					hitSlop={8}
+					accessibilityRole="button"
+					accessibilityLabel={t("header.language")}
+					className="active:bg-muted h-10 w-10 items-center justify-center rounded-full"
+				>
+					<Icon as={Globe} size={20} className="text-foreground" />
+				</Pressable>
+				<Pressable
+					// The new theme grows out of the tap point, like on the website.
+					onPress={(e) =>
+						toggleTheme({ x: e.nativeEvent.pageX, y: e.nativeEvent.pageY })
+					}
 					hitSlop={8}
 					accessibilityRole="button"
 					accessibilityLabel={t("header.toggleMode")}
-					className="active:bg-accent/50 h-10 w-10 items-center justify-center rounded-full"
+					className="active:bg-muted h-10 w-10 items-center justify-center rounded-full"
 				>
 					<Icon
 						as={scheme === "dark" ? Sun : Moon}
 						size={20}
 						className="text-foreground"
 					/>
-				</Pressable>
-				<Pressable
-					onPress={() => sheetRef.current?.present()}
-					hitSlop={8}
-					accessibilityRole="button"
-					accessibilityLabel={t("header.language")}
-					className="active:bg-accent/50 h-10 w-10 items-center justify-center rounded-full"
-				>
-					<Icon as={Languages} size={20} className="text-foreground" />
 				</Pressable>
 			</View>
 
@@ -77,3 +82,11 @@ export function HeaderControls() {
 		</>
 	);
 }
+
+const renderHeaderControls = () => <HeaderControls />;
+
+// Screen options for detail stacks: the quick controls on the right of the
+// native header. A constant, so the shared stack options stay memoised.
+export const DETAIL_STACK_OPTIONS = {
+	headerRight: renderHeaderControls,
+} as const;

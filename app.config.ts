@@ -124,6 +124,9 @@ const buildConfig = ({ config }: ConfigContext): ExpoConfig => ({
 			},
 		],
 		"@maplibre/maplibre-react-native",
+		"@react-native-community/datetimepicker",
+		"expo-font",
+		"expo-sqlite",
 	],
 });
 

@@ -1,8 +1,13 @@
-import { glowColor, gradientStops, tripletToHex } from "@/lib/theme/color";
+import {
+	glowColor,
+	gradientStops,
+	linkTriplet,
+	tripletToHex,
+} from "@/lib/theme/color";
 import { TOKEN_KEYS, type TokenKey, type TokenMap } from "@/lib/theme/tokens";
 
 export interface ThemeVisuals {
-	colors: Record<TokenKey, string>;
+	colors: Record<TokenKey | "link", string>;
 	gradient: {
 		colors: [string, string];
 		start: { x: number; y: number };
@@ -18,8 +23,9 @@ export function resolveThemeVisuals(
 	// Hex (not "hsl(H S% L%)"): RN's color parser doesn't reliably handle the
 	// space-separated hsl syntax, so a raw `colors.x` on shadowColor/borderColor/
 	// nav theme would silently fall back to a wrong color (white).
-	const colors = {} as Record<TokenKey, string>;
+	const colors = {} as Record<TokenKey | "link", string>;
 	for (const key of TOKEN_KEYS) colors[key] = tripletToHex(triplets[key]);
+	colors.link = tripletToHex(linkTriplet(triplets.primary, scheme));
 	return {
 		colors,
 		gradient: {

@@ -2,7 +2,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import type { ReactNode } from "react";
 import {
 	type StyleProp,
-	StyleSheet,
 	View,
 	type ViewProps,
 	type ViewStyle,
@@ -11,8 +10,7 @@ import { withAlpha } from "@/lib/theme/color";
 import { useTheme } from "@/lib/theme/provider";
 
 type GradientProps = ViewProps & {
-	// Override the theme gradient (e.g. a low-opacity wash). Defaults to the
-	// active theme's primary -> accent.
+	// A real gradient (e.g. a scrim). Without it the fill is solid primary.
 	colors?: readonly [string, string, ...string[]];
 	start?: { x: number; y: number };
 	end?: { x: number; y: number };
@@ -31,6 +29,9 @@ export function GlowShadow(glow: string): ViewStyle {
 	return { boxShadow: `0 8 16 ${withAlpha(glow, 0.6)}` };
 }
 
+// Brand fill. Without `colors` it paints solid primary, like the website's
+// bg-primary (the app used to use a primary-to-accent gradient everywhere); with
+// `colors` it is a real gradient, for washes and scrims.
 export function Gradient({
 	colors,
 	start,
@@ -39,53 +40,35 @@ export function Gradient({
 	style,
 	borderRadius,
 	opacity,
-	glow,
+	glow: _glow,
 	children,
 	...rest
 }: GradientProps) {
-	const { gradient, glow: glowColor } = useTheme();
-	if (!glow) {
+	const { colors: theme } = useTheme();
+	const shape = [
+		borderRadius != null ? { borderRadius } : null,
+		opacity != null ? { opacity } : null,
+	];
+	if (!colors) {
 		return (
-			<LinearGradient
-				colors={colors ?? gradient.colors}
-				start={start ?? gradient.start ?? { x: 0, y: 0 }}
-				end={end ?? gradient.end ?? { x: 1, y: 1 }}
-				locations={locations}
-				style={[
-					style,
-					borderRadius != null ? { borderRadius } : null,
-					opacity != null ? { opacity } : null,
-				]}
+			<View
+				style={[style, { backgroundColor: theme.primary }, ...shape]}
 				{...rest}
 			>
 				{children}
-			</LinearGradient>
+			</View>
 		);
 	}
-	// Glow needs a colored shadow on a sized box. expo-linear-gradient won't cast
-	// it cleanly, so the wrapper owns layout (style) + shadow and the gradient
-	// paints behind the children as an absolute fill.
 	return (
-		<View
-			style={[
-				style,
-				GlowShadow(glowColor),
-				borderRadius != null ? { borderRadius } : null,
-			]}
+		<LinearGradient
+			colors={colors}
+			start={start ?? { x: 0, y: 0 }}
+			end={end ?? { x: 1, y: 1 }}
+			locations={locations}
+			style={[style, ...shape]}
 			{...rest}
 		>
-			<LinearGradient
-				colors={colors ?? gradient.colors}
-				start={start ?? gradient.start ?? { x: 0, y: 0 }}
-				end={end ?? gradient.end ?? { x: 1, y: 1 }}
-				locations={locations}
-				style={[
-					StyleSheet.absoluteFill,
-					borderRadius != null ? { borderRadius } : null,
-					opacity != null ? { opacity } : null,
-				]}
-			/>
 			{children}
-		</View>
+		</LinearGradient>
 	);
 }

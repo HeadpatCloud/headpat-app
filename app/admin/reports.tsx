@@ -205,7 +205,9 @@ export default function AdminReports() {
 				refreshControl={
 					<RefreshControl
 						refreshing={query.isRefetching}
-						onRefresh={() => query.refetch()}
+						onRefresh={() => {
+							void query.refetch();
+						}}
 						tintColor={colors.primary}
 						colors={[colors.primary]}
 					/>

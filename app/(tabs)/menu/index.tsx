@@ -13,10 +13,10 @@ import {
 	Images,
 	LifeBuoy,
 	Link2,
+	LogOut,
 	type LucideIcon,
 	MapPin,
 	Megaphone,
-	MessageCircle,
 	Palette,
 	Scale,
 	Shield,
@@ -25,12 +25,11 @@ import {
 	UserRound,
 	UsersRound,
 } from "@/components/icons";
-import { SettingsRow } from "@/components/settings-row";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { GlowCard } from "@/components/ui/card";
-import { GradientText } from "@/components/ui/gradient-text";
+import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
+import { NavGroup, NavRow } from "@/components/ui/nav-group";
 import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
@@ -65,15 +64,12 @@ const SETTINGS_ROWS: Row[] = [
 ];
 
 const SUPPORT_ROWS: Row[] = [
-	{ href: "/tickets", icon: LifeBuoy, titleKey: "titles.tickets" },
-	{ href: "/support", icon: MessageCircle, titleKey: "titles.support" },
+	// Tickets live inside Help & support, like on the website.
+	{ href: "/support", icon: LifeBuoy, titleKey: "support.title" },
 	{ href: "/announcements", icon: Megaphone, titleKey: "titles.announcements" },
 	{ href: "/changelog", icon: FileClock, titleKey: "titles.changelog" },
 	{ href: "/legal", icon: Scale, titleKey: "titles.legal" },
 ];
-
-// Tickets needs a session; everything else in the group is public.
-const GUEST_SUPPORT_ROWS = SUPPORT_ROWS.filter((r) => r.href !== "/tickets");
 
 // Neither needs an account. Clearing the cache especially has to work signed
 // out, since a wedged cache is a reason someone ends up signed out.
@@ -81,31 +77,21 @@ const GUEST_SETTINGS_ROWS: Row[] = SETTINGS_ROWS.filter(
 	(r) => r.href === "/appearance" || r.href === "/storage",
 );
 
-function GroupLabel({ index, children }: { index: number; children: string }) {
-	return (
-		<AnimatedEntrance index={index}>
-			<Text variant="caption" className="px-1 uppercase tracking-wider">
-				{children}
-			</Text>
-		</AnimatedEntrance>
-	);
-}
-
 function RowGroup({
+	title,
 	rows,
-	startIndex,
 	unreadCount,
 	t,
 }: {
+	title: string;
 	rows: Row[];
-	startIndex: number;
 	unreadCount: number;
 	t: T;
 }) {
 	return (
-		<View className="gap-3">
-			{rows.map((row, i) => (
-				<SettingsRow
+		<NavGroup title={title}>
+			{rows.map((row) => (
+				<NavRow
 					key={row.titleKey}
 					icon={row.icon}
 					label={t(row.titleKey)}
@@ -114,14 +100,13 @@ function RowGroup({
 							<CountBadge count={unreadCount} />
 						) : undefined
 					}
-					index={startIndex + i}
 					onPress={() => router.push(row.href)}
 					accessibilityLabel={t("account.hub.rowA11y", {
 						label: t(row.titleKey),
 					})}
 				/>
 			))}
-		</View>
+		</NavGroup>
 	);
 }
 
@@ -144,15 +129,17 @@ export default function Menu() {
 		return (
 			<ScrollView
 				className="bg-background flex-1"
-				contentContainerClassName="gap-5 p-6"
+				contentContainerClassName="gap-4 p-3 pb-6"
 			>
 				<AnimatedEntrance index={0}>
-					<GlowCard className="gap-1 p-5">
-						<GradientText className="text-2xl font-extrabold tracking-tight">
+					<Card className="gap-1 p-5">
+						<Text className="font-display text-2xl font-semibold">
 							{t("account.guest.title")}
-						</GradientText>
-						<Text variant="muted">{t("account.guest.subtitle")}</Text>
-					</GlowCard>
+						</Text>
+						<Text className="text-muted-foreground font-semibold">
+							{t("account.guest.subtitle")}
+						</Text>
+					</Card>
 				</AnimatedEntrance>
 				<AnimatedEntrance index={1} className="gap-3">
 					<Button
@@ -174,19 +161,15 @@ export default function Menu() {
 						<Text>{t("account.guest.createAccount")}</Text>
 					</Button>
 				</AnimatedEntrance>
-				<GroupLabel index={2}>{t("menu.groups.settings")}</GroupLabel>
 				<RowGroup
+					title={t("menu.groups.settings")}
 					rows={GUEST_SETTINGS_ROWS}
-					startIndex={3}
 					unreadCount={0}
 					t={t}
 				/>
-				<GroupLabel index={3 + GUEST_SETTINGS_ROWS.length}>
-					{t("menu.groups.support")}
-				</GroupLabel>
 				<RowGroup
-					rows={GUEST_SUPPORT_ROWS}
-					startIndex={4 + GUEST_SETTINGS_ROWS.length}
+					title={t("menu.groups.support")}
+					rows={SUPPORT_ROWS}
 					unreadCount={0}
 					t={t}
 				/>
@@ -202,7 +185,7 @@ export default function Menu() {
 	return (
 		<ScrollView
 			className="bg-background flex-1"
-			contentContainerClassName="gap-5 p-6 pb-10"
+			contentContainerClassName="gap-4 p-3 pb-6"
 		>
 			<AnimatedEntrance index={0}>
 				<PressableScale
@@ -213,20 +196,23 @@ export default function Menu() {
 					accessibilityRole="button"
 					accessibilityLabel={t("account.hub.viewProfile")}
 				>
-					<GlowCard className="flex-row items-center gap-4 p-5">
+					<Card className="flex-row items-center gap-4 p-5">
 						<Avatar
 							fileId={me.data?.avatarFileId}
 							name={displayName}
-							size={64}
-							ring
+							size={60}
+							fallback="muted"
 						/>
 						<View className="flex-1 gap-0.5">
 							{me.isLoading ? (
 								<Skeleton className="h-7 w-40 rounded-lg" />
 							) : (
-								<GradientText className="text-2xl font-extrabold tracking-tight">
+								<Text
+									numberOfLines={1}
+									className="font-display text-2xl font-semibold"
+								>
 									{displayName}
-								</GradientText>
+								</Text>
 							)}
 							<Text variant="muted" numberOfLines={1}>
 								{data.user?.email ?? "…"}
@@ -237,86 +223,48 @@ export default function Menu() {
 							size={20}
 							className="text-muted-foreground"
 						/>
-					</GlowCard>
+					</Card>
 				</PressableScale>
 			</AnimatedEntrance>
 
-			<GroupLabel index={1}>{t("menu.groups.browse")}</GroupLabel>
 			<RowGroup
+				title={t("menu.groups.browse")}
 				rows={BROWSE_ROWS}
-				startIndex={2}
 				unreadCount={unreadCount}
 				t={t}
 			/>
-
-			<GroupLabel index={BROWSE_ROWS.length + 2}>
-				{t("menu.groups.settings")}
-			</GroupLabel>
 			<RowGroup
+				title={t("menu.groups.settings")}
 				rows={SETTINGS_ROWS}
-				startIndex={BROWSE_ROWS.length + 3}
 				unreadCount={unreadCount}
 				t={t}
 			/>
-
-			<GroupLabel index={BROWSE_ROWS.length + SETTINGS_ROWS.length + 3}>
-				{t("menu.groups.support")}
-			</GroupLabel>
 			<RowGroup
+				title={t("menu.groups.support")}
 				rows={SUPPORT_ROWS}
-				startIndex={BROWSE_ROWS.length + SETTINGS_ROWS.length + 4}
 				unreadCount={unreadCount}
 				t={t}
 			/>
-
 			{showAdmin ? (
-				<>
-					<GroupLabel
-						index={
-							BROWSE_ROWS.length +
-							SETTINGS_ROWS.length +
-							SUPPORT_ROWS.length +
-							4
-						}
-					>
-						{t("menu.groups.admin")}
-					</GroupLabel>
-					<SettingsRow
+				<NavGroup title={t("menu.groups.admin")}>
+					<NavRow
 						icon={Shield}
 						label={t("titles.admin")}
-						index={
-							BROWSE_ROWS.length +
-							SETTINGS_ROWS.length +
-							SUPPORT_ROWS.length +
-							5
-						}
 						onPress={() => router.push("/admin")}
 						accessibilityLabel={t("account.hub.rowA11y", {
 							label: t("titles.admin"),
 						})}
 					/>
-				</>
+				</NavGroup>
 			) : null}
-
-			<AnimatedEntrance
-				index={
-					BROWSE_ROWS.length +
-					SETTINGS_ROWS.length +
-					SUPPORT_ROWS.length +
-					(showAdmin ? 6 : 4)
-				}
-				className="pt-2"
-			>
-				<Button
-					variant="destructive"
-					fullWidth
+			<NavGroup>
+				<NavRow
+					icon={LogOut}
+					label={t("account.signOut.action")}
+					tone="destructive"
 					onPress={() => sheetRef.current?.present()}
-					accessibilityRole="button"
-					accessibilityLabel={t("account.signOut.action")}
-				>
-					<Text>{t("account.signOut.action")}</Text>
-				</Button>
-			</AnimatedEntrance>
+				/>
+			</NavGroup>
 
 			<Sheet ref={sheetRef} title={t("account.signOut.confirmTitle")} accent>
 				<View className="gap-3">

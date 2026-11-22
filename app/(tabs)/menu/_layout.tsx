@@ -1,21 +1,12 @@
 import { Stack } from "expo-router";
-import { HeaderControls } from "@/components/header-controls";
-import { useI18n } from "@/lib/i18n/provider";
-import { useTheme } from "@/lib/theme/provider";
+import { TAB_ROOT_OPTIONS } from "@/components/app-header";
+import { useStackScreenOptions } from "@/lib/navigation/stack-options";
 
-// A native-stack header (not the Tabs JS header) so the top-right controls get
-// the same iOS look as the other tabs.
 export default function MenuLayout() {
-	const { colors } = useTheme();
-	const { t } = useI18n();
+	const screenOptions = useStackScreenOptions();
 	return (
-		<Stack
-			screenOptions={{
-				contentStyle: { backgroundColor: colors.background },
-				headerRight: () => <HeaderControls />,
-			}}
-		>
-			<Stack.Screen name="index" options={{ title: t("tabs.menu") }} />
+		<Stack screenOptions={screenOptions}>
+			<Stack.Screen name="index" options={TAB_ROOT_OPTIONS} />
 		</Stack>
 	);
 }

@@ -141,7 +141,7 @@ export default function Mfa() {
 	const [error, setError] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
 	const [done, setDone] = useState(false);
-	const inputRef = useRef<import("react-native").TextInput>(null);
+	const inputRef = useRef<import("react-native").TextInputInstance>(null);
 	const submittingRef = useRef(false);
 	const shake = useSharedValue(0);
 

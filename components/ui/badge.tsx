@@ -29,7 +29,7 @@ const text: Record<Variant, string> = {
 	outline: "text-foreground",
 	destructive: "text-white",
 	gradient: "text-primary-foreground",
-	tonal: "text-primary",
+	tonal: "text-link",
 };
 
 export function Badge({
@@ -44,7 +44,7 @@ export function Badge({
 	className?: string;
 }) {
 	const inner = (
-		<TextClassContext.Provider value={cn("text-xs font-medium", text[variant])}>
+		<TextClassContext.Provider value={cn("text-xs font-bold", text[variant])}>
 			{icon ? <Icon as={icon} size={12} /> : null}
 			{typeof children === "string" ? <Text>{children}</Text> : children}
 		</TextClassContext.Provider>

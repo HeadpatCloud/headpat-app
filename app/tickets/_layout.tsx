@@ -1,37 +1,21 @@
-import { router, Stack } from "expo-router";
-import { Pressable } from "react-native";
-import { HeaderControls } from "@/components/header-controls";
-import { ChevronLeft } from "@/components/icons";
-import { Icon } from "@/components/ui/icon";
+import { Stack } from "expo-router";
+import { HeaderBack } from "@/components/header-back";
+import { DETAIL_STACK_OPTIONS } from "@/components/header-controls";
 import { useI18n } from "@/lib/i18n/provider";
-import { useTheme } from "@/lib/theme/provider";
+import { useStackScreenOptions } from "@/lib/navigation/stack-options";
 
 export default function TicketsLayout() {
-	const { colors } = useTheme();
+	const screenOptions = useStackScreenOptions(DETAIL_STACK_OPTIONS);
 	const { t } = useI18n();
 	return (
-		<Stack
-			screenOptions={{
-				contentStyle: { backgroundColor: colors.background },
-				headerRight: () => <HeaderControls />,
-			}}
-		>
+		<Stack screenOptions={screenOptions}>
 			<Stack.Screen
 				name="index"
 				options={{
 					title: "",
 					// Root of this nested stack: the parent (root) header is hidden, so
 					// add an explicit back affordance to return to the menu.
-					headerLeft: () => (
-						<Pressable
-							onPress={() => router.back()}
-							hitSlop={8}
-							accessibilityRole="button"
-							accessibilityLabel={t("common.back")}
-						>
-							<Icon as={ChevronLeft} size={28} className="text-foreground" />
-						</Pressable>
-					),
+					headerLeft: () => <HeaderBack />,
 				}}
 			/>
 			<Stack.Screen name="new" options={{ title: "" }} />

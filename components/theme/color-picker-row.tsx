@@ -66,7 +66,7 @@ function ColorPickerRowImpl({
 					autoCapitalize="none"
 					autoCorrect={false}
 					accessibilityLabel={t("themeBuilder.hexA11y", { token })}
-					className={`text-foreground w-28 rounded-xl border px-3 py-2 text-sm ${valid ? "border-border" : "border-destructive"}`}
+					className={`text-foreground font-sans w-28 rounded-xl border px-3 py-2 text-sm ${valid ? "border-border" : "border-destructive"}`}
 					placeholder="#000000"
 					placeholderTextColor={colors["muted-foreground"]}
 				/>

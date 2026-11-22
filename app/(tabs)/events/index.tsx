@@ -8,7 +8,7 @@ import { MapPin, Plus, Users } from "@/components/icons";
 import { PaginatedList } from "@/components/paginated-list";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Fab } from "@/components/ui/fab";
+import { PageTitle } from "@/components/ui/page-title";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
@@ -51,6 +51,20 @@ export default function Events() {
 							}
 				}
 				keyExtractor={(e) => e.id}
+				ListHeaderComponent={
+					<PageTitle
+						title={t("titles.events")}
+						action={
+							session
+								? {
+										label: t("events.newEvent"),
+										icon: Plus,
+										onPress: () => router.push("/events/new"),
+									}
+								: undefined
+						}
+					/>
+				}
 				emptyTitle={t("events.emptyTitle")}
 				emptySubtitle={t("events.emptySubtitle")}
 				skeleton={<Skeleton className="h-20 w-full rounded-2xl" />}
@@ -61,15 +75,10 @@ export default function Events() {
 						accessibilityRole="button"
 						accessibilityLabel={e.title}
 					>
-						<Card className="flex-row gap-3 p-4">
+						<Card className="flex-row gap-3.5 p-4">
 							<DateBlock date={new Date(e.startsAt)} className="self-start" />
 							<View className="flex-1 gap-2.5">
-								<Text
-									variant="large"
-									className="font-bold"
-									style={{ letterSpacing: -0.4 }}
-									numberOfLines={2}
-								>
+								<Text className="text-lg font-extrabold" numberOfLines={2}>
 									{e.title}
 								</Text>
 								{e.locationText ? (
@@ -104,7 +113,7 @@ export default function Events() {
 								{e.tags.length > 0 ? (
 									<View className="flex-row flex-wrap gap-1.5">
 										{e.tags.map((tag) => (
-											<Badge key={tag} variant="secondary">
+											<Badge key={tag} variant="tonal">
 												{tag}
 											</Badge>
 										))}
@@ -115,14 +124,6 @@ export default function Events() {
 					</PressableScale>
 				)}
 			/>
-			{session ? (
-				<Fab
-					icon={Plus}
-					bottom={24}
-					onPress={() => router.push("/events/new")}
-					accessibilityLabel={t("events.newEvent")}
-				/>
-			) : null}
 		</View>
 	);
 }

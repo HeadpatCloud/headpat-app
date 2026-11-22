@@ -153,8 +153,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 		mode === "system" ? (device === "dark" ? "dark" : "light") : mode;
 
 	// Keep NativeWind's class in sync so `dark:` utilities resolve correctly.
+	// setMode already does this in the same tick for taps; this catches the
+	// device switching scheme while in system mode.
 	useEffect(() => {
-		colorScheme.set(scheme);
+		if (colorScheme.get() !== scheme) colorScheme.set(scheme);
 	}, [scheme]);
 
 	const triplets = useMemo(
@@ -167,10 +169,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 		[triplets, scheme],
 	);
 
-	const setMode = useCallback((next: ThemeMode) => {
-		setModeState(next);
-		kvSet(MODE_KEY, next);
-	}, []);
+	// Flip NativeWind's scheme together with our state so the switch is one
+	// render pass instead of two (state first, then the effect a frame later).
+	const setMode = useCallback(
+		(next: ThemeMode) => {
+			const nextScheme =
+				next === "system" ? (device === "dark" ? "dark" : "light") : next;
+			colorScheme.set(nextScheme);
+			setModeState(next);
+			kvSet(MODE_KEY, next);
+		},
+		[device],
+	);
 
 	const setActiveTheme = useCallback(
 		(value: string) => {
@@ -218,9 +228,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 	const rootStyle = useMemo(
 		() => [
 			{ flex: 1, backgroundColor: tripletToHex(triplets.background) },
-			vars(tokensToVars(triplets)),
+			vars(tokensToVars(triplets, scheme)),
 		],
-		[triplets],
+		[triplets, scheme],
 	);
 
 	return (

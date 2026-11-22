@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import { Alert, Pressable, StyleSheet, View } from "react-native";
 import Animated, {
 	Extrapolation,
 	interpolate,
@@ -32,14 +32,11 @@ import { NsfwToggle } from "@/components/nsfw-toggle";
 import { RichBio } from "@/components/rich-bio";
 import { SegmentedTabs } from "@/components/segmented-tabs";
 import { StorageImage } from "@/components/storage-image";
-import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { GlowShadow, Gradient } from "@/components/ui/gradient";
-import { GradientText } from "@/components/ui/gradient-text";
+import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StatPill } from "@/components/ui/stat-pill";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
 import { formatBirthday } from "@/lib/birthday";
@@ -68,11 +65,26 @@ const AnimatedFlashList = Animated.createAnimatedComponent(
 	FlashList<GalleryItem>,
 );
 
-function SocialRow({ icon, label }: { icon: LucideIcon; label: string }) {
+// The website's social pill: tinted, icon and handle.
+function SocialChip({ icon, label }: { icon: LucideIcon; label: string }) {
 	return (
-		<View className="flex-row items-start gap-2">
-			<Icon as={icon} size={16} className="text-muted-foreground mt-0.5" />
-			<Text className="text-foreground flex-1">{label}</Text>
+		<View className="bg-primary/15 flex-row items-center gap-1.5 rounded-full px-3.5 py-1.5">
+			<Icon as={icon} size={14} className="text-link" />
+			<Text className="text-link text-sm font-semibold">{label}</Text>
+		</View>
+	);
+}
+
+// The website's dark detail pill (pronouns, location, birthday).
+function InfoChip({ icon, label }: { icon?: LucideIcon; label: string }) {
+	return (
+		<View className="bg-secondary flex-row items-center gap-1.5 rounded-full px-3 py-1">
+			{icon ? (
+				<Icon as={icon} size={13} className="text-secondary-foreground" />
+			) : null}
+			<Text className="text-secondary-foreground text-xs font-bold">
+				{label}
+			</Text>
 		</View>
 	);
 }
@@ -132,7 +144,7 @@ export default function UserProfile() {
 	const { profileUrl } = useLocalSearchParams<{ profileUrl: string }>();
 	const queryClient = useQueryClient();
 	const { data: session } = useSession();
-	const { colors, glow } = useTheme();
+	const { colors } = useTheme();
 	const { t } = useI18n();
 	const reduced = useReducedMotion();
 	const { nsfwAllowed, showNsfw, setShowNsfw } = useShowNsfw();
@@ -456,52 +468,67 @@ export default function UserProfile() {
 
 					<View className="-mt-12 gap-4 px-4">
 						<AnimatedEntrance index={1} preset="fadeUp">
-							<View
-								className="self-start rounded-full"
-								style={GlowShadow(glow)}
-							>
-								<Gradient borderRadius={RADIUS.pill} style={{ padding: 3 }}>
+							<View className="border-background bg-background self-start overflow-hidden rounded-3xl border-4">
+								{p.avatarFileId ? (
+									<StorageImage
+										kind="avatar"
+										fileId={p.avatarFileId}
+										variant="md"
+										style={{ width: 104, height: 104 }}
+										accessibilityLabel={p.displayName ?? p.profileUrl}
+									/>
+								) : (
 									<View
-										className="bg-background rounded-full"
-										style={{ padding: 3 }}
+										className="bg-muted items-center justify-center"
+										style={{ width: 104, height: 104 }}
 									>
-										<Avatar
-											fileId={p.avatarFileId}
-											name={p.displayName ?? p.name}
-											kind="avatar"
-											size={96}
-										/>
+										<Text className="font-display text-muted-foreground text-4xl font-semibold">
+											{(p.displayName ?? p.profileUrl)
+												.slice(0, 1)
+												.toUpperCase()}
+										</Text>
 									</View>
-								</Gradient>
+								)}
 							</View>
 						</AnimatedEntrance>
 
 						<AnimatedEntrance index={2}>
 							<View className="gap-1">
 								<View className="flex-row flex-wrap items-center gap-2">
-									<View className="shrink">
-										<GradientText
-											heading
-											className="text-4xl font-extrabold leading-[44px] tracking-tight"
-										>
-											{p.displayName ?? p.profileUrl}
-										</GradientText>
-									</View>
-									{p.pronouns ? (
-										<Badge variant="outline" className="self-center">
-											{p.pronouns}
-										</Badge>
-									) : null}
+									<Text
+										role="heading"
+										className="font-display shrink text-[34px] font-semibold leading-10"
+									>
+										{p.displayName ?? p.profileUrl}
+									</Text>
 								</View>
-								<Text variant="muted">@{p.profileUrl}</Text>
+								<Text className="text-muted-foreground font-semibold">
+									@{p.profileUrl}
+								</Text>
 								{p.status ? (
 									<Text
-										variant="small"
-										className="text-primary italic"
+										className="text-muted-foreground text-lg font-semibold"
 										numberOfLines={1}
 									>
 										{p.status}
 									</Text>
+								) : null}
+								{p.pronouns || p.location || p.birthday ? (
+									<View className="flex-row flex-wrap gap-1.5 pt-2">
+										{p.pronouns ? <InfoChip label={p.pronouns} /> : null}
+										{p.location ? (
+											<InfoChip icon={MapPin} label={p.location} />
+										) : null}
+										{p.birthday ? (
+											<InfoChip
+												icon={Cake}
+												label={formatBirthday(p.birthday, {
+													showDay: p.birthdayShowDay !== false,
+													showYear: p.birthdayShowYear !== false,
+												})}
+											/>
+										) : null}
+									</View>
 								) : null}
 							</View>
 						</AnimatedEntrance>
@@ -554,31 +581,39 @@ export default function UserProfile() {
 						</AnimatedEntrance>
 
 						<AnimatedEntrance index={4}>
-							<View className="flex-row gap-3">
-								<View className="flex-1">
-									<StatPill
-										label={t("profile.followers")}
-										value={p.followersCount}
-										onPress={() =>
-											router.push(`/user/${p.profileUrl}/followers`)
-										}
-									/>
-								</View>
-								<View className="flex-1">
-									<StatPill
-										label={t("profile.following")}
-										value={p.followingCount}
-										onPress={() =>
-											router.push(`/user/${p.profileUrl}/following`)
-										}
-									/>
-								</View>
-								<View className="flex-1">
-									<StatPill
-										label={t("profile.gallery")}
-										value={galleryTotal ?? "—"}
-									/>
-								</View>
+							<View className="border-border flex-row gap-5 border-y py-3">
+								<Pressable
+									onPress={() => router.push(`/user/${p.profileUrl}/followers`)}
+									accessibilityRole="link"
+									hitSlop={8}
+								>
+									<Text className="text-muted-foreground">
+										<Text className="text-foreground font-extrabold">
+											{p.followersCount}
+										</Text>{" "}
+										{t("profile.followers").toLowerCase()}
+									</Text>
+								</Pressable>
+								<Pressable
+									onPress={() => router.push(`/user/${p.profileUrl}/following`)}
+									accessibilityRole="link"
+									hitSlop={8}
+								>
+									<Text className="text-muted-foreground">
+										<Text className="text-foreground font-extrabold">
+											{p.followingCount}
+										</Text>{" "}
+										{t("profile.following").toLowerCase()}
+									</Text>
+								</Pressable>
+								{galleryTotal !== undefined ? (
+									<Text className="text-muted-foreground">
+										<Text className="text-foreground font-extrabold">
+											{galleryTotal}
+										</Text>{" "}
+										{t("profile.gallery").toLowerCase()}
+									</Text>
+								) : null}
 							</View>
 						</AnimatedEntrance>
 
@@ -601,40 +636,10 @@ export default function UserProfile() {
 											<Text className="text-foreground leading-6">{p.bio}</Text>
 										) : null}
 
-										{p.birthday ? (
-											<View className="flex-row items-center gap-2">
-												<Icon
-													as={Cake}
-													size={16}
-													className="text-muted-foreground"
-												/>
-												<Text variant="small" className="text-muted-foreground">
-													{formatBirthday(p.birthday, {
-														showDay: p.birthdayShowDay !== false,
-														showYear: p.birthdayShowYear !== false,
-													})}
-												</Text>
-											</View>
-										) : null}
-
-										{p.location ? (
-											<View className="flex-row items-center gap-2">
-												<Icon
-													as={MapPin}
-													size={16}
-													className="text-muted-foreground"
-												/>
-												<Text variant="small" className="text-muted-foreground">
-													{p.location}
-												</Text>
-											</View>
-										) : null}
-
 										{socials.length > 0 ? (
-											<View className="gap-2">
-												<Text variant="caption">{t("profile.socials")}</Text>
+											<View className="flex-row flex-wrap gap-2">
 												{socials.map((s) => (
-													<SocialRow
+													<SocialChip
 														key={s.platform}
 														icon={s.icon}
 														label={s.label}
@@ -646,7 +651,7 @@ export default function UserProfile() {
 										{p.badges.length > 0 ? (
 											<View className="flex-row flex-wrap gap-2">
 												{p.badges.map((b) => (
-													<Badge key={b} variant="secondary">
+													<Badge key={b} variant="tonal">
 														{b}
 													</Badge>
 												))}

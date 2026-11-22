@@ -51,6 +51,9 @@ export function AgeGate({ onClear }: { onClear: (dob?: Date) => void }) {
 			value: dob,
 			mode: "date",
 			maximumDate: new Date(),
+			// Birthdays are years back: open on the year list instead of
+			// making people page back month by month.
+			startOnYearSelection: true,
 			onChange: (_e: DateTimePickerEvent, date?: Date) => {
 				if (date) setDob(date);
 			},

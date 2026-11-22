@@ -2,7 +2,6 @@ import { PixelRatio, View } from "react-native";
 import { StorageImage, type StorageKind } from "@/components/storage-image";
 import { Gradient } from "@/components/ui/gradient";
 import { Text } from "@/components/ui/text";
-import { useTheme } from "@/lib/theme/provider";
 import { cn } from "@/lib/utils";
 
 function initials(name?: string | null): string {
@@ -34,7 +33,6 @@ export function Avatar({
 	fallback?: "gradient" | "muted";
 	className?: string;
 }) {
-	const { colors } = useTheme();
 	const label = name ? `${name}'s avatar` : "Avatar";
 	const style = { width: size, height: size, borderRadius: size / 2 };
 
@@ -61,18 +59,16 @@ export function Avatar({
 			</Text>
 		</View>
 	) : (
-		<Gradient
-			borderRadius={size / 2}
-			style={[style, { alignItems: "center", justifyContent: "center" }]}
+		// The website's initials avatar: soft primary tint, primary letters.
+		<View
+			style={style}
+			className={cn("bg-primary/20 items-center justify-center", className)}
 			accessibilityLabel={label}
 		>
-			<Text
-				className="font-semibold"
-				style={{ fontSize: size * 0.4, color: colors["primary-foreground"] }}
-			>
+			<Text className="text-link font-bold" style={{ fontSize: size * 0.4 }}>
 				{initials(name)}
 			</Text>
-		</Gradient>
+		</View>
 	);
 
 	if (!ring) return inner;

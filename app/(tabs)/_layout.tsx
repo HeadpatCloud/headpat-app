@@ -1,11 +1,11 @@
 import { Tabs } from "expo-router";
 import {
-	CalendarDays,
+	Calendar,
 	House,
-	Images,
+	LayoutPanelLeft,
 	type LucideIcon,
-	MapPin,
 	Menu,
+	MessagesSquare,
 } from "@/components/icons";
 import { TabBar } from "@/components/tab-bar";
 import { Icon } from "@/components/ui/icon";
@@ -18,9 +18,18 @@ const iconFor =
 		<Icon
 			as={Glyph}
 			size={22}
-			className={focused ? "text-primary-foreground" : "text-muted-foreground"}
+			className={focused ? "text-link" : "text-muted-foreground"}
 		/>
 	);
+
+// Built once at module scope so the memoised tab items keep stable props.
+const ICONS = {
+	home: iconFor(House),
+	gallery: iconFor(LayoutPanelLeft),
+	events: iconFor(Calendar),
+	chat: iconFor(MessagesSquare),
+	more: iconFor(Menu),
+};
 
 export default function TabsLayout() {
 	const { colors } = useTheme();
@@ -38,23 +47,29 @@ export default function TabsLayout() {
 		>
 			<Tabs.Screen
 				name="(home)"
-				options={{ title: t("tabs.home"), tabBarIcon: iconFor(House) }}
+				options={{ title: t("tabs.home"), tabBarIcon: ICONS.home }}
 			/>
 			<Tabs.Screen
 				name="gallery"
-				options={{ title: t("tabs.gallery"), tabBarIcon: iconFor(Images) }}
+				options={{
+					title: t("tabs.gallery"),
+					tabBarIcon: ICONS.gallery,
+				}}
 			/>
 			<Tabs.Screen
 				name="events"
-				options={{ title: t("tabs.events"), tabBarIcon: iconFor(CalendarDays) }}
+				options={{ title: t("tabs.events"), tabBarIcon: ICONS.events }}
 			/>
 			<Tabs.Screen
-				name="locations"
-				options={{ title: t("titles.map"), tabBarIcon: iconFor(MapPin) }}
+				name="chat"
+				options={{
+					title: t("tabs.chat"),
+					tabBarIcon: ICONS.chat,
+				}}
 			/>
 			<Tabs.Screen
 				name="menu"
-				options={{ title: t("tabs.menu"), tabBarIcon: iconFor(Menu) }}
+				options={{ title: t("tabs.more"), tabBarIcon: ICONS.more }}
 			/>
 		</Tabs>
 	);

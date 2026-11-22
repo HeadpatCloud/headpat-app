@@ -141,7 +141,9 @@ export default function AdminTickets() {
 				refreshControl={
 					<RefreshControl
 						refreshing={query.isRefetching}
-						onRefresh={() => query.refetch()}
+						onRefresh={() => {
+							void query.refetch();
+						}}
 						tintColor={colors.primary}
 						colors={[colors.primary]}
 					/>

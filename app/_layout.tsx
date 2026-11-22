@@ -3,6 +3,7 @@ import "@/lib/location/background-task";
 
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
+import { useFonts } from "expo-font";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useMemo } from "react";
@@ -16,8 +17,12 @@ import { useSession } from "@/lib/auth-client";
 import { kvGet, useKvReady } from "@/lib/db/kv";
 import { I18nProvider, useI18n } from "@/lib/i18n/provider";
 import { MotionProvider, useReducedMotion } from "@/lib/motion/reduced-motion";
+import { useStackScreenOptions } from "@/lib/navigation/stack-options";
 import { AppProviders } from "@/lib/providers";
-import { ThemeProvider, useTheme } from "@/lib/theme/provider";
+import { RealtimeProvider } from "@/lib/realtime";
+import { FONT_ASSETS } from "@/lib/theme/fonts";
+import { ThemeProvider } from "@/lib/theme/provider";
+import { ThemeRevealProvider } from "@/lib/theme/theme-reveal";
 import { useAgeGate } from "@/lib/use-age-gate";
 import { useEula } from "@/lib/use-eula";
 import { usePushNotifications } from "@/lib/use-push-notifications";
@@ -47,11 +52,24 @@ function useProtectedRoute() {
 	}, [data, isPending, segments, router, onboarded]);
 }
 
+const MOTION_OPTIONS = {
+	headerShown: false,
+	gestureEnabled: true,
+	animation: "slide_from_right",
+} as const;
+const REDUCED_MOTION_OPTIONS = {
+	...MOTION_OPTIONS,
+	animation: "fade",
+	animationDuration: 120,
+} as const;
+
 function RootNav() {
 	useProtectedRoute();
 	usePushNotifications();
 	const reduced = useReducedMotion();
-	const { colors } = useTheme();
+	const screenOptions = useStackScreenOptions(
+		reduced ? REDUCED_MOTION_OPTIONS : MOTION_OPTIONS,
+	);
 	const { t } = useI18n();
 	const segments = useSegments();
 	const { needsAcceptance, serverUpdatedAt, accept } = useEula();
@@ -59,16 +77,7 @@ function RootNav() {
 	const showEulaGate = needsAcceptance && segments[0] !== "(auth)";
 	return (
 		<>
-			<Stack
-				screenOptions={{
-					headerShown: false,
-					animation: reduced ? "fade" : "slide_from_right",
-					animationDuration: reduced ? 120 : undefined,
-					gestureEnabled: true,
-					headerBackButtonDisplayMode: "minimal",
-					contentStyle: { backgroundColor: colors.background },
-				}}
-			>
+			<Stack screenOptions={screenOptions}>
 				<Stack.Screen name="(auth)" />
 				<Stack.Screen name="(tabs)" />
 				<Stack.Screen
@@ -128,6 +137,19 @@ function RootNav() {
 						animation: "default",
 					}}
 				/>
+				<Stack.Screen name="locations" />
+				<Stack.Screen
+					name="search"
+					options={{ headerShown: true, title: t("search.title") }}
+				/>
+				<Stack.Screen
+					name="chat/new"
+					options={{ headerShown: true, title: t("chat.newMessageTitle") }}
+				/>
+				<Stack.Screen
+					name="chat/[conversationId]"
+					options={{ headerShown: true, title: "" }}
+				/>
 				<Stack.Screen name="tickets" />
 				<Stack.Screen name="admin" />
 				<Stack.Screen
@@ -148,7 +170,10 @@ export default function RootLayout() {
 	// render, so nothing may mount before the one-time migration has run. The
 	// splash is still up, and this is instant on every launch after the first.
 	const kvReady = useKvReady();
-	if (!kvReady) return null;
+	// Fonts are bundled assets, so this resolves in a few ms. Waiting avoids a
+	// flash of the system font; on failure the app still renders with it.
+	const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);
+	if (!kvReady || (!fontsLoaded && !fontError)) return null;
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
@@ -159,9 +184,13 @@ export default function RootLayout() {
 							<I18nProvider>
 								<MotionProvider>
 									<BottomSheetModalProvider>
-										<RootNav />
-										<OfflineBadge />
-										<PortalHost />
+										<RealtimeProvider>
+											<ThemeRevealProvider>
+												<RootNav />
+												<OfflineBadge />
+												<PortalHost />
+											</ThemeRevealProvider>
+										</RealtimeProvider>
 									</BottomSheetModalProvider>
 								</MotionProvider>
 							</I18nProvider>

@@ -1,6 +1,6 @@
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
@@ -9,10 +9,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SocialButtons } from "@/components/auth/social-buttons";
-import { ChevronLeft } from "@/components/icons";
+import { HeaderBack } from "@/components/header-back";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
-import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Text } from "@/components/ui/text";
@@ -94,17 +93,7 @@ export default function Login() {
 			}}
 			keyboardShouldPersistTaps="handled"
 		>
-			{router.canGoBack() ? (
-				<Pressable
-					onPress={() => router.back()}
-					accessibilityRole="button"
-					accessibilityLabel={t("common.back")}
-					hitSlop={12}
-					className="self-start"
-				>
-					<Icon as={ChevronLeft} size={28} />
-				</Pressable>
-			) : null}
+			{router.canGoBack() ? <HeaderBack className="self-start" /> : null}
 
 			<AnimatedEntrance index={0} className="gap-2">
 				<GradientText className="text-4xl font-bold">

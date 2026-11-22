@@ -9,7 +9,7 @@ import { Inbox, Plus } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { GlowCard } from "@/components/ui/card";
 import { Fab } from "@/components/ui/fab";
-import { GradientText } from "@/components/ui/gradient-text";
+import { PageTitle } from "@/components/ui/page-title";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/lib/auth-client";
@@ -77,14 +77,7 @@ export default function Tickets() {
 				keyExtractor={(item) => item.id}
 				contentContainerStyle={{ padding: 16 }}
 				ItemSeparatorComponent={Separator}
-				ListHeaderComponent={
-					<View className="gap-1 pb-4 pt-2">
-						<GradientText className="text-4xl font-extrabold leading-10 tracking-tight">
-							{t("tickets.heading")}
-						</GradientText>
-						<Text variant="muted">{t("tickets.subtitle")}</Text>
-					</View>
-				}
+				ListHeaderComponent={<PageTitle title={t("support.yourTickets")} />}
 				renderItem={({ item, index }) => {
 					const seen = animated.current.has(index);
 					if (!seen) animated.current.add(index);
@@ -125,7 +118,9 @@ export default function Tickets() {
 				refreshControl={
 					<RefreshControl
 						refreshing={query.isRefetching}
-						onRefresh={() => query.refetch()}
+						onRefresh={() => {
+							void query.refetch();
+						}}
 						tintColor={colors.primary}
 						colors={[colors.primary]}
 					/>

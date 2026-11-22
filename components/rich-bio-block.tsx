@@ -141,7 +141,7 @@ export function RichBioBlockEditor({
 					onFocus={() => onFocusRuns()}
 					placeholder={t("richBio.buttonLabel")}
 					placeholderTextColor={colors["muted-foreground"]}
-					className="border-input bg-background text-foreground h-11 rounded-xl border px-3"
+					className="border-input bg-background text-foreground font-sans h-11 rounded-xl border px-3"
 				/>
 				<TextInput
 					value={run.href ?? ""}
@@ -154,7 +154,7 @@ export function RichBioBlockEditor({
 					autoCapitalize="none"
 					autoCorrect={false}
 					keyboardType="url"
-					className="border-input bg-background text-muted-foreground h-11 rounded-xl border px-3 text-sm"
+					className="border-input bg-background text-muted-foreground font-sans h-11 rounded-xl border px-3 text-sm"
 				/>
 			</View>
 		);

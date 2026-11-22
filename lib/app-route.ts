@@ -27,7 +27,7 @@ const EXACT: Record<string, string> = {
 	"/gallery/upload": "/gallery/upload",
 	"/legal": "/legal",
 	"/login": "/(auth)/login",
-	"/map": "/(tabs)/locations",
+	"/map": "/locations",
 	"/notifications": "/notifications",
 	"/profile": "/profile",
 	"/register": "/(auth)/register",

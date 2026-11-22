@@ -5,7 +5,6 @@ import Animated, {
 	useSharedValue,
 	withSpring,
 } from "react-native-reanimated";
-import { Gradient } from "@/components/ui/gradient";
 import { Text } from "@/components/ui/text";
 import { PressableScale } from "@/lib/motion/pressable-scale";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
@@ -47,7 +46,7 @@ export function SegmentedTabs({
 
 	return (
 		<View
-			className="bg-muted flex-row rounded-full"
+			className="bg-primary/10 flex-row rounded-full"
 			style={{ padding: PAD }}
 			onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
 			accessibilityRole="tablist"
@@ -68,7 +67,10 @@ export function SegmentedTabs({
 						indicatorStyle,
 					]}
 				>
-					<Gradient style={StyleSheet.absoluteFill} />
+					<View
+						className="bg-card"
+						style={[StyleSheet.absoluteFill, styles.pill]}
+					/>
 				</Animated.View>
 			) : null}
 			{tabs.map((tab, i) => (
@@ -88,12 +90,10 @@ export function SegmentedTabs({
 					}}
 				>
 					<Text
-						className="text-sm font-semibold"
+						className="text-sm font-bold"
 						style={{
 							color:
-								i === active
-									? colors["primary-foreground"]
-									: colors["muted-foreground"],
+								i === active ? colors.foreground : colors["muted-foreground"],
 						}}
 					>
 						{tab.label}
@@ -103,3 +103,7 @@ export function SegmentedTabs({
 		</View>
 	);
 }
+
+const styles = StyleSheet.create({
+	pill: { boxShadow: "0 1 3 rgba(23, 51, 42, 0.12)" },
+});

@@ -1,12 +1,12 @@
 import { router } from "expo-router";
-import { type ReactNode, useEffect, useRef, useState } from "react";
 import {
-	Alert,
-	ScrollView,
-	StyleSheet,
-	useColorScheme,
-	View,
-} from "react-native";
+	type ComponentRef,
+	type ReactNode,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
@@ -19,6 +19,7 @@ import { SegmentedTabs } from "@/components/segmented-tabs";
 import { GradientSwatch } from "@/components/theme/gradient-swatch";
 import { Button } from "@/components/ui/button";
 import { GlowShadow, Gradient } from "@/components/ui/gradient";
+import { PageTitle } from "@/components/ui/page-title";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
@@ -37,6 +38,7 @@ import {
 	type ThemeMode,
 	useTheme,
 } from "@/lib/theme/provider";
+import { useThemeModeChange } from "@/lib/theme/theme-reveal";
 
 const SWATCH_KEYS = ["primary", "accent", "background"] as const;
 
@@ -302,20 +304,22 @@ function CustomThemeRow({
 	);
 }
 
+const MODES: ThemeMode[] = ["system", "light", "dark"];
+const PILL_SETTLE_MS = 250;
+
 export default function Appearance() {
 	const insets = useSafeAreaInsets();
 	const { t } = useI18n();
-	const device = useColorScheme();
-	const reduced = useReducedMotion();
-	const { mode, setMode, scheme, colors, customThemes, refreshCustomThemes } =
-		useTheme();
+	const { mode, customThemes, refreshCustomThemes } = useTheme();
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
 
 	const [reconciling, setReconciling] = useState(false);
-	const [veilColor, setVeilColor] = useState<string | null>(null);
-	const veil = useSharedValue(0);
-	const veilStyle = useAnimatedStyle(() => ({ opacity: veil.value }));
+	const changeThemeMode = useThemeModeChange();
+	// The pill moves the moment you tap; the theme follows with the reveal.
+	const [selectedMode, setSelectedMode] = useState<ThemeMode>(mode);
+	useEffect(() => setSelectedMode(mode), [mode]);
+	const tabsRef = useRef<ComponentRef<typeof View>>(null);
 
 	// Reconcile the cached custom themes once per signed-in user.
 	useEffect(() => {
@@ -331,16 +335,18 @@ export default function Appearance() {
 	}, [userId, refreshCustomThemes]);
 
 	const changeMode = (next: ThemeMode) => {
-		const nextScheme =
-			next === "system" ? (device === "dark" ? "dark" : "light") : next;
-		// Cross-fade: cover the screen in the OLD background, then fade it out to
-		// reveal the new mode underneath (same veil as onboarding's toggleMode).
-		if (!reduced && nextScheme !== scheme) {
-			setVeilColor(colors.background);
-			veil.value = 1;
-			veil.value = withTiming(0, { duration: 420 });
-		}
-		setMode(next);
+		setSelectedMode(next);
+		const index = MODES.indexOf(next);
+		// Let the pill slide over first, so the screenshot the reveal starts
+		// from already shows it in place (springs.gentle settles in ~250ms).
+		setTimeout(() => {
+			tabsRef.current?.measureInWindow((x, y, w, h) =>
+				changeThemeMode(next, {
+					x: x + ((index + 0.5) * w) / MODES.length,
+					y: y + h / 2,
+				}),
+			);
+		}, PILL_SETTLE_MS);
 	};
 
 	const createTheme = () => {
@@ -360,40 +366,25 @@ export default function Appearance() {
 	return (
 		<View className="bg-background flex-1">
 			<ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
-				<Gradient
-					style={{
-						height: 120,
-						borderBottomLeftRadius: 28,
-						borderBottomRightRadius: 28,
-						overflow: "hidden",
-						justifyContent: "flex-end",
-						paddingHorizontal: 16,
-						paddingBottom: 14,
-					}}
-				>
-					<AnimatedEntrance index={0}>
-						<Text variant="h1" style={{ color: colors["primary-foreground"] }}>
-							{t("titles.appearance")}
-						</Text>
-						<Text
-							variant="small"
-							style={{ color: colors["primary-foreground"], opacity: 0.85 }}
-						>
-							{t("appearance.heroSubtitle")}
-						</Text>
-					</AnimatedEntrance>
-				</Gradient>
+				<AnimatedEntrance index={0} className="px-4">
+					<PageTitle
+						title={t("titles.appearance")}
+						subtitle={t("appearance.heroSubtitle")}
+					/>
+				</AnimatedEntrance>
 
-				<View className="gap-6 p-4">
+				<View className="gap-6 px-4 pb-4 pt-2">
 					<AnimatedEntrance index={1} className="gap-3">
 						<Text variant="caption" accessibilityRole="header">
 							{t("appearance.mode")}
 						</Text>
-						<SegmentedTabs
-							tabs={modeTabs}
-							value={mode}
-							onChange={(key) => changeMode(key as ThemeMode)}
-						/>
+						<View ref={tabsRef} collapsable={false}>
+							<SegmentedTabs
+								tabs={modeTabs}
+								value={selectedMode}
+								onChange={(key) => changeMode(key as ThemeMode)}
+							/>
+						</View>
 					</AnimatedEntrance>
 
 					<View className="gap-3">
@@ -473,17 +464,6 @@ export default function Appearance() {
 					</View>
 				</View>
 			</ScrollView>
-
-			{veilColor ? (
-				<Animated.View
-					pointerEvents="none"
-					style={[
-						StyleSheet.absoluteFill,
-						{ backgroundColor: veilColor },
-						veilStyle,
-					]}
-				/>
-			) : null}
 		</View>
 	);
 }

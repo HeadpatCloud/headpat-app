@@ -201,9 +201,21 @@ export function glowColor(primary: string, scheme: "light" | "dark"): string {
 	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// Text-on-background version of primary, like the website's --link: a dark
+// mode primary is a fill colour and too dim to read, so it is lifted to 35%.
+export function linkTriplet(primary: string, scheme: "light" | "dark"): string {
+	const p = parseTriplet(primary);
+	if (!p || scheme === "light") return primary;
+	return `${p[0]} ${p[1]}% ${Math.max(p[2], 35)}%`;
+}
+
 // TokenMap (triplets) -> NativeWind vars() input ({ "--background": "0 0% 100%" }).
-export function tokensToVars(tokens: TokenMap): Record<string, string> {
+export function tokensToVars(
+	tokens: TokenMap,
+	scheme: "light" | "dark",
+): Record<string, string> {
 	const out: Record<string, string> = {};
 	for (const [k, v] of Object.entries(tokens)) out[`--${k}`] = v;
+	out["--link"] = linkTriplet(tokens.primary, scheme);
 	return out;
 }
