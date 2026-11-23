@@ -6,6 +6,7 @@ import { BlurredImage } from "@/components/discovery/blurred-image";
 import { Pills } from "@/components/discovery/toggle-chips";
 import { StorageImage } from "@/components/storage-image";
 import { Text } from "@/components/ui/text";
+import { UserText } from "@/components/user-text";
 import { useI18n } from "@/lib/i18n/provider";
 import { orpc } from "@/lib/orpc";
 
@@ -66,7 +67,11 @@ export default function AdultProfileView() {
 					<Text variant="muted">{t("discovery.adultBadge")}</Text>
 				</View>
 			</View>
-			{a.bio ? <Text>{a.bio}</Text> : null}
+			{a.bio ? (
+				<Text>
+					<UserText text={a.bio} />
+				</Text>
+			) : null}
 			{a.lookingFor.length ? (
 				<View className="gap-1.5">
 					<Text variant="small" className="text-muted-foreground">

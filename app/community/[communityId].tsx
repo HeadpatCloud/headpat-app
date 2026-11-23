@@ -15,6 +15,7 @@ import { Icon } from "@/components/ui/icon";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { UserText } from "@/components/user-text";
 import { useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
@@ -230,7 +231,9 @@ export default function Community() {
 				{c.description || c.tags.length > 0 ? (
 					<AnimatedEntrance index={3} className="gap-4">
 						{c.description ? (
-							<Text className="text-foreground leading-6">{c.description}</Text>
+							<Text className="text-foreground leading-6">
+								<UserText text={c.description} />
+							</Text>
 						) : null}
 
 						{c.tags.length > 0 ? (

@@ -24,6 +24,7 @@ import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { UserText } from "@/components/user-text";
 import { useSession } from "@/lib/auth-client";
 import { eventCollection } from "@/lib/db/collections";
 import { useI18n } from "@/lib/i18n/provider";
@@ -297,7 +298,9 @@ export default function Event() {
 
 			{data.description ? (
 				<AnimatedEntrance index={4} preset="fadeUp">
-					<Text className="text-foreground leading-6">{data.description}</Text>
+					<Text className="text-foreground leading-6">
+						<UserText text={data.description} />
+					</Text>
 				</AnimatedEntrance>
 			) : null}
 

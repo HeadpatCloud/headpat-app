@@ -40,6 +40,7 @@ import { Gradient } from "@/components/ui/gradient";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { UserText } from "@/components/user-text";
 import { useSession } from "@/lib/auth-client";
 import { formatBirthday } from "@/lib/birthday";
 import {
@@ -636,7 +637,9 @@ export default function UserProfile() {
 										{p.bioHtml ? (
 											<RichBio html={p.bioHtml} />
 										) : p.bio ? (
-											<Text className="text-foreground leading-6">{p.bio}</Text>
+											<Text className="text-foreground leading-6">
+												<UserText text={p.bio} />
+											</Text>
 										) : null}
 
 										{socials.length > 0 ? (

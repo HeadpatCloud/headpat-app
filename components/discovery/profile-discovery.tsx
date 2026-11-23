@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { UserText } from "@/components/user-text";
 import { useI18n } from "@/lib/i18n/provider";
 import { orpc } from "@/lib/orpc";
 import { Pills } from "./toggle-chips";
@@ -121,7 +122,9 @@ function SonaCard({ s }: { s: Sona }) {
 				</View>
 			</View>
 			{s.description ? (
-				<Text className="leading-6">{s.description}</Text>
+				<Text className="leading-6">
+					<UserText text={s.description} />
+				</Text>
 			) : null}
 			{s.refSheetFileId ? <RefSheet fileId={s.refSheetFileId} /> : null}
 		</Card>

@@ -15,6 +15,7 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { UserText } from "@/components/user-text";
 import { useSession } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
@@ -173,7 +174,9 @@ export default function Ticket() {
 											{format(new Date(m.createdAt), "MMM d, h:mm a")}
 										</Text>
 									</View>
-									<Text className="text-foreground leading-6">{m.body}</Text>
+									<Text className="text-foreground leading-6">
+										<UserText text={m.body} />
+									</Text>
 								</GlowCard>
 							</AnimatedEntrance>
 						);

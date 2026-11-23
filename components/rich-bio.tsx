@@ -3,10 +3,13 @@ import { useMemo, useState } from "react";
 import { Text as RNText, ScrollView, View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { MentionChip } from "@/components/user-text";
 import { env } from "@/lib/env";
 import { useI18n } from "@/lib/i18n/provider";
+import { parseMentions, profileLinkHandle } from "@/lib/mentions";
 import { parseBioHtml } from "@/lib/rich-bio/parse";
 import type { Block, Run } from "@/lib/rich-bio/types";
+import { useMentionUsers } from "@/lib/use-mention-users";
 import { useOpenLink } from "@/lib/use-open-link";
 import { cn } from "@/lib/utils";
 
@@ -50,8 +53,51 @@ function RunText({ run }: { run: Run }) {
 	);
 }
 
+type Piece = { run: Run; mention?: string };
+
+const withoutScheme = (url: string) =>
+	url
+		.trim()
+		.replace(/^https?:\/\//i, "")
+		.replace(/\/$/, "");
+
+// Splits runs so each @name and bare profile link is its own piece. A link
+// with its own wording ("my partner") stays a link.
+function mentionPieces(runs: Run[]): Piece[] {
+	return runs.flatMap((run): Piece[] => {
+		if (run.href) {
+			const handle = profileLinkHandle(run.href);
+			const bare =
+				handle &&
+				(run.text.trim() === `@${handle}` ||
+					withoutScheme(run.text) === withoutScheme(run.href));
+			return [bare ? { run, mention: handle } : { run }];
+		}
+		const parts = parseMentions(run.text);
+		if (!parts.some((p) => p.kind === "mention")) return [{ run }];
+		return parts.map((p) =>
+			p.kind === "mention"
+				? { run: { ...run, text: p.text }, mention: p.handle }
+				: { run: { ...run, text: p.text } },
+		);
+	});
+}
+
 function Inline({ runs }: { runs: Run[] }) {
-	return runs.map((run, i) => <RunText key={i} run={run} />);
+	const pieces = useMemo(() => mentionPieces(runs), [runs]);
+	const handles = useMemo(
+		() => [...new Set(pieces.flatMap((p) => (p.mention ? [p.mention] : [])))],
+		[pieces],
+	);
+	const users = useMentionUsers(handles);
+	return pieces.map((piece, i) => {
+		const user = piece.mention ? users.get(piece.mention) : undefined;
+		return user ? (
+			<MentionChip key={i} user={user} />
+		) : (
+			<RunText key={i} run={piece.run} />
+		);
+	});
 }
 
 function CtaButton({ run }: { run: Run }) {

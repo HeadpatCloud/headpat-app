@@ -4,6 +4,7 @@ import { ChatMedia } from "@/components/chat/chat-media";
 import { MessageAttachment } from "@/components/chat/message-attachment";
 import { Avatar } from "@/components/ui/avatar";
 import { Text } from "@/components/ui/text";
+import { UserText } from "@/components/user-text";
 import { type ChatMessage, clockTime } from "@/lib/chat";
 
 export type MessageRowData = {
@@ -90,7 +91,7 @@ export const MessageRow = memo(function MessageRow({
 						/>
 					) : m.body ? (
 						<Text selectable className="text-foreground leading-6">
-							{m.body}
+							<UserText text={m.body} />
 							{m.editedAt ? (
 								<Text className="text-muted-foreground text-xs">
 									{` ${editedLabel}`}

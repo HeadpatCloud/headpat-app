@@ -7,6 +7,7 @@ import { Gradient } from "@/components/ui/gradient";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { UserText } from "@/components/user-text";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
 import { orpc } from "@/lib/orpc";
@@ -64,7 +65,7 @@ export default function Announcement() {
 					{data.sideText ? <Text variant="muted">{data.sideText}</Text> : null}
 				</View>
 				<Text className="text-foreground px-1 leading-6">
-					{data.description}
+					<UserText text={data.description} />
 				</Text>
 			</AnimatedEntrance>
 		</ScrollView>

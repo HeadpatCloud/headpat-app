@@ -39,6 +39,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { UserText } from "@/components/user-text";
 import { useSession } from "@/lib/auth-client";
 import {
 	cacheGalleryPost,
@@ -411,7 +412,7 @@ export default function GalleryItem() {
 					<AnimatedEntrance index={3} className="gap-3">
 						{post.longText ? (
 							<Text variant="body" className="text-foreground">
-								{post.longText}
+								<UserText text={post.longText} />
 							</Text>
 						) : null}
 						{post.tags.length > 0 ? (
@@ -540,7 +541,9 @@ export default function GalleryItem() {
 													})}
 												</Text>
 											</View>
-											<Text className="text-foreground text-sm">{c.body}</Text>
+											<Text className="text-foreground text-sm">
+												<UserText text={c.body} />
+											</Text>
 										</View>
 									</Card>
 								</PressableScale>
