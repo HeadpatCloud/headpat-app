@@ -9,6 +9,7 @@ import { ToggleChips } from "@/components/discovery/toggle-chips";
 import { Button } from "@/components/ui/button";
 import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Text } from "@/components/ui/text";
+import { useDiscoveryOptions } from "@/lib/discovery-options";
 import { useI18n } from "@/lib/i18n/provider";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
@@ -18,7 +19,7 @@ export default function InterestsScreen() {
 	const insets = useSafeAreaInsets();
 	const qc = useQueryClient();
 	const mine = useQuery(orpc.discovery.mine.queryOptions({ input: {} }));
-	const options = useQuery(orpc.discovery.options.queryOptions());
+	const options = useDiscoveryOptions();
 	const [interests, setInterests] = useState<string[]>([]);
 	const [lookingFor, setLookingFor] = useState<LookingFor[]>([]);
 	const [busy, setBusy] = useState(false);
@@ -50,6 +51,11 @@ export default function InterestsScreen() {
 		>
 			<View className="gap-5">
 				<Text variant="muted">{t("discovery.discoveryDescription")}</Text>
+				{mine.isError ? (
+					<Text className="text-destructive text-sm">
+						{t("discovery.unavailable")}
+					</Text>
+				) : null}
 				<View className="gap-2">
 					<Text className="font-semibold">{t("discovery.interestsTitle")}</Text>
 					<Text variant="muted" className="text-sm">
@@ -59,7 +65,7 @@ export default function InterestsScreen() {
 						kind="interest"
 						value={interests}
 						onChange={setInterests}
-						max={options.data?.maxInterests ?? 20}
+						max={options.maxInterests}
 						placeholder={t("discovery.interestsPlaceholder")}
 						label={t("discovery.interestsTitle")}
 					/>
@@ -69,7 +75,7 @@ export default function InterestsScreen() {
 						{t("discovery.lookingForTitle")}
 					</Text>
 					<ToggleChips
-						options={options.data?.lookingFor ?? []}
+						options={options.lookingFor}
 						value={lookingFor}
 						onChange={setLookingFor}
 						label={(k) => t(`discovery.lookingFor.${k}`)}
@@ -78,7 +84,7 @@ export default function InterestsScreen() {
 				<Button
 					fullWidth
 					loading={busy}
-					disabled={busy || mine.isPending}
+					disabled={busy || !mine.isSuccess}
 					onPress={save}
 				>
 					<Text>{t("discovery.save")}</Text>

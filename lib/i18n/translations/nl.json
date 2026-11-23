@@ -1206,6 +1206,7 @@
 		"adultUnavailable": "Dit profiel is niet beschikbaar.",
 		"blurAdult": "18+-afbeeldingen vervagen",
 		"blurAdultHint": "18+-afbeeldingen blijven vervaagd tot je ze opent. Geldt op al je apparaten.",
+		"unavailable": "Dit kon niet van de server worden geladen, dus wijzigingen kunnen nu niet worden opgeslagen. Probeer het later opnieuw.",
 		"showPhoto": "Foto tonen",
 		"close": "Sluiten",
 		"adultNotAllowed": "Voor het 18+-profiel heb je een geboortedatum nodig waaruit blijkt dat je 18 of ouder bent, en NSFW aan in je profielinstellingen."

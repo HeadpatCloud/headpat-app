@@ -32,6 +32,16 @@ export function SheetHandle() {
 	);
 }
 
+// `accent` sheets use the brand gradient as the drag handle itself, so the
+// sheet shows one bar at the top instead of a grey handle plus a gradient line.
+function AccentHandle() {
+	return (
+		<View className="items-center py-3">
+			<Gradient borderRadius={999} style={{ height: 4, width: 40 }} />
+		</View>
+	);
+}
+
 export function SheetBackdrop(props: BottomSheetBackdropProps) {
 	return (
 		<BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} />
@@ -41,7 +51,7 @@ export function SheetBackdrop(props: BottomSheetBackdropProps) {
 /**
  * Themed bottom sheet wrapper. Use a ref: sheetRef.current?.present() / .dismiss().
  * Sizes to its content (enableDynamicSizing). Pass `title` for a header row and
- * `accent` for a slim gradient hairline at the top.
+ * `accent` to draw the drag handle in the brand gradient.
  */
 export const Sheet = forwardRef<
 	BottomSheetModal,
@@ -62,23 +72,12 @@ export const Sheet = forwardRef<
 			enableDynamicSizing
 			animationConfigs={reduced ? timing : spring}
 			backgroundComponent={SheetBackground}
-			handleComponent={SheetHandle}
+			handleComponent={accent ? AccentHandle : SheetHandle}
 			backdropComponent={SheetBackdrop}
 		>
 			<BottomSheetView
 				style={{ paddingBottom: insets.bottom + 16, paddingHorizontal: 16 }}
 			>
-				{accent ? (
-					<Gradient
-						borderRadius={999}
-						style={{
-							height: 3,
-							width: 40,
-							alignSelf: "center",
-							marginBottom: 12,
-						}}
-					/>
-				) : null}
 				{title ? (
 					<Text variant="large" className="pb-3" accessibilityRole="header">
 						{title}

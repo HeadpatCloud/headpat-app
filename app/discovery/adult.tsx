@@ -16,6 +16,7 @@ import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-v
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
 import { useBlurAdult, useSetBlurAdult } from "@/lib/blur-adult";
+import { useDiscoveryOptions } from "@/lib/discovery-options";
 import { useI18n } from "@/lib/i18n/provider";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
@@ -32,7 +33,7 @@ export default function AdultProfileScreen() {
 	const tile = Math.floor((width - 32 - GAP * 2) / 3);
 	const qc = useQueryClient();
 	const mine = useQuery(orpc.discovery.adult.mine.queryOptions({ input: {} }));
-	const options = useQuery(orpc.discovery.options.queryOptions());
+	const options = useDiscoveryOptions();
 	const [enabled, setEnabled] = useState(false);
 	const [displayName, setDisplayName] = useState("");
 	const [avatarFileId, setAvatarFileId] = useState<string | null>(null);
@@ -116,7 +117,7 @@ export default function AdultProfileScreen() {
 	}
 
 	const photos = mine.data?.photos ?? [];
-	const maxPhotos = options.data?.maxAdultPhotos ?? 12;
+	const maxPhotos = options.maxAdultPhotos;
 
 	return (
 		<KeyboardAwareScrollView
@@ -189,7 +190,7 @@ export default function AdultProfileScreen() {
 						kind="into"
 						value={into}
 						onChange={setInto}
-						max={options.data?.maxInto ?? 30}
+						max={options.maxInto}
 						placeholder={t("discovery.intoPlaceholder")}
 						label={t("discovery.into")}
 					/>
@@ -199,7 +200,7 @@ export default function AdultProfileScreen() {
 						{t("discovery.lookingForTitle")}
 					</Text>
 					<ToggleChips
-						options={options.data?.adultLookingFor ?? []}
+						options={options.adultLookingFor}
 						value={lookingFor}
 						onChange={setLookingFor}
 						label={(k) => t(`discovery.adultLookingFor.${k}`)}

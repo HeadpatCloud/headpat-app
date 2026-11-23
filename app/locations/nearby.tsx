@@ -20,6 +20,7 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useBlurAdult } from "@/lib/blur-adult";
+import { useDiscoveryOptions } from "@/lib/discovery-options";
 import { useI18n } from "@/lib/i18n/provider";
 import {
 	NEARBY_REFRESH_MS,
@@ -154,12 +155,10 @@ export default function NearbyGrid() {
 	const [interestDraft, setInterestDraft] = useState("");
 	const interest = useDebouncedValue(interestDraft.trim().toLowerCase(), 300);
 	const mine = useQuery(orpc.discovery.mine.queryOptions({ input: {} }));
-	const options = useQuery(orpc.discovery.options.queryOptions());
+	const options = useDiscoveryOptions();
 	const canAdult = mine.data?.canAdult === true;
 	const lookingForOptions: readonly (LookingFor | AdultLookingFor)[] =
-		mode === "adult"
-			? (options.data?.adultLookingFor ?? [])
-			: (options.data?.lookingFor ?? []);
+		mode === "adult" ? options.adultLookingFor : options.lookingFor;
 
 	const status = useQuery(nearbyQueries.status());
 	useRefreshOwnCell(status.data?.visible === true);

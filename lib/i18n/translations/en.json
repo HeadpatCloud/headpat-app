@@ -1206,6 +1206,7 @@
 		"adultUnavailable": "This profile isn't available.",
 		"blurAdult": "Blur 18+ pictures",
 		"blurAdultHint": "18+ pictures stay blurred until you open them. Applies on all your devices.",
+		"unavailable": "Couldn't load this from the server, so changes can't be saved right now. Try again later.",
 		"showPhoto": "Show photo",
 		"close": "Close",
 		"adultNotAllowed": "The 18+ profile needs a date of birth showing you are 18 or over and NSFW switched on in your profile settings."

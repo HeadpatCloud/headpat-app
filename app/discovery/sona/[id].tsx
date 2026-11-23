@@ -10,6 +10,7 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Text } from "@/components/ui/text";
+import { useDiscoveryOptions } from "@/lib/discovery-options";
 import { useI18n } from "@/lib/i18n/provider";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
@@ -81,8 +82,8 @@ export default function SonaEdit() {
 	const insets = useSafeAreaInsets();
 	const qc = useQueryClient();
 	const mine = useQuery(orpc.discovery.mine.queryOptions({ input: {} }));
-	const options = useQuery(orpc.discovery.options.queryOptions());
-	const maxColors = options.data?.maxSonaColors ?? 8;
+	const options = useDiscoveryOptions();
+	const maxColors = options.maxSonaColors;
 	const [d, setD] = useState<Draft>(EMPTY);
 	const [hex, setHex] = useState("");
 	const [busy, setBusy] = useState(false);

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { useDiscoveryOptions } from "@/lib/discovery-options";
 import { useI18n } from "@/lib/i18n/provider";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
@@ -17,9 +18,9 @@ export default function SonasScreen() {
 	const insets = useSafeAreaInsets();
 	const qc = useQueryClient();
 	const mine = useQuery(orpc.discovery.mine.queryOptions({ input: {} }));
-	const options = useQuery(orpc.discovery.options.queryOptions());
+	const options = useDiscoveryOptions();
 	const sonas = mine.data?.sonas ?? [];
-	const max = options.data?.maxSonas ?? 20;
+	const max = options.maxSonas;
 	const refresh = () =>
 		qc.invalidateQueries({ queryKey: orpc.discovery.key() });
 
@@ -63,7 +64,12 @@ export default function SonasScreen() {
 			}}
 		>
 			<Text variant="muted">{t("discovery.sonasDescription")}</Text>
-			{sonas.length === 0 && !mine.isPending ? (
+			{mine.isError ? (
+				<Text className="text-destructive text-sm">
+					{t("discovery.unavailable")}
+				</Text>
+			) : null}
+			{sonas.length === 0 && mine.isSuccess ? (
 				<Text variant="muted">{t("discovery.noSonas")}</Text>
 			) : null}
 			{sonas.map((s, i) => (
