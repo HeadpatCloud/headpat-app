@@ -11,6 +11,7 @@ import {
 	FileClock,
 	HardDrive,
 	Images,
+	LayoutGrid,
 	LifeBuoy,
 	Link2,
 	LogOut,
@@ -60,6 +61,7 @@ const BROWSE_ROWS: Row[] = [
 const SETTINGS_ROWS: Row[] = [
 	{ href: "/profile-edit", icon: UserPen, titleKey: "titles.profileEdit" },
 	{ href: "/appearance", icon: Palette, titleKey: "titles.appearance" },
+	{ href: "/widgets", icon: LayoutGrid, titleKey: "widgets.settings.title" },
 	{ href: "/security", icon: ShieldCheck, titleKey: "titles.security" },
 	{ href: "/connections", icon: Link2, titleKey: "titles.connections" },
 	{ href: "/storage", icon: HardDrive, titleKey: "titles.storage" },
@@ -76,7 +78,8 @@ const SUPPORT_ROWS: Row[] = [
 // Neither needs an account. Clearing the cache especially has to work signed
 // out, since a wedged cache is a reason someone ends up signed out.
 const GUEST_SETTINGS_ROWS: Row[] = SETTINGS_ROWS.filter(
-	(r) => r.href === "/appearance" || r.href === "/storage",
+	(r) =>
+		r.href === "/appearance" || r.href === "/widgets" || r.href === "/storage",
 );
 
 function RowGroup({

@@ -21,7 +21,7 @@ export type Locale = (typeof LOCALES)[number]["code"];
 
 const LOCALE_KEY = "hp-locale";
 
-const i18n = new I18n({ en, de, nl });
+export const i18n = new I18n({ en, de, nl });
 i18n.enableFallback = true;
 i18n.defaultLocale = "en";
 
@@ -51,15 +51,19 @@ export function useI18n(): I18nContextValue {
 	return ctx;
 }
 
+/** The stored language, else the device's. Usable outside React (widgets). */
+export function storedLocale(): Locale {
+	const stored = kvGet(LOCALE_KEY);
+	return stored && LOCALES.some((l) => l.code === stored)
+		? (stored as Locale)
+		: deviceLocale();
+}
+
 export function I18nProvider({ children }: { children: ReactNode }) {
 	const [locale, setLocaleState] = useState<Locale>(() => {
 		// Stored choice wins over the device language, and both resolve
 		// synchronously so no frame renders in the wrong language.
-		const stored = kvGet(LOCALE_KEY);
-		const initial =
-			stored && LOCALES.some((l) => l.code === stored)
-				? (stored as Locale)
-				: deviceLocale();
+		const initial = storedLocale();
 		i18n.locale = initial;
 		return initial;
 	});

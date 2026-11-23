@@ -33,9 +33,9 @@ export interface CustomTheme {
 	dark: Record<string, string>;
 }
 
-const MODE_KEY = "hp-theme-mode";
-const ACTIVE_KEY = "hp-active-theme";
-const CUSTOM_KEY = "hp-custom-themes";
+export const MODE_KEY = "hp-theme-mode";
+export const ACTIVE_KEY = "hp-active-theme";
+export const CUSTOM_KEY = "hp-custom-themes";
 
 interface ThemeContextValue {
 	mode: ThemeMode;
@@ -58,7 +58,7 @@ export function useTheme(): ThemeContextValue {
 	return ctx;
 }
 
-function resolveTriplets(
+export function resolveTriplets(
 	active: string,
 	scheme: "light" | "dark",
 	customs: CustomTheme[],

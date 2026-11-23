@@ -11,6 +11,8 @@
 			"app/**/*",
 			"components/**/*",
 			"lib/**/*",
+			"widgets/**/*",
+			"index.ts",
 			"__tests__/**/*",
 			"app.config.ts",
 			"!**/expo-env.d.ts",

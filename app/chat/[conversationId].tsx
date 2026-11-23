@@ -43,6 +43,7 @@ import { humanizeError } from "@/lib/orpc-error";
 import { useRealtime, useTypingUsers } from "@/lib/realtime";
 import { useTheme } from "@/lib/theme/provider";
 import { uploadVoiceNote } from "@/lib/upload";
+import { useMarkChatRead } from "@/lib/use-chat-unread";
 
 const QUICK_REACTIONS = ["❤️", "👍", "😂", "😮", "😢", "🐾"];
 const GROUP_WINDOW_MS = 5 * 60_000;
@@ -95,6 +96,7 @@ export default function ConversationScreen() {
 			last.length === MESSAGE_PAGE ? new Date(last[0].createdAt) : undefined,
 	});
 	const messages = useInfiniteQuery(listOptions);
+	useMarkChatRead(conversationId, messages.data?.pages[0]?.at(-1)?.id);
 
 	const people = useMemo(() => {
 		const map = new Map<string, { name: string; avatar: string | null }>();

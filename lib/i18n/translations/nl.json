@@ -858,6 +858,7 @@
 		}
 	},
 	"chat": {
+		"unreadA11y": "%{title}, %{count} ongelezen",
 		"newFolder": "Nieuwe map",
 		"renameFolder": "Map hernoemen",
 		"removeFolder": "Map verwijderen",
@@ -1208,5 +1209,74 @@
 		"showPhoto": "Foto tonen",
 		"close": "Sluiten",
 		"adultNotAllowed": "Voor het 18+-profiel heb je een geboortedatum nodig waaruit blijkt dat je 18 of ouder bent, en NSFW aan in je profielinstellingen."
+	},
+	"widgets": {
+		"event": {
+			"label": "Volgend evenement",
+			"going": "Je gaat",
+			"none": "Geen komende evenementen",
+			"browse": "Tik om evenementen te bekijken",
+			"online": "Online",
+			"now": "Nu bezig",
+			"today": "Vandaag, %{time}",
+			"tomorrow": "Morgen, %{time}"
+		},
+		"chats": {
+			"label": "Chats",
+			"signIn": "Log in om je chats te zien",
+			"caughtUp": "Helemaal bij",
+			"noUnread": "Geen ongelezen berichten",
+			"unreadChats": {
+				"one": "ongelezen chat",
+				"other": "ongelezen chats"
+			},
+			"unreadMessages": {
+				"one": "%{count} nieuw bericht",
+				"other": "%{count} nieuwe berichten"
+			},
+			"attachment": "Heeft een bijlage gestuurd",
+			"someone": "Iemand"
+		},
+		"settings": {
+			"title": "Widgets",
+			"subtitle": "Headpat op je startscherm",
+			"colors": "Kleuren",
+			"themeApp": "Zoals de app",
+			"themeLight": "Licht",
+			"themeDark": "Donker",
+			"publicEvents": "Openbare evenementen",
+			"publicEventsHint": "Toont het volgende openbare evenement als je nergens naartoe gaat",
+			"chatPreviews": "Namen en berichten",
+			"chatPreviewsHint": "Uit toont alleen hoeveel chats ongelezen zijn, omdat anderen je startscherm kunnen zien",
+			"add": "Toevoegen aan startscherm",
+			"addManually": "Je launcher kan hier geen widgets toevoegen. Houd je startscherm ingedrukt, tik op Widgets en kies Headpat.",
+			"savedAccount": "Opgeslagen in je account, zodat je widgets op elke telefoon hetzelfde zijn.",
+			"savedDevice": "Opgeslagen op deze telefoon. Log in om ze in je account te bewaren.",
+			"addHowTo": "Om er een toe te voegen, houd je beginscherm ingedrukt, tik op Wijzig, dan op Voeg widget toe en kies Headpat.",
+			"noWidgets": "Widgets voor het beginscherm zijn hier niet beschikbaar. Je Home-tab kun je hierboven wel instellen."
+		},
+		"home": {
+			"customize": "Startpagina aanpassen",
+			"title": "Startpagina aanpassen",
+			"subtitle": "Kies wat je Home-tab toont en in welke volgorde",
+			"hidden": "Verborgen",
+			"moveUp": "%{name} omhoog",
+			"moveDown": "%{name} omlaag",
+			"hide": "%{name} verbergen",
+			"show": "%{name} tonen",
+			"reset": "Standaard herstellen",
+			"savedAccount": "Opgeslagen in je account, zodat je startpagina op elke telefoon hetzelfde is.",
+			"savedDevice": "Opgeslagen op deze telefoon. Log in om hem in je account te bewaren.",
+			"sections": {
+				"hero": "Welkomstbanner",
+				"upNext": "Eerstvolgende",
+				"tiles": "Snelkoppelingen",
+				"communities": "Ontdek communities",
+				"people": "Zeg hallo tegen",
+				"gallery": "Nieuw in de galerij"
+			},
+			"cardTitle": "Je Home-tab",
+			"cardText": "Verander de volgorde van de onderdelen op Home of verberg ze."
+		}
 	}
 }

@@ -858,6 +858,7 @@
 		}
 	},
 	"chat": {
+		"unreadA11y": "%{title}, %{count} unread",
 		"newFolder": "New folder",
 		"renameFolder": "Rename folder",
 		"removeFolder": "Remove folder",
@@ -1208,5 +1209,74 @@
 		"showPhoto": "Show photo",
 		"close": "Close",
 		"adultNotAllowed": "The 18+ profile needs a date of birth showing you are 18 or over and NSFW switched on in your profile settings."
+	},
+	"widgets": {
+		"event": {
+			"label": "Next event",
+			"going": "You're going",
+			"none": "No upcoming events",
+			"browse": "Tap to browse events",
+			"online": "Online",
+			"now": "Happening now",
+			"today": "Today, %{time}",
+			"tomorrow": "Tomorrow, %{time}"
+		},
+		"chats": {
+			"label": "Chats",
+			"signIn": "Sign in to see your chats",
+			"caughtUp": "All caught up",
+			"noUnread": "No unread messages",
+			"unreadChats": {
+				"one": "unread chat",
+				"other": "unread chats"
+			},
+			"unreadMessages": {
+				"one": "%{count} new message",
+				"other": "%{count} new messages"
+			},
+			"attachment": "Sent an attachment",
+			"someone": "Someone"
+		},
+		"settings": {
+			"title": "Widgets",
+			"subtitle": "Headpat on your home screen",
+			"colors": "Colors",
+			"themeApp": "Like the app",
+			"themeLight": "Light",
+			"themeDark": "Dark",
+			"publicEvents": "Public events",
+			"publicEventsHint": "Show the next public event when you're not going to anything",
+			"chatPreviews": "Names and messages",
+			"chatPreviewsHint": "Off shows only how many chats are unread, since others can see your home screen",
+			"add": "Add to home screen",
+			"addManually": "Your launcher can't add widgets from here. Long-press your home screen, tap Widgets and pick Headpat.",
+			"savedAccount": "Saved to your account, so your widgets look the same on every phone.",
+			"savedDevice": "Saved on this phone. Sign in to keep them on your account.",
+			"addHowTo": "To add one, touch and hold your home screen, tap Edit, then Add Widget, and pick Headpat.",
+			"noWidgets": "Home screen widgets aren't available here. You can still set up your Home tab above."
+		},
+		"home": {
+			"customize": "Customize home",
+			"title": "Customize home",
+			"subtitle": "Choose what your Home tab shows, and in which order",
+			"hidden": "Hidden",
+			"moveUp": "Move %{name} up",
+			"moveDown": "Move %{name} down",
+			"hide": "Hide %{name}",
+			"show": "Show %{name}",
+			"reset": "Reset to default",
+			"savedAccount": "Saved to your account, so Home looks the same on every phone.",
+			"savedDevice": "Saved on this phone. Sign in to keep it on your account.",
+			"sections": {
+				"hero": "Welcome banner",
+				"upNext": "Up next",
+				"tiles": "Shortcuts",
+				"communities": "Discover communities",
+				"people": "Say hi to",
+				"gallery": "Fresh in the gallery"
+			},
+			"cardTitle": "Your Home tab",
+			"cardText": "Reorder or hide the sections on Home."
+		}
 	}
 }

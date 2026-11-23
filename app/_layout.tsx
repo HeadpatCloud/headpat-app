@@ -26,6 +26,7 @@ import { ThemeRevealProvider } from "@/lib/theme/theme-reveal";
 import { useAgeGate } from "@/lib/use-age-gate";
 import { useEula } from "@/lib/use-eula";
 import { usePushNotifications } from "@/lib/use-push-notifications";
+import { useWidgetSync } from "@/widgets/use-widgets";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -66,6 +67,7 @@ const REDUCED_MOTION_OPTIONS = {
 function RootNav() {
 	useProtectedRoute();
 	usePushNotifications();
+	useWidgetSync();
 	const reduced = useReducedMotion();
 	const screenOptions = useStackScreenOptions(
 		reduced ? REDUCED_MOTION_OPTIONS : MOTION_OPTIONS,
@@ -82,6 +84,14 @@ function RootNav() {
 				<Stack.Screen name="(tabs)" />
 				<Stack.Screen
 					name="appearance"
+					options={{ headerShown: true, title: "" }}
+				/>
+				<Stack.Screen
+					name="widgets"
+					options={{ headerShown: true, title: "" }}
+				/>
+				<Stack.Screen
+					name="home-layout"
 					options={{ headerShown: true, title: "" }}
 				/>
 				<Stack.Screen

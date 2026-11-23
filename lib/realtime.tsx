@@ -91,6 +91,7 @@ function invalidateChat(conversationId?: string) {
 	queryClient.invalidateQueries({
 		queryKey: orpc.message.myConversations.key(),
 	});
+	queryClient.invalidateQueries({ queryKey: orpc.message.unreadCounts.key() });
 	queryClient.invalidateQueries({
 		queryKey: conversationId
 			? orpc.message.list.key({ input: { conversationId } })

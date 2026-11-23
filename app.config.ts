@@ -134,6 +134,71 @@ const buildConfig = ({ config }: ConfigContext): ExpoConfig => ({
 		"@react-native-community/datetimepicker",
 		"expo-font",
 		"expo-sqlite",
+		[
+			// iOS home screen widgets (WidgetKit). Android uses
+			// react-native-android-widget below, so expo-widgets' own Android
+			// support stays off.
+			"expo-widgets",
+			{
+				groupIdentifier: "group.com.headpat.app",
+				enableAndroid: false,
+				widgets: [
+					{
+						name: "NextEvent",
+						displayName: "Next event",
+						description: "Your next headpat event at a glance",
+						ios: { supportedFamilies: ["systemSmall", "systemMedium"] },
+						android: null,
+					},
+					{
+						name: "Chats",
+						displayName: "Chats",
+						description: "Your unread headpat chats",
+						ios: {
+							supportedFamilies: ["systemSmall", "systemMedium", "systemLarge"],
+						},
+						android: null,
+					},
+				],
+			},
+		],
+		// Refreshes the iOS widgets in the background.
+		"expo-background-task",
+		[
+			"react-native-android-widget",
+			{
+				fonts: [
+					"./node_modules/@expo-google-fonts/fredoka/600SemiBold/Fredoka_600SemiBold.ttf",
+					"./node_modules/@expo-google-fonts/nunito/400Regular/Nunito_400Regular.ttf",
+					"./node_modules/@expo-google-fonts/nunito/700Bold/Nunito_700Bold.ttf",
+				],
+				widgets: [
+					{
+						name: "NextEvent",
+						label: "Next event",
+						description: "Your next headpat event at a glance",
+						minWidth: "180dp",
+						minHeight: "80dp",
+						targetCellWidth: 3,
+						targetCellHeight: 2,
+						resizeMode: "horizontal|vertical",
+						// Fresh data every 30 minutes (the Android minimum).
+						updatePeriodMillis: 1_800_000,
+					},
+					{
+						name: "Chats",
+						label: "Chats",
+						description: "Your unread headpat chats",
+						minWidth: "110dp",
+						minHeight: "80dp",
+						targetCellWidth: 2,
+						targetCellHeight: 2,
+						resizeMode: "horizontal|vertical",
+						updatePeriodMillis: 1_800_000,
+					},
+				],
+			},
+		],
 	],
 });
 

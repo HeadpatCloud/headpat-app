@@ -1,6 +1,6 @@
 {
   "name": "headpat-app",
-  "main": "expo-router/entry",
+  "main": "index.ts",
   "version": "1.0.0",
   "scripts": {
     "dev": "expo start -c",
@@ -40,6 +40,7 @@
     "@better-auth/expo": "1.6.35",
     "@expo-google-fonts/fredoka": "^0.4.1",
     "@expo-google-fonts/nunito": "^0.4.2",
+    "@expo/ui": "~58.0.29",
     "@gorhom/bottom-sheet": "^5.2.14",
     "@maplibre/maplibre-react-native": "^11.5.1",
     "@orpc/client": "1.16.4",
@@ -67,6 +68,7 @@
     "expo-age-range": "~58.0.3",
     "expo-apple-authentication": "~58.0.3",
     "expo-audio": "~58.0.12",
+    "expo-background-task": "~58.0.13",
     "expo-build-properties": "~58.0.12",
     "expo-constants": "~58.0.16",
     "expo-crypto": "~58.0.8",
@@ -88,12 +90,14 @@
     "expo-task-manager": "~58.0.14",
     "expo-updates": "~58.0.22",
     "expo-web-browser": "~58.1.0",
+    "expo-widgets": "~58.0.29",
     "i18n-js": "^4.5.4",
     "lucide-react-native": "^1.77.0",
     "nativewind": "^4.2.7",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.1",
+    "react-native-android-widget": "0.26.0",
     "react-native-gesture-handler": "~3.3.0",
     "react-native-keyboard-controller": "1.22.7",
     "react-native-qrcode-svg": "^6.3.54",
@@ -124,5 +128,16 @@
   "private": true,
   "overrides": {
     "@tanstack/query-core": "5.108.2"
+  },
+  "expo": {
+    "autolinking": {
+      "android": {
+        "exclude": [
+          "expo-widgets",
+          "@expo/ui",
+          "expo-background-task"
+        ]
+      }
+    }
   }
 }

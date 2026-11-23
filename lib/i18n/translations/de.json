@@ -858,6 +858,7 @@
 		}
 	},
 	"chat": {
+		"unreadA11y": "%{title}, %{count} ungelesen",
 		"newFolder": "Neuer Ordner",
 		"renameFolder": "Ordner umbenennen",
 		"removeFolder": "Ordner entfernen",
@@ -1208,5 +1209,74 @@
 		"showPhoto": "Foto anzeigen",
 		"close": "Schließen",
 		"adultNotAllowed": "Für das 18+-Profil brauchst du ein Geburtsdatum, das zeigt, dass du 18 oder älter bist, und eingeschaltetes NSFW in deinen Profileinstellungen."
+	},
+	"widgets": {
+		"event": {
+			"label": "Nächstes Event",
+			"going": "Du bist dabei",
+			"none": "Keine anstehenden Events",
+			"browse": "Tippe, um Events zu entdecken",
+			"online": "Online",
+			"now": "Läuft gerade",
+			"today": "Heute, %{time}",
+			"tomorrow": "Morgen, %{time}"
+		},
+		"chats": {
+			"label": "Chats",
+			"signIn": "Melde dich an, um deine Chats zu sehen",
+			"caughtUp": "Alles gelesen",
+			"noUnread": "Keine ungelesenen Nachrichten",
+			"unreadChats": {
+				"one": "ungelesener Chat",
+				"other": "ungelesene Chats"
+			},
+			"unreadMessages": {
+				"one": "%{count} neue Nachricht",
+				"other": "%{count} neue Nachrichten"
+			},
+			"attachment": "Hat einen Anhang geschickt",
+			"someone": "Jemand"
+		},
+		"settings": {
+			"title": "Widgets",
+			"subtitle": "Headpat auf deinem Startbildschirm",
+			"colors": "Farben",
+			"themeApp": "Wie die App",
+			"themeLight": "Hell",
+			"themeDark": "Dunkel",
+			"publicEvents": "Öffentliche Events",
+			"publicEventsHint": "Zeigt das nächste öffentliche Event, wenn du gerade an keinem teilnimmst",
+			"chatPreviews": "Namen und Nachrichten",
+			"chatPreviewsHint": "Aus zeigt nur, wie viele Chats ungelesen sind, weil andere deinen Startbildschirm sehen können",
+			"add": "Zum Startbildschirm hinzufügen",
+			"addManually": "Dein Launcher kann Widgets nicht von hier hinzufügen. Halte den Startbildschirm gedrückt, tippe auf Widgets und wähle Headpat.",
+			"savedAccount": "In deinem Konto gespeichert, damit deine Widgets auf jedem Handy gleich aussehen.",
+			"savedDevice": "Auf diesem Handy gespeichert. Melde dich an, um sie in deinem Konto zu behalten.",
+			"addHowTo": "Zum Hinzufügen halte den Home-Bildschirm gedrückt, tippe auf Bearbeiten, dann auf Widget hinzufügen und wähle Headpat.",
+			"noWidgets": "Widgets für den Startbildschirm gibt es hier nicht. Deinen Start-Tab kannst du oben trotzdem anpassen."
+		},
+		"home": {
+			"customize": "Startseite anpassen",
+			"title": "Startseite anpassen",
+			"subtitle": "Wähle, was dein Start-Tab zeigt und in welcher Reihenfolge",
+			"hidden": "Ausgeblendet",
+			"moveUp": "%{name} nach oben",
+			"moveDown": "%{name} nach unten",
+			"hide": "%{name} ausblenden",
+			"show": "%{name} einblenden",
+			"reset": "Auf Standard zurücksetzen",
+			"savedAccount": "In deinem Konto gespeichert, damit die Startseite auf jedem Handy gleich aussieht.",
+			"savedDevice": "Auf diesem Handy gespeichert. Melde dich an, um sie in deinem Konto zu behalten.",
+			"sections": {
+				"hero": "Willkommensbanner",
+				"upNext": "Als Nächstes",
+				"tiles": "Verknüpfungen",
+				"communities": "Communities entdecken",
+				"people": "Sag Hallo zu",
+				"gallery": "Neu in der Galerie"
+			},
+			"cardTitle": "Dein Start-Tab",
+			"cardText": "Ordne die Bereiche auf der Startseite neu oder blende sie aus."
+		}
 	}
 }
