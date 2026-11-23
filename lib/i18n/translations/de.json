@@ -1014,5 +1014,59 @@
 		"searching": "Suche läuft...",
 		"empty": "Nichts gefunden für \"%{q}\".",
 		"followers": "%{count} Follower"
+	},
+	"badges": {
+		"title": "Abzeichen",
+		"staff": {
+			"name": "Team",
+			"description": "Gehört zum headpat.place-Team."
+		},
+		"communityFounder": {
+			"name": "Community-Gründer*in",
+			"description": {
+				"one": "Hat %{count} Community gegründet.",
+				"other": "Hat %{count} Communities gegründet."
+			},
+			"more": {
+				"one": "und %{count} weitere",
+				"other": "und %{count} weitere"
+			}
+		},
+		"eventHost": {
+			"name": "Event-Host",
+			"description": {
+				"one": "Hat %{count} Event veranstaltet.",
+				"other": "Hat %{count} Events veranstaltet."
+			}
+		},
+		"eventGoer": {
+			"name": {
+				"1": "Eventgänger*in",
+				"2": "Stammgast",
+				"3": "Event-Veteran*in"
+			},
+			"description": {
+				"one": "War auf %{count} Event.",
+				"other": "War auf %{count} Events."
+			},
+			"next": {
+				"one": "Noch %{count} Event bis zum nächsten Level.",
+				"other": "Noch %{count} Events bis zum nächsten Level."
+			},
+			"level": "Level %{level}"
+		},
+		"earlyMember": {
+			"name": "Frühes Mitglied",
+			"description": "Seit den Anfängen von headpat.place dabei."
+		},
+		"supporter": {
+			"name": "Unterstützer*in",
+			"description": "Hilft, headpat.place am Laufen zu halten."
+		},
+		"betaTester": {
+			"name": "Beta-Tester*in",
+			"description": "Hat neue Funktionen vor allen anderen ausprobiert."
+		},
+		"communities": "Communities"
 	}
 }

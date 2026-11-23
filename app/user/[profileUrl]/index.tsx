@@ -29,6 +29,7 @@ import {
 	UserRound,
 } from "@/components/icons";
 import { NsfwToggle } from "@/components/nsfw-toggle";
+import { ProfileBadges } from "@/components/profile-badges";
 import { RichBio } from "@/components/rich-bio";
 import { SegmentedTabs } from "@/components/segmented-tabs";
 import { StorageImage } from "@/components/storage-image";
@@ -530,6 +531,7 @@ export default function UserProfile() {
 										) : null}
 									</View>
 								) : null}
+								<ProfileBadges userId={p.userId} />
 							</View>
 						</AnimatedEntrance>
 
@@ -648,21 +650,10 @@ export default function UserProfile() {
 											</View>
 										) : null}
 
-										{p.badges.length > 0 ? (
-											<View className="flex-row flex-wrap gap-2">
-												{p.badges.map((b) => (
-													<Badge key={b} variant="tonal">
-														{b}
-													</Badge>
-												))}
-											</View>
-										) : null}
-
 										{!p.bio &&
 										!p.bioHtml &&
 										!p.location &&
-										socials.length === 0 &&
-										p.badges.length === 0 ? (
+										socials.length === 0 ? (
 											<Text variant="muted">{t("profile.nothingShared")}</Text>
 										) : null}
 									</>

@@ -1014,5 +1014,59 @@
 		"searching": "Zoeken...",
 		"empty": "Niets gevonden voor \"%{q}\".",
 		"followers": "%{count} volgers"
+	},
+	"badges": {
+		"title": "Badges",
+		"staff": {
+			"name": "Team",
+			"description": "Hoort bij het headpat.place-team."
+		},
+		"communityFounder": {
+			"name": "Communityoprichter",
+			"description": {
+				"one": "Heeft %{count} community opgericht.",
+				"other": "Heeft %{count} community's opgericht."
+			},
+			"more": {
+				"one": "en nog %{count}",
+				"other": "en nog %{count}"
+			}
+		},
+		"eventHost": {
+			"name": "Eventhost",
+			"description": {
+				"one": "Heeft %{count} event georganiseerd.",
+				"other": "Heeft %{count} events georganiseerd."
+			}
+		},
+		"eventGoer": {
+			"name": {
+				"1": "Eventganger",
+				"2": "Vaste gast",
+				"3": "Eventveteraan"
+			},
+			"description": {
+				"one": "Was bij %{count} event.",
+				"other": "Was bij %{count} events."
+			},
+			"next": {
+				"one": "Nog %{count} event tot het volgende level.",
+				"other": "Nog %{count} events tot het volgende level."
+			},
+			"level": "Level %{level}"
+		},
+		"earlyMember": {
+			"name": "Vroeg lid",
+			"description": "Al vanaf het begin bij headpat.place."
+		},
+		"supporter": {
+			"name": "Supporter",
+			"description": "Helpt headpat.place draaiende te houden."
+		},
+		"betaTester": {
+			"name": "Bètatester",
+			"description": "Probeerde nieuwe functies uit voor iedereen."
+		},
+		"communities": "Community's"
 	}
 }
