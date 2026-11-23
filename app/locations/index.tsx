@@ -428,25 +428,47 @@ export default function LocationsScreen() {
 		};
 	}, []);
 
+	// A recenter can still be waiting on a fix after the user leaves the map;
+	// its alert must not pop up over whatever screen they moved on to.
+	const mountedRef = useRef(true);
+	useEffect(() => {
+		mountedRef.current = true;
+		return () => {
+			mountedRef.current = false;
+		};
+	}, []);
+
 	const recenter = useCallback(async () => {
 		const perm = await Location.requestForegroundPermissionsAsync().catch(
 			() => null,
 		);
+		if (!mountedRef.current) return;
 		if (!perm?.granted) {
 			Alert.alert(t("locations.errorTitle"), t("locations.recenterDenied"));
 			return;
 		}
 		setShowUser(true);
+		const flyTo = (coords: Location.LocationObjectCoords) => {
+			const center: LngLat = [coords.longitude, coords.latitude];
+			setUserCenter(center);
+			cameraRef.current?.flyTo({ center, zoom: 14, duration: 500 });
+		};
+		// Same order as the initial camera: the last known position moves the
+		// map right away, the live fix corrects it. getCurrentPositionAsync can
+		// wait a long time and then reject (ERR_CURRENT_LOCATION_IS_UNAVAILABLE)
+		// indoors, while GPS warms up, or on emulators that only report a
+		// location at boot, so only fail when neither gives a position.
+		const last = await Location.getLastKnownPositionAsync().catch(() => null);
+		if (!mountedRef.current) return;
+		if (last) flyTo(last.coords);
 		const pos = await Location.getCurrentPositionAsync({
 			accuracy: Location.Accuracy.Balanced,
 		}).catch(() => null);
-		if (!pos) {
+		if (!mountedRef.current) return;
+		if (pos) flyTo(pos.coords);
+		else if (!last) {
 			Alert.alert(t("locations.errorTitle"), t("locations.recenterFailed"));
-			return;
 		}
-		const live: LngLat = [pos.coords.longitude, pos.coords.latitude];
-		setUserCenter(live);
-		cameraRef.current?.flyTo({ center: live, zoom: 14, duration: 500 });
 	}, [t]);
 
 	const dataCenter: LngLat | null = locations[0]
