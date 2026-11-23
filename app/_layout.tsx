@@ -4,7 +4,13 @@ import "@/lib/location/background-task";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
 import { useFonts } from "expo-font";
-import { Stack, useRouter, useSegments } from "expo-router";
+import {
+	type ErrorBoundaryProps,
+	ErrorBoundary as RouterErrorBoundary,
+	Stack,
+	useRouter,
+	useSegments,
+} from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useMemo } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -28,9 +34,22 @@ import { useEula } from "@/lib/use-eula";
 import { usePushNotifications } from "@/lib/use-push-notifications";
 import { useWidgetSync } from "@/widgets/use-widgets";
 
-export { ErrorBoundary } from "expo-router";
-
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+// The splash is normally hidden by ThemeProvider once the tree has mounted. A
+// render error on the first frame means it never mounts, and in a release build
+// the error screen would then sit behind the splash forever. Hide it here so the
+// error is visible instead.
+export function ErrorBoundary(props: ErrorBoundaryProps) {
+	useEffect(() => {
+		SplashScreen.hideAsync().catch(() => {});
+	}, []);
+	return <RouterErrorBoundary {...props} />;
+}
+
+// Last resort if startup stalls before ThemeProvider mounts (a storage or font
+// load that never settles): never leave the app on the splash.
+const SPLASH_FAILSAFE_MS = 10_000;
 
 function useProtectedRoute() {
 	const { data, isPending } = useSession();
@@ -189,6 +208,12 @@ export default function RootLayout() {
 	// render, so nothing may mount before the one-time migration has run. The
 	// splash is still up, and this is instant on every launch after the first.
 	const kvReady = useKvReady();
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			SplashScreen.hideAsync().catch(() => {});
+		}, SPLASH_FAILSAFE_MS);
+		return () => clearTimeout(timer);
+	}, []);
 	// Fonts are bundled assets, so this resolves in a few ms. Waiting avoids a
 	// flash of the system font; on failure the app still renders with it.
 	const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);

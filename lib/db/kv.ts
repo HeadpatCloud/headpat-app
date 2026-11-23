@@ -12,6 +12,7 @@ import { prefsDb } from "@/lib/db/sqlite";
  */
 
 const MIGRATED = "kv-migrated-from-async-storage";
+const MIGRATION_TIMEOUT_MS = 3000;
 
 // Keys previously owned by AsyncStorage. Copied across once so nobody is asked to
 // re-accept the EULA, redo the age gate, or loses their custom themes.
@@ -104,11 +105,20 @@ export function useKvReady(): boolean {
 	useEffect(() => {
 		if (ready) return;
 		let cancelled = false;
-		migrateFromAsyncStorage().finally(() => {
+		const done = () => {
 			if (!cancelled) setReady(true);
+		};
+		// A legacy store that never answers must not hold the app on the splash.
+		// The copy keeps running and lands whatever it finds; at worst this one
+		// launch renders defaults.
+		const timer = setTimeout(done, MIGRATION_TIMEOUT_MS);
+		migrateFromAsyncStorage().finally(() => {
+			clearTimeout(timer);
+			done();
 		});
 		return () => {
 			cancelled = true;
+			clearTimeout(timer);
 		};
 	}, [ready]);
 
