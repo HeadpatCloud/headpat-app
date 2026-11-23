@@ -50,10 +50,15 @@ export default function EditGalleryPost() {
 				name: name.trim(),
 				longText: longText.trim() || null,
 				nsfw,
-				tags: tags
-					.split(",")
-					.map((s) => s.trim())
-					.filter(Boolean),
+				// Same limits the API enforces: 20 unique tags of up to 40 characters.
+				tags: [
+					...new Set(
+						tags
+							.split(",")
+							.map((s) => s.trim().slice(0, 40))
+							.filter(Boolean),
+					),
+				].slice(0, 20),
 			});
 			qc.invalidateQueries({
 				queryKey: orpc.gallery.byId.key({ input: { itemId: galleryId } }),
@@ -105,6 +110,7 @@ export default function EditGalleryPost() {
 					placeholder={t("gallery.upload.titlePlaceholder")}
 					value={name}
 					onChangeText={setName}
+					maxLength={200}
 					accessibilityLabel={t("gallery.upload.titlePlaceholder")}
 				/>
 			</AnimatedEntrance>
@@ -117,6 +123,7 @@ export default function EditGalleryPost() {
 					placeholder={t("gallery.upload.descriptionPlaceholder")}
 					value={longText}
 					onChangeText={setLongText}
+					maxLength={10000}
 					multiline
 					className="h-24"
 					accessibilityLabel={t("gallery.upload.descriptionPlaceholder")}
