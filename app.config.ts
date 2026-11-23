@@ -117,7 +117,7 @@ const buildConfig = ({ config }: ConfigContext): ExpoConfig => ({
 				color: "#008055",
 			},
 		],
-		["expo-build-properties", { ios: { useFrameworks: "static" } }],
+		["expo-build-properties", { ios: { useFrameworks: "dynamic" } }],
 		[
 			"expo-location",
 			{
