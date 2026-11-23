@@ -1,12 +1,15 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns/format";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, Pressable, ScrollView, View } from "react-native";
 import { DateBlock } from "@/components/event/date-block";
 import {
+	Bell,
+	BellOff,
 	CalendarClock,
 	Check,
+	ChevronRight,
 	Globe,
 	MapPin,
 	Pencil,
@@ -14,6 +17,7 @@ import {
 	Users,
 } from "@/components/icons";
 import { StorageImage } from "@/components/storage-image";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -47,8 +51,27 @@ export default function Event() {
 		enabled: !!session,
 	});
 
-	const attending =
-		myAttending.data?.some((row) => row.eventId === eventId) ?? false;
+	const myRow = myAttending.data?.find((row) => row.eventId === eventId);
+	const attending = !!myRow;
+	const notifyOn = myRow?.notify ?? false;
+
+	// A handful of faces for the "who's going" card; the full list has its own screen.
+	const attendeesPreview = useQuery({
+		...orpc.event.attendees.queryOptions({
+			input: { eventId, page: 1, pageSize: 6 },
+		}),
+		enabled: !!session,
+	});
+
+	const setNotify = useMutation({
+		mutationFn: (notify: boolean) =>
+			client.event.setNotify({ eventId, notify }),
+		onSettled: () =>
+			queryClient.invalidateQueries({
+				queryKey: orpc.event.myAttending.key(),
+			}),
+		onError: (e) => Alert.alert(t("events.reminderFailed"), humanizeError(e)),
+	});
 
 	const { can } = usePlatformPermissions();
 	const isCreator = !!session && data?.creatorUserId === session.user.id;
@@ -104,8 +127,9 @@ export default function Event() {
 							{
 								eventId,
 								userId: "",
-								notify: false,
+								notify: true,
 								remindedAt: null,
+								remindedSoonAt: null,
 								createdAt: new Date(),
 							},
 						]
@@ -139,11 +163,16 @@ export default function Event() {
 			queryClient.invalidateQueries({
 				queryKey: orpc.event.byId.key({ input: { eventId } }),
 			});
+			queryClient.invalidateQueries({
+				queryKey: orpc.event.attendees.key(),
+			});
 			setPending(false);
 		}
 	}
 
 	const openWebsite = useOpenLink();
+	const isPast =
+		!!data && new Date(data.endsAt ?? data.startsAt).getTime() < Date.now();
 
 	if (isLoading && !data) {
 		return (
@@ -273,25 +302,89 @@ export default function Event() {
 			) : null}
 
 			<AnimatedEntrance index={5} preset="fadeUp">
-				<Button
-					variant={attending ? "outline" : "default"}
-					fullWidth
-					onPress={toggleAttend}
-					disabled={pending || (!!session && myAttending.isLoading)}
-					accessibilityRole="button"
-					accessibilityLabel={
-						attending ? t("events.leaveHint") : t("events.attendHint")
-					}
-				>
-					{attending ? (
-						<Icon as={Check} size={18} className="text-foreground" />
+				<View className="flex-row gap-3">
+					<View className="flex-1">
+						<Button
+							variant={attending ? "outline" : "default"}
+							fullWidth
+							onPress={toggleAttend}
+							disabled={pending || (!!session && myAttending.isLoading)}
+							accessibilityRole="button"
+							accessibilityLabel={
+								attending ? t("events.leaveHint") : t("events.attendHint")
+							}
+						>
+							{attending ? (
+								<Icon as={Check} size={18} className="text-foreground" />
+							) : null}
+							<Text>
+								{attending ? t("events.attending") : t("events.attend")}
+							</Text>
+						</Button>
+					</View>
+					{attending && !isPast ? (
+						<Button
+							variant="outline"
+							size="icon"
+							onPress={() => setNotify.mutate(!notifyOn)}
+							disabled={setNotify.isPending}
+							accessibilityRole="switch"
+							accessibilityState={{ checked: notifyOn }}
+							accessibilityLabel={
+								notifyOn ? t("events.reminderOn") : t("events.reminderOff")
+							}
+						>
+							<Icon
+								as={notifyOn ? Bell : BellOff}
+								size={18}
+								className={notifyOn ? "text-primary" : "text-muted-foreground"}
+							/>
+						</Button>
 					) : null}
-					<Text>{attending ? t("events.attending") : t("events.attend")}</Text>
-				</Button>
+				</View>
 			</AnimatedEntrance>
 
-			{canEdit || canDelete ? (
+			{session && data.attendeesCount > 0 ? (
 				<AnimatedEntrance index={6} preset="fadeUp">
+					<Pressable
+						onPress={() => router.push(`/event/attendees/${eventId}`)}
+						accessibilityRole="button"
+						accessibilityLabel={t("events.seeWhoIsGoing")}
+					>
+						<Card className="flex-row items-center gap-3 p-4">
+							<View className="flex-1 gap-2">
+								<Text className="font-extrabold">
+									{isPast ? t("events.whoWent") : t("events.whoIsGoing")}
+								</Text>
+								<View className="flex-row">
+									{(attendeesPreview.data?.items ?? []).map((u, i) => (
+										<View
+											key={u.userId}
+											style={{ marginLeft: i === 0 ? 0 : -10, zIndex: 10 - i }}
+										>
+											<Avatar
+												fileId={u.avatarFileId}
+												name={u.displayName ?? u.name}
+												size={36}
+												ring
+												ringWidth={2}
+											/>
+										</View>
+									))}
+								</View>
+							</View>
+							<Icon
+								as={ChevronRight}
+								size={20}
+								className="text-muted-foreground"
+							/>
+						</Card>
+					</Pressable>
+				</AnimatedEntrance>
+			) : null}
+
+			{canEdit || canDelete ? (
+				<AnimatedEntrance index={7} preset="fadeUp">
 					<View className="flex-row gap-3">
 						{canEdit ? (
 							<View className="flex-1">

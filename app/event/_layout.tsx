@@ -14,6 +14,10 @@ export default function EventLayout() {
 				options={{ title: "", headerLeft: () => <HeaderBack /> }}
 			/>
 			<Stack.Screen
+				name="attendees/[eventId]"
+				options={{ title: t("titles.eventAttendees") }}
+			/>
+			<Stack.Screen
 				name="edit/[eventId]"
 				options={{ title: t("titles.eventEdit") }}
 			/>
