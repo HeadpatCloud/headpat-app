@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
+import { setBlurAdult, useBlurAdult } from "@/lib/blur-adult";
 import { useI18n } from "@/lib/i18n/provider";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
@@ -40,6 +41,7 @@ export default function AdultProfileScreen() {
 	const [lookingFor, setLookingFor] = useState<AdultLookingFor[]>([]);
 	const [busy, setBusy] = useState(false);
 	const [uploading, setUploading] = useState(false);
+	const blurAdult = useBlurAdult();
 
 	useEffect(() => {
 		const a = mine.data;
@@ -126,6 +128,19 @@ export default function AdultProfileScreen() {
 						{t("discovery.adultIntro")}
 					</Text>
 				</Card>
+				<View className="min-h-11 flex-row items-center justify-between gap-3">
+					<View className="flex-1">
+						<Text className="text-foreground">{t("discovery.blurAdult")}</Text>
+						<Text variant="muted" className="text-sm">
+							{t("discovery.blurAdultHint")}
+						</Text>
+					</View>
+					<Toggle
+						value={blurAdult}
+						onValueChange={setBlurAdult}
+						accessibilityLabel={t("discovery.blurAdult")}
+					/>
+				</View>
 				<View className="min-h-11 flex-row items-center justify-between">
 					<Text className="text-foreground flex-1">
 						{t("discovery.adultEnabled")}

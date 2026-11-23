@@ -1203,6 +1203,8 @@
 		"openAdult": "18+-Profil",
 		"adultBadge": "18+-Profil",
 		"adultUnavailable": "Dieses Profil ist nicht verfügbar.",
+		"blurAdult": "18+-Bilder verschwimmen lassen",
+		"blurAdultHint": "Auf diesem Gerät bleiben 18+-Bilder verschwommen, bis du sie öffnest.",
 		"showPhoto": "Foto anzeigen",
 		"close": "Schließen",
 		"adultNotAllowed": "Für das 18+-Profil brauchst du ein Geburtsdatum, das zeigt, dass du 18 oder älter bist, und eingeschaltetes NSFW in deinen Profileinstellungen."

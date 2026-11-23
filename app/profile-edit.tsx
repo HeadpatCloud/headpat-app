@@ -38,6 +38,7 @@ import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
 import { AGE_DOB_KEY } from "@/lib/age-gate";
 import { useSession } from "@/lib/auth-client";
+import { setBlurAdult, useBlurAdult } from "@/lib/blur-adult";
 import { kvGet } from "@/lib/db/kv";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
@@ -67,6 +68,7 @@ export default function ProfileEdit() {
 		...orpc.profile.me.queryOptions({ input: {} }),
 		enabled: !!session,
 	});
+	const blurAdult = useBlurAdult();
 	const discovery = useQuery({
 		...orpc.discovery.mine.queryOptions({ input: {} }),
 		enabled: !!session,
@@ -402,6 +404,18 @@ export default function ProfileEdit() {
 								accessibilityLabel={t("account.edit.showNsfw")}
 							/>
 						</View>
+						{discovery.data?.canAdult ? (
+							<View className="min-h-11 flex-row items-center justify-between">
+								<Text className="text-foreground flex-1">
+									{t("discovery.blurAdult")}
+								</Text>
+								<Toggle
+									value={blurAdult}
+									onValueChange={setBlurAdult}
+									accessibilityLabel={t("discovery.blurAdult")}
+								/>
+							</View>
+						) : null}
 					</Card>
 				</AnimatedEntrance>
 

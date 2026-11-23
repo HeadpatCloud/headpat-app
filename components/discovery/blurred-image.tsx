@@ -5,6 +5,7 @@ import { Eye, X } from "@/components/icons";
 import { StorageImage } from "@/components/storage-image";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { useBlurAdult } from "@/lib/blur-adult";
 import { useI18n } from "@/lib/i18n/provider";
 
 // 18+ photos stay blurred in the grid; tapping one shows it full screen and
@@ -22,6 +23,7 @@ export function BlurredImage({
 	const insets = useSafeAreaInsets();
 	const { width, height } = useWindowDimensions();
 	const [open, setOpen] = useState(false);
+	const blur = useBlurAdult();
 	return (
 		<>
 			<Pressable
@@ -35,16 +37,18 @@ export function BlurredImage({
 					kind="gallery"
 					fileId={fileId}
 					variant="320"
-					blurRadius={40}
+					blurRadius={blur ? 40 : undefined}
 					transition={0}
 					style={{ width: size, height: size }}
 				/>
-				<View className="absolute inset-0 items-center justify-center gap-1 bg-black/30">
-					<Icon as={Eye} size={20} className="text-white" />
-					<Text className="text-xs font-semibold text-white">
-						{t("discovery.showPhoto")}
-					</Text>
-				</View>
+				{blur ? (
+					<View className="absolute inset-0 items-center justify-center gap-1 bg-black/30">
+						<Icon as={Eye} size={20} className="text-white" />
+						<Text className="text-xs font-semibold text-white">
+							{t("discovery.showPhoto")}
+						</Text>
+					</View>
+				) : null}
 			</Pressable>
 			<Modal
 				visible={open}

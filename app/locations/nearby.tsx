@@ -19,6 +19,7 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { useBlurAdult } from "@/lib/blur-adult";
 import { useI18n } from "@/lib/i18n/provider";
 import {
 	NEARBY_REFRESH_MS,
@@ -66,6 +67,7 @@ function Tile({
 	adult: boolean;
 }) {
 	const name = p.displayName || p.name || p.profileUrl || "?";
+	const blur = useBlurAdult();
 	return (
 		<Pressable
 			onPress={() => {
@@ -83,7 +85,7 @@ function Tile({
 					fileId={p.avatarFileId}
 					variant="md"
 					transition={0}
-					blurRadius={adult ? 30 : undefined}
+					blurRadius={adult && blur ? 30 : undefined}
 					style={{ width: size, height: size }}
 				/>
 			) : (
