@@ -138,6 +138,7 @@ function RootNav() {
 					}}
 				/>
 				<Stack.Screen name="locations" />
+				<Stack.Screen name="discovery" />
 				<Stack.Screen
 					name="search"
 					options={{ headerShown: true, title: t("search.title") }}

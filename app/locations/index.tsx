@@ -14,7 +14,12 @@ import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import Supercluster, { type PointFeature } from "supercluster";
-import { LocateFixed } from "@/components/icons";
+import { LocateFixed, Users } from "@/components/icons";
+import {
+	NEARBY_COLOR,
+	NearbyMarker,
+} from "@/components/locations/nearby-marker";
+import { NearbySheet } from "@/components/locations/nearby-sheet";
 import { StatusSheet } from "@/components/locations/status-sheet";
 import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
@@ -22,19 +27,25 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useI18n } from "@/lib/i18n/provider";
 import { locationQueries } from "@/lib/location/api";
+import { circleRing, type LngLat } from "@/lib/location/geo";
 import {
 	type LiveLocation,
 	useLiveLocations,
 } from "@/lib/location/live-locations";
+import {
+	spreadInCells,
+	useNearby,
+	useNearbyCells,
+	useShowNearby,
+} from "@/lib/location/nearby";
 import { useLocationSharing } from "@/lib/location/use-location-sharing";
 import { connectLocationSocket } from "@/lib/location/ws";
 import { orpc } from "@/lib/orpc";
 import { presenceColor } from "@/lib/presence/status-color";
 import { useTheme } from "@/lib/theme/provider";
 
-type LngLat = [number, number];
 type PresenceInfo = { status?: string; customStatus?: string | null };
-type ClusterPoint = { kind: "person" | "event"; id: string };
+type ClusterPoint = { kind: "person" | "event" | "nearby"; id: string };
 
 const MARKER = 44;
 const MARKER_INNER = MARKER - 6;
@@ -73,22 +84,6 @@ function eventCenter(e: MapEvent): LngLat | null {
 	if (e.locationZoneMethod === "circle") return pts[0];
 	const sum = pts.reduce<LngLat>((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]);
 	return [sum[0] / pts.length, sum[1] / pts.length];
-}
-
-function circleRing(
-	center: LngLat,
-	radiusMeters: number,
-	steps = 64,
-): LngLat[] {
-	const [lng, lat] = center;
-	const dLat = radiusMeters / 111_320;
-	const dLng = radiusMeters / (111_320 * Math.cos((lat * Math.PI) / 180));
-	const ring: LngLat[] = [];
-	for (let i = 0; i <= steps; i++) {
-		const theta = (i / steps) * 2 * Math.PI;
-		ring.push([lng + dLng * Math.cos(theta), lat + dLat * Math.sin(theta)]);
-	}
-	return ring;
 }
 
 function zoneFeatures(events: MapEvent[]): GeoJSON.FeatureCollection {
@@ -266,6 +261,7 @@ export default function LocationsScreen() {
 	const { scheme, colors } = useTheme();
 	const qc = useQueryClient();
 	const statusRef = useRef<BottomSheetModal>(null);
+	const nearbyRef = useRef<BottomSheetModal>(null);
 	useLocationSharing();
 	const visible = useQuery({
 		...locationQueries.visible(),
@@ -334,6 +330,20 @@ export default function LocationsScreen() {
 		() => new Map(locations.map((l) => [l.userId, l])),
 		[locations],
 	);
+	// Who's around, at fuzzed cells. Someone already sharing with you directly
+	// keeps their live marker instead.
+	const showNearby = useShowNearby();
+	const nearby = useNearby(showNearby.show);
+	const nearbyPeople = useMemo(
+		() => nearby.people.filter((p) => !byId.has(p.userId)),
+		[nearby.people, byId],
+	);
+	const nearbyCells = useNearbyCells(nearbyPeople);
+	const nearbyPins = useMemo(() => spreadInCells(nearbyPeople), [nearbyPeople]);
+	const nearbyById = useMemo(
+		() => new Map(nearbyPins.map((n) => [n.person.userId, n])),
+		[nearbyPins],
+	);
 	const eventById = useMemo(
 		() => new Map(eventPins.map((p) => [p.e.id, p])),
 		[eventPins],
@@ -348,6 +358,13 @@ export default function LocationsScreen() {
 					geometry: { type: "Point", coordinates: [l.lng, l.lat] },
 				}),
 			),
+			...nearbyPins.map(
+				({ person, at }): PointFeature<ClusterPoint> => ({
+					type: "Feature",
+					properties: { kind: "nearby", id: person.userId },
+					geometry: { type: "Point", coordinates: at },
+				}),
+			),
 			...eventPins.map(
 				({ e, center }): PointFeature<ClusterPoint> => ({
 					type: "Feature",
@@ -357,7 +374,7 @@ export default function LocationsScreen() {
 			),
 		]);
 		return sc;
-	}, [locations, eventPins]);
+	}, [locations, nearbyPins, eventPins]);
 	const clusters = useMemo(
 		() => cluster.getClusters([-180, -85, 180, 85], Math.round(zoom)),
 		[cluster, zoom],
@@ -479,6 +496,24 @@ export default function LocationsScreen() {
 						/>
 					</GeoJSONSource>
 				) : null}
+				{nearbyCells.features.length > 0 ? (
+					<GeoJSONSource id="nearby-cells" data={nearbyCells}>
+						<Layer
+							id="nearby-cells-fill"
+							type="fill"
+							paint={{ "fill-color": NEARBY_COLOR, "fill-opacity": 0.08 }}
+						/>
+						<Layer
+							id="nearby-cells-line"
+							type="line"
+							paint={{
+								"line-color": NEARBY_COLOR,
+								"line-width": 1,
+								"line-dasharray": [2, 2],
+							}}
+						/>
+					</GeoJSONSource>
+				) : null}
 				{showUser ? <UserLocation /> : null}
 				{clusters.map((feature) => {
 					const [lng, lat] = feature.geometry.coordinates;
@@ -505,6 +540,16 @@ export default function LocationsScreen() {
 							/>
 						) : null;
 					}
+					if (feature.properties.kind === "nearby") {
+						const n = nearbyById.get(feature.properties.id);
+						return n ? (
+							<NearbyMarker
+								key={`nearby-${n.person.userId}`}
+								p={n.person}
+								at={n.at}
+							/>
+						) : null;
+					}
 					const ev = eventById.get(feature.properties.id);
 					return ev ? (
 						<EventMarker key={ev.e.id} e={ev.e} lngLat={ev.center} />
@@ -512,7 +557,7 @@ export default function LocationsScreen() {
 				})}
 			</MapView>
 
-			{locations.length === 0 ? (
+			{locations.length === 0 && nearbyPins.length === 0 ? (
 				<View
 					className="absolute inset-x-0 bottom-10 items-center"
 					pointerEvents="none"
@@ -529,12 +574,24 @@ export default function LocationsScreen() {
 					<Text>{t("presence.setStatus")}</Text>
 				</Button>
 			</View>
-			<View className="absolute right-4 top-4">
+			<View className="absolute right-4 top-4 items-end gap-2">
 				<Button
 					size="sm"
 					onPress={() => router.push("/locations/share" as never)}
 				>
 					<Text>{t("locations.manageTitle")}</Text>
+				</Button>
+				<Button
+					size="sm"
+					variant={nearby.status.data?.visible ? "default" : "secondary"}
+					onPress={() => nearbyRef.current?.present()}
+				>
+					<Icon as={Users} size={16} />
+					<Text>
+						{nearby.status.data?.visible
+							? t("nearby.buttonVisible")
+							: t("nearby.button")}
+					</Text>
 				</Button>
 			</View>
 			<View className="absolute bottom-24 right-4">
@@ -550,6 +607,15 @@ export default function LocationsScreen() {
 			</View>
 
 			<StatusSheet ref={statusRef} />
+			<NearbySheet
+				ref={nearbyRef}
+				showLayer={showNearby.show}
+				onShowLayerChange={showNearby.setShow}
+				onOpenGrid={() => {
+					nearbyRef.current?.dismiss();
+					router.push("/locations/nearby" as never);
+				}}
+			/>
 		</View>
 	);
 }

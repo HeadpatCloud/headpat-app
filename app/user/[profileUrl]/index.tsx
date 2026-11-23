@@ -15,6 +15,7 @@ import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
 } from "react-native-reanimated";
+import { ProfileDiscovery } from "@/components/discovery/profile-discovery";
 import { EmptyState } from "@/components/empty-state";
 import {
 	AtSign,
@@ -649,6 +650,8 @@ export default function UserProfile() {
 												))}
 											</View>
 										) : null}
+
+										<ProfileDiscovery userId={p.userId} />
 
 										{!p.bio &&
 										!p.bioHtml &&

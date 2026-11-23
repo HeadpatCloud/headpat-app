@@ -15,7 +15,16 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GlowAvatar } from "@/components/glow-avatar";
-import { Cake, Camera, Trash2 } from "@/components/icons";
+import {
+	Cake,
+	Camera,
+	ChevronRight,
+	Flame,
+	type LucideIcon,
+	PawPrint,
+	Sparkles,
+	Trash2,
+} from "@/components/icons";
 import { RichBioEditor } from "@/components/rich-bio-editor";
 import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
@@ -56,6 +65,10 @@ export default function ProfileEdit() {
 	const { data: session } = useSession();
 	const { data: me, isLoading } = useQuery({
 		...orpc.profile.me.queryOptions({ input: {} }),
+		enabled: !!session,
+	});
+	const discovery = useQuery({
+		...orpc.discovery.mine.queryOptions({ input: {} }),
 		enabled: !!session,
 	});
 
@@ -393,6 +406,28 @@ export default function ProfileEdit() {
 				</AnimatedEntrance>
 
 				<AnimatedEntrance index={3}>
+					<Card className="gap-1 rounded-3xl p-2">
+						<DiscoveryLink
+							icon={PawPrint}
+							label={t("discovery.sonasTitle")}
+							href="/discovery/sonas"
+						/>
+						<DiscoveryLink
+							icon={Sparkles}
+							label={t("discovery.discoveryTitle")}
+							href="/discovery/interests"
+						/>
+						{discovery.data?.canAdult ? (
+							<DiscoveryLink
+								icon={Flame}
+								label={t("discovery.adultTitle")}
+								href="/discovery/adult"
+							/>
+						) : null}
+					</Card>
+				</AnimatedEntrance>
+
+				<AnimatedEntrance index={3}>
 					<Button
 						disabled={busy || bioUploading}
 						onPress={save}
@@ -406,6 +441,31 @@ export default function ProfileEdit() {
 				</AnimatedEntrance>
 			</View>
 		</KeyboardAwareScrollView>
+	);
+}
+
+function DiscoveryLink({
+	icon,
+	label,
+	href,
+}: {
+	icon: LucideIcon;
+	label: string;
+	href: string;
+}) {
+	return (
+		<PressableScale
+			onPress={() => router.push(href as never)}
+			haptic="selection"
+			accessibilityRole="button"
+			accessibilityLabel={label}
+		>
+			<View className="min-h-12 flex-row items-center gap-3 rounded-2xl px-3">
+				<Icon as={icon} size={18} className="text-link" />
+				<Text className="text-foreground flex-1">{label}</Text>
+				<Icon as={ChevronRight} size={18} className="text-muted-foreground" />
+			</View>
+		</PressableScale>
 	);
 }
 

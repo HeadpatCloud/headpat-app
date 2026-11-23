@@ -18,6 +18,7 @@ import {
 	MapPin,
 	Megaphone,
 	Palette,
+	Radar,
 	Scale,
 	Shield,
 	ShieldCheck,
@@ -52,6 +53,7 @@ const BROWSE_ROWS: Row[] = [
 	{ href: "/community", icon: UsersRound, titleKey: "titles.communities" },
 	{ href: "/events", icon: CalendarDays, titleKey: "titles.events" },
 	{ href: "/locations", icon: MapPin, titleKey: "titles.map" },
+	{ href: "/locations/nearby" as Href, icon: Radar, titleKey: "titles.nearby" },
 	{ href: "/notifications", icon: Bell, titleKey: "titles.notifications" },
 ];
 

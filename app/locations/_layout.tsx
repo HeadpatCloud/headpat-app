@@ -16,6 +16,7 @@ export default function LocationsLayout() {
 				name="index"
 				options={{ title: t("titles.map"), headerLeft: renderBack }}
 			/>
+			<Stack.Screen name="nearby" options={{ title: t("titles.nearby") }} />
 			<Stack.Screen
 				name="share"
 				options={{ title: t("locations.manageTitle") }}
