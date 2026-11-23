@@ -7,6 +7,13 @@ export type ChatMessage = Awaited<
 	ReturnType<typeof client.message.list>
 >[number];
 export type Person = Conversation["others"][number];
+// A community channel and its messages, which carry their author with them.
+export type Channel = Awaited<
+	ReturnType<typeof client.channel.listByCommunity>
+>[number];
+export type ChannelMessage = Awaited<
+	ReturnType<typeof client.channel.messages>
+>[number];
 
 export const MESSAGE_PAGE = 40;
 

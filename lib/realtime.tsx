@@ -34,6 +34,7 @@ type WsIn = {
 
 // Typing state lives outside React state so a keystroke elsewhere never
 // re-renders the whole tree: each thread subscribes to its own conversation.
+// Channels share the map under their own key (see channelTypingKey).
 type TypingMap = Record<string, Record<string, number>>;
 let typing: TypingMap = {};
 const typingListeners = new Set<() => void>();
@@ -46,18 +47,44 @@ function subscribeTyping(l: () => void) {
 	return () => typingListeners.delete(l);
 }
 
+export const channelTypingKey = (channelId: string) => `channel:${channelId}`;
+
+function clearTyper(key: string, userId: string | undefined) {
+	const entry = typing[key];
+	if (!userId || !entry || !(userId in entry)) return;
+	const { [userId]: _gone, ...rest } = entry;
+	setTyping({ ...typing, [key]: rest });
+}
+
+function markTyper(key: string, userId: string) {
+	setTyping({
+		...typing,
+		[key]: { ...(typing[key] ?? {}), [userId]: Date.now() + TYPING_TTL_MS },
+	});
+}
+
 interface RealtimeValue {
 	connected: boolean;
 	sendTyping: (conversationId: string) => void;
+	sendChannelTyping: (channelId: string) => void;
 }
 
 const RealtimeContext = createContext<RealtimeValue>({
 	connected: false,
 	sendTyping: () => {},
+	sendChannelTyping: () => {},
 });
 
 export function useRealtime(): RealtimeValue {
 	return useContext(RealtimeContext);
+}
+
+function invalidateChannel(channelId?: string) {
+	queryClient.invalidateQueries({
+		queryKey: channelId
+			? orpc.channel.messages.key({ input: { channelId } })
+			: orpc.channel.messages.key(),
+	});
 }
 
 function invalidateChat(conversationId?: string) {
@@ -117,6 +144,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 				}, HEARTBEAT_MS);
 				// Messages may have arrived while we were offline.
 				invalidateChat();
+				invalidateChannel();
 			};
 			socket.onmessage = (e) => {
 				let msg: WsIn;
@@ -127,20 +155,14 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 				}
 				if (msg.type === "message" && msg.conversationId) {
 					invalidateChat(msg.conversationId);
-					const sender = msg.message?.senderId;
-					const conv = typing[msg.conversationId];
-					if (sender && conv && sender in conv) {
-						const { [sender]: _gone, ...rest } = conv;
-						setTyping({ ...typing, [msg.conversationId]: rest });
-					}
+					clearTyper(msg.conversationId, msg.message?.senderId);
+				} else if (msg.type === "message" && msg.channelId) {
+					invalidateChannel(msg.channelId);
+					clearTyper(channelTypingKey(msg.channelId), msg.message?.senderId);
 				} else if (msg.type === "typing" && msg.conversationId && msg.userId) {
-					setTyping({
-						...typing,
-						[msg.conversationId]: {
-							...(typing[msg.conversationId] ?? {}),
-							[msg.userId]: Date.now() + TYPING_TTL_MS,
-						},
-					});
+					markTyper(msg.conversationId, msg.userId);
+				} else if (msg.type === "typing" && msg.channelId && msg.userId) {
+					markTyper(channelTypingKey(msg.channelId), msg.userId);
 				}
 			};
 			socket.onclose = () => {
@@ -183,22 +205,36 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 		};
 	}, [userId]);
 
-	const sendTyping = useCallback((conversationId: string) => {
-		const socket = wsRef.current;
-		if (!socket || socket.readyState !== WebSocket.OPEN) return;
-		const now = Date.now();
-		if (
-			now - (lastTypingSent.current[conversationId] ?? 0) <
-			TYPING_SEND_EVERY_MS
-		)
-			return;
-		lastTypingSent.current[conversationId] = now;
-		socket.send(JSON.stringify({ type: "typing", conversationId }));
-	}, []);
+	// Throttled per conversation or channel, like the website.
+	const sendTypingFor = useCallback(
+		(
+			key: string,
+			payload: { conversationId: string } | { channelId: string },
+		) => {
+			const socket = wsRef.current;
+			if (!socket || socket.readyState !== WebSocket.OPEN) return;
+			const now = Date.now();
+			if (now - (lastTypingSent.current[key] ?? 0) < TYPING_SEND_EVERY_MS)
+				return;
+			lastTypingSent.current[key] = now;
+			socket.send(JSON.stringify({ type: "typing", ...payload }));
+		},
+		[],
+	);
+	const sendTyping = useCallback(
+		(conversationId: string) =>
+			sendTypingFor(conversationId, { conversationId }),
+		[sendTypingFor],
+	);
+	const sendChannelTyping = useCallback(
+		(channelId: string) =>
+			sendTypingFor(channelTypingKey(channelId), { channelId }),
+		[sendTypingFor],
+	);
 
 	const value = useMemo(
-		() => ({ connected, sendTyping }),
-		[connected, sendTyping],
+		() => ({ connected, sendTyping, sendChannelTyping }),
+		[connected, sendTyping, sendChannelTyping],
 	);
 	return (
 		<RealtimeContext.Provider value={value}>
@@ -209,7 +245,8 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
 const NO_TYPERS: string[] = [];
 
-// User ids currently typing in a conversation (excluding expired entries). The
+// User ids currently typing in a conversation, or in a channel when given
+// channelTypingKey(id) (excluding expired entries). The
 // snapshot is cached per map identity so useSyncExternalStore stays stable.
 export function useTypingUsers(conversationId: string): string[] {
 	const cache = useRef<{ map: TypingMap; ids: string[] } | null>(null);

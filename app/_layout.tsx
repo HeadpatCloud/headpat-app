@@ -150,6 +150,14 @@ function RootNav() {
 					name="chat/[conversationId]"
 					options={{ headerShown: true, title: "" }}
 				/>
+				<Stack.Screen
+					name="chat/c/[channelId]"
+					options={{ headerShown: true, title: "" }}
+				/>
+				<Stack.Screen
+					name="chat/s/[communityId]"
+					options={{ headerShown: true, title: "" }}
+				/>
 				<Stack.Screen name="tickets" />
 				<Stack.Screen name="admin" />
 				<Stack.Screen

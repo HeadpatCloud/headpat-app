@@ -967,7 +967,18 @@
 		"noConversations": "Noch keine Unterhaltungen. Starte eine mit jemandem, den du kennst.",
 		"findPeoplePlaceholder": "Personen suchen",
 		"typeToFindPeople": "Gib einen Namen ein, um jemanden zum Schreiben zu finden.",
-		"groupMembers": "%{count} Mitglieder"
+		"groupMembers": "%{count} Mitglieder",
+		"findServers": "Communities finden",
+		"viewCommunity": "Community ansehen",
+		"moveUp": "Nach oben",
+		"moveDown": "Nach unten",
+		"moveToFolder": "In %{name} verschieben",
+		"takeOutOfFolder": "Aus dem Ordner nehmen",
+		"folderNamePlaceholder": "Ordnername",
+		"noChannels": "Noch keine Kanäle.",
+		"direct": "Direkt",
+		"servers": "Server",
+		"noServers": "Du bist noch keiner Community beigetreten."
 	},
 	"search": {
 		"title": "Suche",

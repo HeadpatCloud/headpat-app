@@ -100,6 +100,10 @@ export default function Community() {
 			queryClient.invalidateQueries({
 				queryKey: orpc.community.byId.key({ input: { communityId } }),
 			});
+			// Following adds the community to the chat's server rail.
+			queryClient.invalidateQueries({
+				queryKey: orpc.sidebarLayout.get.key(),
+			});
 			setBusy(false);
 		}
 	}

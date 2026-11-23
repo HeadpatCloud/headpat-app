@@ -967,7 +967,18 @@
 		"noConversations": "No conversations yet. Start one with someone you know.",
 		"findPeoplePlaceholder": "Search people",
 		"typeToFindPeople": "Type a name to find someone to message.",
-		"groupMembers": "%{count} members"
+		"groupMembers": "%{count} members",
+		"findServers": "Find communities",
+		"viewCommunity": "View community",
+		"moveUp": "Move up",
+		"moveDown": "Move down",
+		"moveToFolder": "Move to %{name}",
+		"takeOutOfFolder": "Take out of folder",
+		"folderNamePlaceholder": "Folder name",
+		"noChannels": "No channels yet.",
+		"direct": "Direct",
+		"servers": "Servers",
+		"noServers": "You haven't joined any communities yet."
 	},
 	"search": {
 		"title": "Search",

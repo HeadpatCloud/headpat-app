@@ -967,7 +967,18 @@
 		"noConversations": "Nog geen gesprekken. Begin er een met iemand die je kent.",
 		"findPeoplePlaceholder": "Zoek mensen",
 		"typeToFindPeople": "Typ een naam om iemand te vinden om te berichten.",
-		"groupMembers": "%{count} leden"
+		"groupMembers": "%{count} leden",
+		"findServers": "Communities zoeken",
+		"viewCommunity": "Community bekijken",
+		"moveUp": "Omhoog",
+		"moveDown": "Omlaag",
+		"moveToFolder": "Naar %{name} verplaatsen",
+		"takeOutOfFolder": "Uit map halen",
+		"folderNamePlaceholder": "Mapnaam",
+		"noChannels": "Nog geen kanalen.",
+		"direct": "Direct",
+		"servers": "Servers",
+		"noServers": "Je hebt je nog bij geen enkele community aangesloten."
 	},
 	"search": {
 		"title": "Zoeken",

@@ -3,7 +3,7 @@
 // from here.
 
 export type { LucideIcon, LucideProps } from "lucide-react-native";
-export { Github, Twitch } from "@/components/brand-icons";
+export { default as ArrowDown } from "lucide-react-native/icons/arrow-down";
 export { default as ArrowRight } from "lucide-react-native/icons/arrow-right";
 export { default as ArrowUp } from "lucide-react-native/icons/arrow-up";
 export { default as AtSign } from "lucide-react-native/icons/at-sign";
@@ -24,10 +24,16 @@ export { default as ChevronLeft } from "lucide-react-native/icons/chevron-left";
 export { default as ChevronRight } from "lucide-react-native/icons/chevron-right";
 export { default as ChevronUp } from "lucide-react-native/icons/chevron-up";
 export { default as ExternalLink } from "lucide-react-native/icons/external-link";
-export { default as FileClock } from "lucide-react-native/icons/file-clock";
 export { default as FileIcon } from "lucide-react-native/icons/file";
+export { default as FileClock } from "lucide-react-native/icons/file-clock";
 export { default as FileText } from "lucide-react-native/icons/file-text";
 export { default as Flag } from "lucide-react-native/icons/flag";
+export { default as Folder } from "lucide-react-native/icons/folder";
+export { default as FolderInput } from "lucide-react-native/icons/folder-input";
+export { default as FolderOpen } from "lucide-react-native/icons/folder-open";
+export { default as FolderOutput } from "lucide-react-native/icons/folder-output";
+export { default as FolderPlus } from "lucide-react-native/icons/folder-plus";
+export { default as FolderX } from "lucide-react-native/icons/folder-x";
 export { default as Globe } from "lucide-react-native/icons/globe";
 export { default as HardDrive } from "lucide-react-native/icons/hard-drive";
 export { default as Hash } from "lucide-react-native/icons/hash";
@@ -90,4 +96,6 @@ export { default as UserPlus } from "lucide-react-native/icons/user-plus";
 export { default as UserRound } from "lucide-react-native/icons/user-round";
 export { default as Users } from "lucide-react-native/icons/users";
 export { default as UsersRound } from "lucide-react-native/icons/users-round";
+export { default as Volume2 } from "lucide-react-native/icons/volume-2";
 export { default as X } from "lucide-react-native/icons/x";
+export { Github, Twitch } from "@/components/brand-icons";
