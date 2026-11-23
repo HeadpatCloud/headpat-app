@@ -1,9 +1,7 @@
 import DateTimePicker, {
-	DateTimePickerAndroid,
 	type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns/format";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -38,6 +36,12 @@ import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
 import { AGE_DOB_KEY } from "@/lib/age-gate";
 import { useSession } from "@/lib/auth-client";
+import {
+	defaultBirthDate,
+	formatBirthDate,
+	MIN_BIRTH_DATE,
+	openBirthDatePicker,
+} from "@/lib/birth-date-picker";
 import { useBlurAdult, useSetBlurAdult } from "@/lib/blur-adult";
 import { kvGet } from "@/lib/db/kv";
 import { useI18n } from "@/lib/i18n/provider";
@@ -60,7 +64,7 @@ const SOCIALS = [
 
 export default function ProfileEdit() {
 	const insets = useSafeAreaInsets();
-	const { t } = useI18n();
+	const { t, locale } = useI18n();
 	const { colors } = useTheme();
 	const qc = useQueryClient();
 	const { data: session } = useSession();
@@ -134,28 +138,9 @@ export default function ProfileEdit() {
 		}
 	};
 
-	// Opening at 18 years ago keeps the spinner near the ages people actually
-	// pick, instead of today's date.
-	const birthdayOrDefault = () => {
-		if (birthday) return birthday;
-		const d = new Date();
-		d.setFullYear(d.getFullYear() - 18);
-		return d;
-	};
-
 	const pickBirthday = () => {
 		if (Platform.OS === "android") {
-			DateTimePickerAndroid.open({
-				value: birthdayOrDefault(),
-				mode: "date",
-				maximumDate: new Date(),
-				// Birthdays are years back: open on the year list instead of
-				// making people page back month by month.
-				startOnYearSelection: true,
-				onValueChange: (_e, date) => {
-					if (date) setBirthday(date);
-				},
-			});
+			openBirthDatePicker(birthday ?? defaultBirthDate(), setBirthday);
 			return;
 		}
 		setPickingBirthday((p) => !p);
@@ -326,7 +311,7 @@ export default function ProfileEdit() {
 								<Icon as={Cake} size={18} className="text-foreground" />
 								<Text>
 									{birthday
-										? format(birthday, "PPP")
+										? formatBirthDate(birthday, locale)
 										: t("account.edit.pickBirthday")}
 								</Text>
 							</Button>
@@ -352,9 +337,10 @@ export default function ProfileEdit() {
 						{pickingBirthday ? (
 							<AnimatedEntrance>
 								<DateTimePicker
-									value={birthdayOrDefault()}
+									value={birthday ?? defaultBirthDate()}
 									mode="date"
 									display="spinner"
+									minimumDate={MIN_BIRTH_DATE}
 									maximumDate={new Date()}
 									onChange={onPickBirthday}
 								/>
