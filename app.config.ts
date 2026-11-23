@@ -100,6 +100,13 @@ const buildConfig = ({ config }: ConfigContext): ExpoConfig => ({
 					"Headpat uses your photos so you can share them in the gallery and set your avatar.",
 			},
 		],
+		[
+			"expo-audio",
+			{
+				microphonePermission:
+					"Headpat uses the microphone so you can record voice messages in chat.",
+			},
+		],
 		"@react-native-firebase/app",
 		"@react-native-firebase/messaging",
 		[

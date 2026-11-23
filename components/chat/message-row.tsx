@@ -20,8 +20,11 @@ export type MessageRowData = {
 type MessageRowProps = MessageRowData & {
 	locale: string;
 	editedLabel: string;
+	reactorsHint: string;
 	onReact: (messageId: string, emoji: string) => void;
 	onLongPress: (message: ChatMessage) => void;
+	/** Long-press on a reaction: who reacted with it. */
+	onShowReactors: (messageId: string, emoji: string) => void;
 };
 
 const isGif = (m: ChatMessage) =>
@@ -39,8 +42,10 @@ export const MessageRow = memo(function MessageRow({
 	pending,
 	locale,
 	editedLabel,
+	reactorsHint,
 	onReact,
 	onLongPress,
+	onShowReactors,
 }: MessageRowProps) {
 	return (
 		<View>
@@ -98,6 +103,7 @@ export const MessageRow = memo(function MessageRow({
 							key={key}
 							attachmentKey={key}
 							onLongPress={() => onLongPress(m)}
+							voice={m.messageType === "voice"}
 						/>
 					))}
 					{m.reactions.length ? (
@@ -106,7 +112,10 @@ export const MessageRow = memo(function MessageRow({
 								<Pressable
 									key={r.emoji}
 									onPress={() => onReact(m.id, r.emoji)}
+									onLongPress={() => onShowReactors(m.id, r.emoji)}
+									delayLongPress={300}
 									accessibilityRole="button"
+									accessibilityHint={reactorsHint}
 									accessibilityState={{ selected: r.mine }}
 									className={`flex-row items-center gap-1 rounded-full border px-2 py-0.5 ${r.mine ? "bg-primary/15 border-primary/40" : "bg-card border-border"}`}
 								>

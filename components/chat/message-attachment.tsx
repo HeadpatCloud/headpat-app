@@ -3,6 +3,7 @@ import * as WebBrowser from "expo-web-browser";
 import { memo } from "react";
 import { Pressable, View } from "react-native";
 import { ChatMedia } from "@/components/chat/chat-media";
+import { VoicePlayer } from "@/components/chat/voice-player";
 import { FileIcon } from "@/components/icons";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,9 +25,12 @@ const open = (url: string) => {
 export const MessageAttachment = memo(function MessageAttachment({
 	attachmentKey,
 	onLongPress,
+	voice,
 }: {
 	attachmentKey: string;
 	onLongPress?: () => void;
+	/** A voice message: loads as a player-sized placeholder. */
+	voice?: boolean;
 }) {
 	const { t } = useI18n();
 	const q = useQuery({
@@ -36,10 +40,26 @@ export const MessageAttachment = memo(function MessageAttachment({
 		// Presigned URLs last a few minutes; refetch just before they lapse.
 		staleTime: 4 * 60_000,
 	});
-	if (q.isPending) return <Skeleton className="h-32 w-48 rounded-2xl" />;
+	if (q.isPending)
+		return voice ? (
+			<Skeleton className="h-12 w-72 max-w-full rounded-2xl" />
+		) : (
+			<Skeleton className="h-32 w-48 rounded-2xl" />
+		);
 	if (!q.data) return null;
-	const { url, mimeType, sizeBytes, posterUrl } = q.data;
+	const { url, mimeType, sizeBytes, posterUrl, durationMs, waveform } = q.data;
 	const mime = mimeType ?? "";
+
+	if (mime.startsWith("audio/")) {
+		return (
+			<VoicePlayer
+				uri={url}
+				durationMs={durationMs}
+				waveform={waveform}
+				onLongPress={onLongPress}
+			/>
+		);
+	}
 
 	if (mime.startsWith("image/") || mime.startsWith("video/")) {
 		return (

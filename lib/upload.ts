@@ -75,3 +75,24 @@ export async function uploadBioImage(
 	});
 	return publicPath;
 }
+
+/**
+ * Upload a recorded voice note into a conversation. The API converts it to
+ * AAC and measures its length and waveform; the returned key then goes into a
+ * "voice" message.
+ */
+export async function uploadVoiceNote(
+	scopeId: string,
+	uri: string,
+): Promise<string> {
+	const fileId = newFileId();
+	const contentType = "audio/mp4";
+	const { uploadUrl, key } = await client.storage.attachmentUploadInit({
+		scopeId,
+		fileId,
+		contentType,
+	});
+	await putBinary(uploadUrl, uri, contentType);
+	await client.storage.attachmentFinalize({ scopeId, fileId, voice: true });
+	return key;
+}

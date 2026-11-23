@@ -13,10 +13,13 @@ import { ActivityIndicator, Alert, Pressable, View } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Composer } from "@/components/chat/composer";
+import { EmojiPickerSheet } from "@/components/chat/emoji-picker-sheet";
 import { MessageRow, type MessageRowData } from "@/components/chat/message-row";
+import { ReactorsSheet } from "@/components/chat/reactors-sheet";
 import { ServerTile } from "@/components/chat/server-tile";
+import type { VoiceTake } from "@/components/chat/voice-recorder-bar";
 import { EmptyState } from "@/components/empty-state";
-import { Hash, Pencil, Trash2 } from "@/components/icons";
+import { Hash, Pencil, SmilePlus, Trash2, Users } from "@/components/icons";
 import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
@@ -32,6 +35,7 @@ import { orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
 import { channelTypingKey, useRealtime, useTypingUsers } from "@/lib/realtime";
 import { useTheme } from "@/lib/theme/provider";
+import { uploadVoiceNote } from "@/lib/upload";
 
 const QUICK_REACTIONS = ["❤️", "👍", "😂", "😮", "😢", "🐾"];
 const GROUP_WINDOW_MS = 5 * 60_000;
@@ -56,7 +60,13 @@ export default function ChannelScreen() {
 	const { sendChannelTyping } = useRealtime();
 	const typers = useTypingUsers(channelTypingKey(channelId));
 	const sheet = useRef<BottomSheetModal>(null);
+	const emojiSheet = useRef<BottomSheetModal>(null);
+	const reactorsSheet = useRef<BottomSheetModal>(null);
 	const [selected, setSelected] = useState<ChannelMessage | null>(null);
+	const [reactors, setReactors] = useState<{
+		messageId: string;
+		emoji: string | null;
+	} | null>(null);
 	const [editing, setEditing] = useState<ChannelMessage | null>(null);
 
 	const channel = useQuery(
@@ -255,6 +265,33 @@ export default function ChannelScreen() {
 		},
 		[editing, edit.mutate, send.mutate],
 	);
+	const onSendVoice = useCallback(
+		async (take: VoiceTake) => {
+			const key = await uploadVoiceNote(channelId, take.uri);
+			await orpc.channel.send.call({
+				channelId,
+				messageType: "voice",
+				attachments: [key],
+			});
+			refresh();
+		},
+		[channelId, refresh],
+	);
+	const onShowReactors = useCallback(
+		(messageId: string, emoji: string | null) => {
+			setReactors({ messageId, emoji });
+			reactorsSheet.current?.present();
+		},
+		[],
+	);
+	const onPickEmoji = useCallback(
+		(emoji: string) => {
+			const m = selected;
+			emojiSheet.current?.dismiss();
+			if (m) onReact(m.id, emoji);
+		},
+		[selected, onReact],
+	);
 	const onTyping = useCallback(
 		() => sendChannelTyping(channelId),
 		[sendChannelTyping, channelId],
@@ -276,6 +313,7 @@ export default function ChannelScreen() {
 		channel: channel.data?.name ?? t("chat.channelFallback"),
 	});
 	const editedLabel = t("chat.edited");
+	const reactorsHint = t("chat.reactorsHint");
 	const mine = selected?.senderId === meId;
 
 	const pick = (fn: (m: ChannelMessage) => void) => {
@@ -337,8 +375,10 @@ export default function ChannelScreen() {
 							{...item}
 							locale={locale}
 							editedLabel={editedLabel}
+							reactorsHint={reactorsHint}
 							onReact={onReact}
 							onLongPress={onLongPress}
+							onShowReactors={onShowReactors}
 						/>
 					)}
 					// Start at the newest message, stay pinned to the bottom as
@@ -378,6 +418,7 @@ export default function ChannelScreen() {
 					placeholder={placeholder}
 					editing={editing ? editing.body : null}
 					onSend={onSend}
+					onSendVoice={onSendVoice}
 					onCancelEdit={onCancelEdit}
 					onTyping={onTyping}
 				/>
@@ -392,13 +433,37 @@ export default function ChannelScreen() {
 								onPress={() => pick((m) => onReact(m.id, emoji))}
 								accessibilityRole="button"
 								accessibilityLabel={`${t("chat.addReaction")} ${emoji}`}
-								className="bg-muted active:opacity-70 h-12 w-12 items-center justify-center rounded-2xl"
+								className="bg-muted active:opacity-70 h-11 w-11 items-center justify-center rounded-2xl"
 							>
 								<Text className="text-2xl">{emoji}</Text>
 							</Pressable>
 						))}
+						<Pressable
+							onPress={() => {
+								// Keep the message selected for the picker.
+								sheet.current?.dismiss();
+								emojiSheet.current?.present();
+							}}
+							accessibilityRole="button"
+							accessibilityLabel={t("chat.moreEmoji")}
+							className="bg-muted active:opacity-70 h-11 w-11 items-center justify-center rounded-2xl"
+						>
+							<Icon as={SmilePlus} size={22} className="text-foreground" />
+						</Pressable>
 					</View>
-					{mine && selected?.messageType !== "gif" ? (
+					{selected?.reactions.length ? (
+						<Pressable
+							onPress={() => pick((m) => onShowReactors(m.id, null))}
+							accessibilityRole="button"
+							className="active:bg-muted flex-row items-center gap-3 rounded-2xl px-2 py-3.5"
+						>
+							<Icon as={Users} size={18} className="text-foreground" />
+							<Text className="font-semibold">{t("chat.reactionsTitle")}</Text>
+						</Pressable>
+					) : null}
+					{mine &&
+					selected?.messageType !== "gif" &&
+					selected?.messageType !== "voice" ? (
 						<Pressable
 							onPress={() => pick((m) => setEditing(m))}
 							accessibilityRole="button"
@@ -437,6 +502,13 @@ export default function ChannelScreen() {
 					) : null}
 				</View>
 			</Sheet>
+			<EmojiPickerSheet ref={emojiSheet} onSelect={onPickEmoji} />
+			<ReactorsSheet
+				ref={reactorsSheet}
+				messageId={reactors?.messageId ?? null}
+				emoji={reactors?.emoji ?? null}
+				onOpenProfile={() => reactorsSheet.current?.dismiss()}
+			/>
 		</KeyboardAvoidingView>
 	);
 }

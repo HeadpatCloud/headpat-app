@@ -15,7 +15,7 @@ import { Text } from "@/components/ui/text";
 import { useReducedMotion } from "@/lib/motion/reduced-motion";
 import { durations, springs } from "@/lib/motion/springs";
 
-function SheetBackground({ style }: BottomSheetBackgroundProps) {
+export function SheetBackground({ style }: BottomSheetBackgroundProps) {
 	return (
 		<View
 			style={style}
@@ -24,7 +24,7 @@ function SheetBackground({ style }: BottomSheetBackgroundProps) {
 	);
 }
 
-function SheetHandle() {
+export function SheetHandle() {
 	return (
 		<View className="items-center py-3">
 			<View className="bg-muted-foreground/30 h-1 w-10 rounded-full" />
@@ -32,7 +32,7 @@ function SheetHandle() {
 	);
 }
 
-function Backdrop(props: BottomSheetBackdropProps) {
+export function SheetBackdrop(props: BottomSheetBackdropProps) {
 	return (
 		<BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} />
 	);
@@ -63,7 +63,7 @@ export const Sheet = forwardRef<
 			animationConfigs={reduced ? timing : spring}
 			backgroundComponent={SheetBackground}
 			handleComponent={SheetHandle}
-			backdropComponent={Backdrop}
+			backdropComponent={SheetBackdrop}
 		>
 			<BottomSheetView
 				style={{ paddingBottom: insets.bottom + 16, paddingHorizontal: 16 }}
