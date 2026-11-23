@@ -56,17 +56,21 @@ function Tile({
 	size,
 	status,
 	distance,
+	adult,
 }: {
 	p: NearbyPerson;
 	size: number;
 	status: string;
 	distance: string | null;
+	// 18+ grid: picture stays blurred, and tapping opens the 18+ profile
+	adult: boolean;
 }) {
 	const name = p.displayName || p.name || p.profileUrl || "?";
 	return (
 		<Pressable
 			onPress={() => {
-				if (p.profileUrl) router.push(`/user/${p.profileUrl}` as never);
+				if (adult) router.push(`/discovery/adult-profile/${p.userId}` as never);
+				else if (p.profileUrl) router.push(`/user/${p.profileUrl}` as never);
 			}}
 			accessibilityRole="button"
 			accessibilityLabel={distance ? `${name}, ${distance}` : name}
@@ -79,6 +83,7 @@ function Tile({
 					fileId={p.avatarFileId}
 					variant="md"
 					transition={0}
+					blurRadius={adult ? 30 : undefined}
 					style={{ width: size, height: size }}
 				/>
 			) : (
@@ -338,6 +343,7 @@ export default function NearbyGrid() {
 							size={tile}
 							status={statusOf(item.userId)}
 							distance={distanceLabel(item)}
+							adult={mode === "adult"}
 						/>
 					</View>
 				)}
