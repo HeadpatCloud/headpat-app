@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { KeyboardAwareScrollView } from "@/components/ui/keyboard-aware-scroll-view";
 import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
-import { setBlurAdult, useBlurAdult } from "@/lib/blur-adult";
+import { useBlurAdult, useSetBlurAdult } from "@/lib/blur-adult";
 import { useI18n } from "@/lib/i18n/provider";
 import { client, orpc } from "@/lib/orpc";
 import { humanizeError } from "@/lib/orpc-error";
@@ -42,6 +42,7 @@ export default function AdultProfileScreen() {
 	const [busy, setBusy] = useState(false);
 	const [uploading, setUploading] = useState(false);
 	const blurAdult = useBlurAdult();
+	const setBlurAdult = useSetBlurAdult();
 
 	useEffect(() => {
 		const a = mine.data;

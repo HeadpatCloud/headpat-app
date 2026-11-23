@@ -38,7 +38,7 @@ import { Text } from "@/components/ui/text";
 import { Toggle } from "@/components/ui/toggle";
 import { AGE_DOB_KEY } from "@/lib/age-gate";
 import { useSession } from "@/lib/auth-client";
-import { setBlurAdult, useBlurAdult } from "@/lib/blur-adult";
+import { useBlurAdult, useSetBlurAdult } from "@/lib/blur-adult";
 import { kvGet } from "@/lib/db/kv";
 import { useI18n } from "@/lib/i18n/provider";
 import { AnimatedEntrance } from "@/lib/motion/animated-entrance";
@@ -69,6 +69,7 @@ export default function ProfileEdit() {
 		enabled: !!session,
 	});
 	const blurAdult = useBlurAdult();
+	const setBlurAdult = useSetBlurAdult();
 	const discovery = useQuery({
 		...orpc.discovery.mine.queryOptions({ input: {} }),
 		enabled: !!session,

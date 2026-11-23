@@ -1,29 +1,33 @@
-import { useSyncExternalStore } from "react";
-import { kvGet, kvSet } from "@/lib/db/kv";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Alert } from "react-native";
+import { useSession } from "@/lib/auth-client";
+import { client, orpc } from "@/lib/orpc";
+import { humanizeError } from "@/lib/orpc-error";
 
-// Per-device "blur 18+ pictures" switch, on unless turned off. Like the
-// show-NSFW switch it stays on this device.
-const KEY = "hp-blur-adult";
-const listeners = new Set<() => void>();
-
-function read(): boolean {
-	return kvGet(KEY) !== "false";
-}
-
-export function setBlurAdult(on: boolean): void {
-	kvSet(KEY, on ? "true" : "false");
-	for (const l of listeners) l();
-}
-
+// "Blur 18+ pictures" follows the account, on unless turned off. Signed-out
+// people never see 18+ content, so they just get the default.
 export function useBlurAdult(): boolean {
-	return useSyncExternalStore(
-		(cb) => {
-			listeners.add(cb);
-			return () => {
-				listeners.delete(cb);
-			};
-		},
-		read,
-		read,
-	);
+	const { data: session } = useSession();
+	const mine = useQuery({
+		...orpc.discovery.mine.queryOptions({ input: {} }),
+		enabled: !!session,
+	});
+	return mine.data?.blurAdult ?? true;
+}
+
+export function useSetBlurAdult() {
+	const qc = useQueryClient();
+	const key = orpc.discovery.mine.queryKey({ input: {} });
+	return async (blurAdult: boolean) => {
+		type Mine = Awaited<ReturnType<typeof client.discovery.mine>>;
+		const before = qc.getQueryData<Mine>(key);
+		// flip right away; the switch shouldn't wait for the round trip
+		if (before) qc.setQueryData<Mine>(key, { ...before, blurAdult });
+		try {
+			await client.discovery.setBlurAdult({ blurAdult });
+		} catch (e) {
+			if (before) qc.setQueryData<Mine>(key, before);
+			Alert.alert("", humanizeError(e));
+		}
+	};
 }

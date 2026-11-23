@@ -1204,7 +1204,7 @@
 		"adultBadge": "18+-profiel",
 		"adultUnavailable": "Dit profiel is niet beschikbaar.",
 		"blurAdult": "18+-afbeeldingen vervagen",
-		"blurAdultHint": "Op dit apparaat blijven 18+-afbeeldingen vervaagd tot je ze opent.",
+		"blurAdultHint": "18+-afbeeldingen blijven vervaagd tot je ze opent. Geldt op al je apparaten.",
 		"showPhoto": "Foto tonen",
 		"close": "Sluiten",
 		"adultNotAllowed": "Voor het 18+-profiel heb je een geboortedatum nodig waaruit blijkt dat je 18 of ouder bent, en NSFW aan in je profielinstellingen."

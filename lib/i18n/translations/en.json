@@ -1204,7 +1204,7 @@
 		"adultBadge": "18+ profile",
 		"adultUnavailable": "This profile isn't available.",
 		"blurAdult": "Blur 18+ pictures",
-		"blurAdultHint": "On this device, 18+ pictures stay blurred until you open them.",
+		"blurAdultHint": "18+ pictures stay blurred until you open them. Applies on all your devices.",
 		"showPhoto": "Show photo",
 		"close": "Close",
 		"adultNotAllowed": "The 18+ profile needs a date of birth showing you are 18 or over and NSFW switched on in your profile settings."
