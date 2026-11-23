@@ -29,6 +29,9 @@ function RefSheet({ fileId }: { fileId: string }) {
 	const insets = useSafeAreaInsets();
 	const { width, height } = useWindowDimensions();
 	const [open, setOpen] = useState(false);
+	// Show the whole sheet at its own shape (wide, tall or square) instead of
+	// cropping it into a fixed strip; 16:9 until the real size is known.
+	const [ratio, setRatio] = useState(16 / 9);
 	return (
 		<>
 			<Pressable
@@ -40,8 +43,13 @@ function RefSheet({ fileId }: { fileId: string }) {
 				<StorageImage
 					kind="gallery"
 					fileId={fileId}
-					variant="640"
-					style={{ width: "100%", height: 160 }}
+					variant="1280"
+					contentFit="contain"
+					style={{ width: "100%", aspectRatio: ratio, maxHeight: 420 }}
+					onLoad={(e) => {
+						const { width: w, height: h } = e.source;
+						if (w > 0 && h > 0) setRatio(w / h);
+					}}
 				/>
 			</Pressable>
 			<Modal

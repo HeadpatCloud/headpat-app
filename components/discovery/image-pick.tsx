@@ -54,6 +54,7 @@ export function ImagePick({
 							kind={kind}
 							fileId={fileId}
 							variant={kind === "avatar" ? "sm" : "320"}
+							contentFit={square ? "cover" : "contain"}
 							style={
 								square ? { width: 64, height: 64 } : { width: 112, height: 64 }
 							}
