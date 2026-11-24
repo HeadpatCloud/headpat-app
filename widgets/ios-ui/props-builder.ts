@@ -49,10 +49,10 @@ function eventProps(
 			...base,
 			label: wt("event.label"),
 			url: "headpat://events",
-			title: null,
+			title: "",
 			time: "",
-			where: null,
-			community: null,
+			where: "",
+			community: "",
 		};
 	}
 	return {
@@ -63,8 +63,8 @@ function eventProps(
 		time: formatEventTime(ev.startsAt, at),
 		where:
 			ev.locationText ??
-			(ev.locationZoneMethod === "virtual" ? wt("event.online") : null),
-		community: ev.communityName ?? null,
+			(ev.locationZoneMethod === "virtual" ? wt("event.online") : ""),
+		community: ev.communityName ?? "",
 	};
 }
 

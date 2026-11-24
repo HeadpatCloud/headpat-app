@@ -68,13 +68,13 @@ describe("eventTimeline", () => {
 			entries.find((e) => e.date.getTime() === event.startsAt)?.props.time,
 		).toBe("now");
 		// After the end the widget falls back to its empty state.
-		expect(entries.at(-1)?.props.title).toBeNull();
+		expect(entries.at(-1)?.props.title).toBe("");
 	});
 
 	it("shows the empty state with no event", () => {
 		const entries = eventTimeline(snapshot({}), DEFAULT_WIDGET_SETTINGS, now);
 		expect(entries).toHaveLength(1);
-		expect(entries[0].props.title).toBeNull();
+		expect(entries[0].props.title).toBe("");
 		expect(entries[0].props.url).toBe("headpat://events");
 	});
 });
@@ -114,5 +114,60 @@ describe("chatsProps", () => {
 		);
 		expect(p.signedIn).toBe(false);
 		expect(p.url).toBe("headpat://login");
+	});
+});
+
+// Widget props go into UserDefaults, which throws on null (NSNull is not a
+// property list value). At launch that kept the iOS app on its splash screen.
+function nullPaths(value: unknown, path = "props"): string[] {
+	if (value === null || value === undefined) return [path];
+	if (Array.isArray(value))
+		return value.flatMap((v, i) => nullPaths(v, `${path}[${i}]`));
+	if (typeof value === "object")
+		return Object.entries(value).flatMap(([k, v]) =>
+			nullPaths(v, `${path}.${k}`),
+		);
+	return [];
+}
+
+describe("property list safety", () => {
+	it("never puts null in event props, with or without an event", () => {
+		const bare = { ...event, endsAt: null, communityName: null };
+		for (const nextEvent of [null, event, bare]) {
+			const entries = eventTimeline(
+				snapshot({ nextEvent }),
+				DEFAULT_WIDGET_SETTINGS,
+				now,
+			);
+			for (const e of entries) expect(nullPaths(e.props)).toEqual([]);
+		}
+	});
+
+	it("never puts null in chats props", () => {
+		const chats = {
+			conversations: 1,
+			messages: 1,
+			items: [
+				{
+					id: "c1",
+					title: null,
+					unread: 1,
+					lastMessageAt: now,
+					preview: { sender: null, text: null, kind: "image" },
+				},
+			],
+		};
+		for (const showPreviews of [false, true]) {
+			const p = chatsProps(snapshot({ chats }), {
+				...DEFAULT_WIDGET_SETTINGS,
+				chats: { showPreviews },
+			});
+			expect(nullPaths(p)).toEqual([]);
+		}
+		expect(
+			nullPaths(
+				chatsProps(snapshot({ signedIn: false }), DEFAULT_WIDGET_SETTINGS),
+			),
+		).toEqual([]);
 	});
 });

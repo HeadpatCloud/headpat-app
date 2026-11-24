@@ -17,15 +17,20 @@ export interface IosColors {
 	dark: IosPalette;
 }
 
+// Props are stored in the App Group's UserDefaults, which only takes property
+// list values: a null anywhere throws in native code, and at launch that stops
+// the app from starting. Absent text is an empty string instead.
 export interface NextEventWidgetProps {
 	colors: IosColors;
 	label: string;
 	url: string;
-	/** null shows the empty state. */
-	title: string | null;
+	/** Empty shows the empty state. */
+	title: string;
 	time: string;
-	where: string | null;
-	community: string | null;
+	/** Empty hides the line. */
+	where: string;
+	/** Empty hides the line. */
+	community: string;
 	emptyTitle: string;
 	emptyHint: string;
 }
