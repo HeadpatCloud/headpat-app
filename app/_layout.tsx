@@ -26,6 +26,7 @@ import { MotionProvider, useReducedMotion } from "@/lib/motion/reduced-motion";
 import { useStackScreenOptions } from "@/lib/navigation/stack-options";
 import { AppProviders } from "@/lib/providers";
 import { RealtimeProvider } from "@/lib/realtime";
+import { reportError } from "@/lib/sentry";
 import { FONT_ASSETS } from "@/lib/theme/fonts";
 import { ThemeProvider } from "@/lib/theme/provider";
 import { ThemeRevealProvider } from "@/lib/theme/theme-reveal";
@@ -44,6 +45,10 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 	useEffect(() => {
 		SplashScreen.hideAsync().catch(() => {});
 	}, []);
+	// Errors caught here never reach the global handler, so report them.
+	useEffect(() => {
+		reportError(props.error, "root-error-boundary");
+	}, [props.error]);
 	return <RouterErrorBoundary {...props} />;
 }
 

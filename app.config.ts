@@ -107,6 +107,16 @@ const buildConfig = ({ config }: ConfigContext): ExpoConfig => ({
 					"Headpat uses the microphone so you can record voice messages in chat.",
 			},
 		],
+		[
+			"@sentry/react-native/expo",
+			{
+				url: "https://sentry.headpat.space/",
+				// Readable stack traces need source maps and debug symbols uploaded,
+				// which needs SENTRY_AUTH_TOKEN, SENTRY_ORG and SENTRY_PROJECT on the
+				// build. Without a token the upload is skipped instead of failing.
+				disableAutoUpload: !process.env.SENTRY_AUTH_TOKEN,
+			},
+		],
 		"@react-native-firebase/app",
 		"@react-native-firebase/messaging",
 		[

@@ -1,4 +1,5 @@
 import { readWidgetSnapshot, refreshWidgetSnapshot } from "@/widgets/data";
+import { reportError } from "@/lib/sentry";
 import { chatsProps, eventTimeline } from "@/widgets/ios-ui/props-builder";
 import { readWidgetSettings } from "@/widgets/settings";
 
@@ -28,6 +29,7 @@ function widgets(): IosWidgets | null {
 		};
 	} catch (e) {
 		console.warn("[widgets] could not load the iOS widgets", e);
+		reportError(e, "ios-widgets-load");
 		loaded = null;
 	}
 	return loaded;
